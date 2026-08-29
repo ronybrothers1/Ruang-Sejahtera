@@ -1,11 +1,18 @@
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, FileCheck2, HeartHandshake, MapPinned, ShieldCheck } from 'lucide-react';
+import { ArrowRight, CheckCircle2, FileCheck2, HeartHandshake, Images, MapPinned, Newspaper, ShieldCheck, UsersRound } from 'lucide-react';
 import { BrandLogo } from '@/components/BrandLogo';
 import { EmptyState } from '@/components/EmptyState';
 import { SectionHeading } from '@/components/SectionHeading';
 import { programs, trustPrinciples } from '@/lib/content';
 
 export default function Home() {
+  const traceFlow = [
+    ['01', 'Program', 'Tujuan dan ruang lingkup bantuan dijelaskan terlebih dahulu.'],
+    ['02', 'Kegiatan', 'Pelaksanaan dicatat dengan waktu, lokasi, program, dan dokumentasi.'],
+    ['03', 'Dampak', 'Hasil dirangkum hanya dari metrik yang memiliki definisi dan sumber.'],
+    ['04', 'Laporan', 'Pendanaan dan dokumen publik dihubungkan ke konteks programnya.'],
+  ];
+
   return (
     <div className="pt-20">
       <section className="relative overflow-hidden bg-brand-black text-white">
@@ -49,19 +56,43 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-neutral-50 py-20 md:py-28">
+      <section className="border-y border-neutral-200 bg-neutral-50 py-16 md:py-20">
+        <div className="shell">
+          <SectionHeading eyebrow="Jejak Akuntabilitas" title="Dari program sampai laporan, konteksnya tidak terputus." description="Arsitektur V2 dirancang agar kegiatan sosial tidak berhenti sebagai unggahan foto. Setiap lapisan dapat ditelusuri kembali ke konteks sebelumnya." />
+          <ol className="grid gap-px overflow-hidden border border-neutral-200 bg-neutral-200 md:grid-cols-2 lg:grid-cols-4">
+            {traceFlow.map(([number, title, description]) => <li key={number} className="bg-white p-6"><span className="font-heading text-3xl font-extrabold text-red-200">{number}</span><h3 className="mt-6 font-heading text-xl font-extrabold">{title}</h3><p className="mt-3 text-sm leading-7 text-neutral-600">{description}</p></li>)}
+          </ol>
+        </div>
+      </section>
+
+      <section className="py-20 md:py-28">
         <div className="shell">
           <SectionHeading eyebrow="Kegiatan" title="Bukti kerja ditempatkan sebelum klaim" description="Kegiatan terbaru akan ditampilkan berdasarkan data resmi yang telah melalui proses editorial. Sistem tidak mengisi kegiatan, foto, tanggal, atau penerima manfaat secara otomatis." />
           <EmptyState title="Belum ada kegiatan yang dipublikasikan di sistem V2" description="Setelah data kegiatan resmi dimigrasikan melalui CMS, bagian ini akan menampilkan tanggal, lokasi, program, ringkasan, serta dokumentasi yang memiliki status publikasi dan persetujuan yang sesuai." action={<Link href="/kegiatan" className="button-secondary">Buka Arsip Kegiatan</Link>} />
         </div>
       </section>
 
+      <section className="bg-neutral-50 py-20 md:py-28">
+        <div className="shell">
+          <SectionHeading eyebrow="Publikasi" title="Berita dan dokumentasi dipisahkan, tetapi saling terhubung." description="Berita memberi konteks. Galeri memberi bukti visual. Keduanya akan mengambil data yang telah dipublikasikan melalui CMS, bukan materi stok untuk mengisi layout." />
+          <div className="grid gap-5 lg:grid-cols-2">
+            <article className="border border-neutral-200 bg-white p-7 md:p-9"><Newspaper className="text-brand-red" aria-hidden="true" /><h3 className="mt-6 font-heading text-2xl font-extrabold">Berita & cerita</h3><p className="mt-4 leading-7 text-neutral-600">Berita kegiatan, cerita penerima manfaat yang patut dipublikasikan, pengumuman, dan artikel sosial akan melalui proses editorial manusia.</p><Link href="/berita" className="button-secondary mt-7">Buka Berita <ArrowRight size={17} /></Link></article>
+            <article className="border border-brand-black bg-brand-black p-7 text-white md:p-9"><Images className="text-red-300" aria-hidden="true" /><h3 className="mt-6 font-heading text-2xl font-extrabold">Galeri dokumentasi</h3><p className="mt-4 leading-7 text-neutral-300">Foto dan video asli akan dilengkapi konteks kegiatan, alt text, caption, serta pengaturan consent atau restriction bila diperlukan.</p><Link href="/galeri" className="button-secondary mt-7 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">Buka Galeri <ArrowRight size={17} /></Link></article>
+          </div>
+        </div>
+      </section>
+
       <section className="py-20 md:py-28">
         <div className="shell grid gap-14 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
           <div><p className="eyebrow">Dampak</p><h2 className="section-title">Angka tidak boleh lebih cepat daripada bukti.</h2><p className="section-description">Dashboard dampak V2 hanya akan menampilkan angka setelah sumber data, periode, dan metodologinya tersedia. Tidak ada angka penerima manfaat, kegiatan, wilayah, atau donatur yang dibuat untuk mengisi tampilan.</p><Link href="/dampak" className="button-primary mt-7">Metodologi Dampak <ArrowRight size={17} /></Link></div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {['Penerima manfaat', 'Kegiatan sosial', 'Wilayah terjangkau', 'Donatur'].map((label) => <div key={label} className="stat-placeholder"><p className="text-sm font-bold text-neutral-500">{label}</p><p className="mt-5 font-heading text-2xl font-extrabold text-brand-ink">Belum dipublikasikan</p><p className="mt-2 text-xs leading-5 text-neutral-500">Menunggu sumber data resmi.</p></div>)}
-          </div>
+          <div className="grid gap-4 sm:grid-cols-2">{['Penerima manfaat', 'Kegiatan sosial', 'Wilayah terjangkau', 'Donatur'].map((label) => <div key={label} className="stat-placeholder"><p className="text-sm font-bold text-neutral-500">{label}</p><p className="mt-5 font-heading text-2xl font-extrabold text-brand-ink">Belum dipublikasikan</p><p className="mt-2 text-xs leading-5 text-neutral-500">Menunggu sumber data resmi.</p></div>)}</div>
+        </div>
+      </section>
+
+      <section className="border-y border-neutral-200 bg-white py-20 md:py-24">
+        <div className="shell grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div><p className="eyebrow">Kredibilitas</p><h2 className="section-title max-w-3xl">Siapa yang bertanggung jawab harus mudah ditemukan.</h2><p className="section-description">Struktur organisasi, legalitas, dan kanal kontak mempunyai ruang khusus. Jika datanya belum resmi untuk publikasi, website menyatakan itu secara terbuka.</p></div>
+          <div className="flex flex-wrap gap-3"><Link href="/organisasi" className="button-secondary"><UsersRound size={17} />Organisasi</Link><Link href="/tentang-kami/legalitas" className="button-secondary">Legalitas</Link><Link href="/kontak" className="button-primary">Kontak Resmi</Link></div>
         </div>
       </section>
 
