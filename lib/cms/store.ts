@@ -18,6 +18,7 @@ export function getCmsWriteStatus() {
   };
 }
 
-export async function persistCmsMutation(_mutation: CmsMutation): Promise<never> {
+export async function persistCmsMutation(mutation: CmsMutation): Promise<never> {
+  void mutation;
   throw new Error('CMS_WRITE_BACKEND_UNAVAILABLE');
 }
