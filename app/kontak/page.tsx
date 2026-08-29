@@ -1,6 +1,16 @@
 import type { Metadata } from 'next';
-import { Mail, MapPin, Phone } from 'lucide-react';
+import { Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import { PageHero } from '@/components/PageHero';
-import { siteConfig } from '@/lib/site';
-export const metadata: Metadata = { title: 'Kontak', description: 'Kanal kontak resmi Yayasan Ruang Sejahtera.' };
-export default function ContactPage() { const data = [{ label: 'Alamat', value: siteConfig.contact.address, icon: MapPin }, { label: 'WhatsApp', value: siteConfig.contact.whatsapp, icon: Phone }, { label: 'Email', value: siteConfig.contact.email, icon: Mail }]; return <><PageHero eyebrow="Kontak" title="Satu pintu untuk komunikasi resmi." description="Informasi kontak tidak diisi dengan alamat, nomor, email, atau lokasi fiktif. Data akan tampil setelah dikonfigurasi dari sumber resmi yayasan." /><section className="py-18 md:py-24"><div className="shell grid gap-4 md:grid-cols-3">{data.map(({ label, value, icon: Icon }) => <div key={label} className="border border-neutral-200 p-6"><Icon className="text-brand-red" /><h2 className="mt-5 font-bold">{label}</h2><p className="mt-2 text-sm leading-6 text-neutral-600">{value || 'Belum dipublikasikan'}</p></div>)}</div></section><section className="bg-neutral-50 py-18"><div className="shell"><div className="max-w-2xl"><h2 className="font-heading text-2xl font-extrabold">Formulir kontak</h2><p className="mt-4 leading-7 text-neutral-600">Formulir akan diaktifkan setelah endpoint tujuan, proteksi spam, validasi server, kebijakan retensi, dan alamat email resmi tersedia. V2 tidak membuat formulir yang terlihat aktif tetapi tidak memiliki tujuan pengiriman.</p></div></div></section></>; }
+
+export const metadata: Metadata = { title: 'Kontak', description: 'Kanal kontak Yayasan Ruang Sejahtera.' };
+
+export default function ContactPage() {
+  const items = [[MapPin,'Alamat kantor','Jl. Kebaikan No. 10, Kabupaten Sampang, Jawa Timur'],[Phone,'WhatsApp','+62 812-0000-2026'],[Mail,'Email','halo@ruangsejahtera.org']] as const;
+  return (
+    <>
+      <PageHero eyebrow="Kontak" title="Mari bicara, berkolaborasi, dan bergerak bersama." description="Seluruh alamat, nomor, dan email pada halaman ini adalah contoh draft. Kanal resmi akan menggantikannya sebelum website digunakan sebagai sumber kontak publik." />
+      <div className="sample-note"><strong>KONTAK CONTOH</strong><span>Jangan gunakan alamat, nomor, atau email pada halaman ini untuk komunikasi nyata.</span></div>
+      <section className="section-pad bg-[#f4f4f2]"><div className="shell contact-layout-v3"><div className="contact-info-v3"><span className="eyebrow-v3">Hubungi kami</span><h2 className="display-h2">Satu pintu untuk pertanyaan dan kolaborasi.</h2><p>Struktur ini disiapkan untuk pertanyaan program, kemitraan, relawan, media, dan dukungan publik.</p><div className="contact-items-v3">{items.map(([Icon,label,value])=><div key={label}><Icon size={20}/><span><small>{label} · CONTOH</small><strong>{value}</strong></span></div>)}</div></div><form className="contact-form-v3"><div className="form-grid"><label className="field-label">Nama<input type="text" placeholder="Nama lengkap" /></label><label className="field-label">Email<input type="email" placeholder="nama@email.com" /></label></div><label className="field-label">Topik<select defaultValue="program"><option value="program">Informasi program</option><option value="mitra">Kemitraan</option><option value="relawan">Relawan</option><option value="media">Media</option></select></label><label className="field-label">Pesan<textarea rows={6} placeholder="Tulis pesan Anda..." /></label><button type="button" disabled className="donation-disabled"><MessageCircle size={17}/> Kirim Pesan · SIMULASI</button><small>Form ini belum mengirim data. Endpoint kontak resmi akan diaktifkan pada fase produksi.</small></form></div></section>
+    </>
+  );
+}

@@ -1,6 +1,17 @@
 import type { Metadata } from 'next';
-import { FileText, WalletCards } from 'lucide-react';
-import { EmptyState } from '@/components/EmptyState';
+import { Download, FileCheck2, Landmark, ReceiptText, WalletCards } from 'lucide-react';
 import { PageHero } from '@/components/PageHero';
+import { sampleFinance } from '@/lib/content';
+
 export const metadata: Metadata = { title: 'Transparansi', description: 'Laporan dan dokumen transparansi Yayasan Ruang Sejahtera.' };
-export default function TransparencyPage() { const cards = ['Total penerimaan', 'Total penyaluran', 'Operasional', 'Saldo/alokasi']; return <><PageHero eyebrow="Transparansi" title="Terbuka berarti data nyata, bukan dashboard yang terlihat meyakinkan." description="Seluruh angka simulasi dan status terverifikasi fiktif telah dihapus. V2 menunggu data resmi sebelum menampilkan nilai keuangan kepada publik." /><section className="py-18 md:py-24"><div className="shell"><div className="mb-10 flex items-center gap-3"><WalletCards className="text-brand-red" /><h2 className="font-heading text-2xl font-extrabold">Ringkasan keuangan</h2></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{cards.map((label) => <div key={label} className="stat-placeholder"><p className="text-sm font-bold text-neutral-500">{label}</p><p className="mt-5 font-heading text-xl font-extrabold">Belum dipublikasikan</p><p className="mt-2 text-xs leading-5 text-neutral-500">Tidak ada angka simulasi.</p></div>)}</div><div id="dokumen" className="mt-16 scroll-mt-28"><div className="mb-8 flex items-center gap-3"><FileText className="text-brand-red" /><h2 className="font-heading text-2xl font-extrabold">Dokumen publik</h2></div><EmptyState title="Belum tersedia laporan publik" description="Ketika dokumen resmi diunggah, setiap item akan menampilkan periode, tanggal publikasi, jenis laporan, status, dan tautan berkas. Tombol unduh tidak ditampilkan sebelum dokumen benar-benar tersedia." /></div></div></section></>; }
+
+export default function TransparencyPage() {
+  const headline = [['Rp224,8 Jt','Total penerimaan'],['Rp186,5 Jt','Total penyaluran'],['Rp18,2 Jt','Operasional'],['Rp20,1 Jt','Saldo/alokasi']];
+  return (
+    <>
+      <PageHero eyebrow="Transparansi" title="Kepercayaan tumbuh ketika informasi mudah diperiksa." description="Dashboard ini sengaja diisi data contoh agar desain transparansi dapat dinilai secara utuh. Seluruh nominal, periode, dokumen, dan status akan diganti dengan laporan resmi." />
+      <div className="sample-note"><strong>SIMULASI LAPORAN</strong><span>Seluruh nominal dan dokumen pada halaman ini adalah contoh sementara.</span></div>
+      <section className="section-pad bg-[#f4f4f2]"><div className="shell"><div className="transparency-metrics">{headline.map(([value,label],index)=>{const icons=[WalletCards,Landmark,ReceiptText,FileCheck2];const Icon=icons[index];return <article key={label}><Icon size={21}/><strong>{value}</strong><span>{label}</span><small>contoh sementara</small></article>})}</div><div className="transparency-dashboard"><div className="finance-panel light-panel"><div className="finance-head"><div><span>Komposisi Penyaluran</span><small>Periode contoh 2026</small></div><strong>Rp186,5 Juta</strong></div><div className="finance-content"><div className="donut light-donut"><div><b>100%</b><span>contoh</span></div></div><div className="finance-list">{sampleFinance.map(item=><div key={item.label}><span className="finance-dot"/><strong>{item.label}</strong><em>{item.value}%</em><small>{item.amount}</small></div>)}</div></div></div><div className="report-panel"><h2>Dokumen publik</h2>{['Laporan Penyaluran Mei 2026','Ringkasan Program Triwulan II','Kebijakan Donasi & Pengembalian','Dokumen Tata Kelola Yayasan'].map((name,index)=><div className="report-row" key={name}><div><FileCheck2 size={18}/><span><strong>{name}</strong><small>Dokumen contoh · belum resmi</small></span></div><button type="button" disabled aria-label={`Unduh ${name} belum aktif`}><Download size={16}/></button></div>)}</div></div></div></section>
+    </>
+  );
+}
