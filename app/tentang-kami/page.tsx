@@ -1,0 +1,9 @@
+import type { Metadata } from 'next';
+import { PageHero } from '@/components/PageHero';
+
+export const metadata: Metadata = { title: 'Tentang Kami', description: 'Profil dan komitmen Yayasan Ruang Sejahtera.' };
+
+export default function AboutPage() {
+  const values = ['Kemanusiaan', 'Transparansi', 'Akuntabilitas', 'Dampak', 'Aksesibilitas'];
+  return <><PageHero eyebrow="Tentang Kami" title="Kerja sosial yang bertumpu pada manfaat dan kepercayaan." description="Yayasan Ruang Sejahtera hadir sebagai organisasi sosial/nonprofit yang menjalankan program kemanusiaan, pendidikan, bantuan kebutuhan dasar, respons bencana, perbaikan hunian, dan pemberdayaan sesuai kebutuhan masyarakat." /><section className="py-18 md:py-24"><div className="shell grid gap-12 lg:grid-cols-[1.1fr_.9fr]"><div><h2 className="section-title">Profil</h2><p className="section-description">Website V2 dirancang sebagai pusat informasi resmi, arsip kegiatan, dokumentasi, transparansi, dampak, organisasi, dan kanal dukungan. Informasi legalitas, sejarah, visi, misi, wilayah kerja, dan identitas pengurus hanya akan ditampilkan setelah data resmi dimasukkan melalui CMS.</p></div><div className="grid gap-3 sm:grid-cols-2">{values.map((value) => <div key={value} className="border border-neutral-200 p-5 font-bold">{value}</div>)}</div></div></section><section className="bg-neutral-50 py-18 md:py-24"><div className="shell"><h2 className="font-heading text-3xl font-extrabold">Informasi resmi yang belum tersedia</h2><div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">{['Visi & misi resmi', 'Sejarah yayasan', 'Data legalitas', 'Wilayah kerja', 'Struktur pengurus', 'Mitra resmi'].map((item) => <div key={item} className="border border-neutral-200 bg-white p-6"><p className="font-bold">{item}</p><p className="mt-2 text-sm leading-6 text-neutral-500">Belum dipublikasikan. Tidak diisi dengan data contoh.</p></div>)}</div></div></section></>;
+}

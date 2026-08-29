@@ -1,124 +1,95 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, ChevronDown, Heart } from 'lucide-react';
+import { ChevronDown, Heart, Menu, Search, X } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
-import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'motion/react';
-
-const NAV_LINKS = [
-  { name: 'Beranda', href: '/' },
-  { name: 'Tentang Kami', href: '/tentang-kami' },
-  { name: 'Program', href: '/program' },
-  { name: 'Kegiatan', href: '/kegiatan' },
-  { name: 'Dampak', href: '/dampak' },
-  { name: 'Transparansi', href: '/transparansi' },
-];
+import { navItems } from '@/lib/navigation';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobilePanelRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+    if (!isOpen) return () => { document.body.style.overflow = ''; };
+
+    const panel = mobilePanelRef.current;
+    const focusables = panel?.querySelectorAll<HTMLElement>('a[href], button:not([disabled])');
+    focusables?.[0]?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+        menuButtonRef.current?.focus();
+        return;
+      }
+      if (event.key !== 'Tab' || !focusables?.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isOpen]);
+
+  const closeMenu = () => setIsOpen(false);
+  const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
 
   return (
-    <header
-      className={cn(
-        'fixed top-0 w-full z-50 transition-all duration-300 border-b border-transparent',
-        scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm border-slate-100 py-3' : 'bg-white py-4'
-      )}
-    >
-      <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-        <BrandLogo />
+    <header className={`fixed inset-x-0 top-0 z-50 border-b transition ${scrolled ? 'border-neutral-200 bg-white/95 shadow-[0_6px_30px_rgba(0,0,0,.05)] backdrop-blur' : 'border-neutral-200/80 bg-white'}`}>
+      <div className="shell flex h-20 items-center justify-between gap-6">
+        <BrandLogo compact priority />
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
-          <ul className="flex items-center gap-6">
-            {NAV_LINKS.map((link) => (
-              <li key={link.name}>
-                <Link
-                  href={link.href}
-                  className={cn(
-                    'text-sm font-medium transition-colors hover:text-red-600',
-                    pathname === link.href ? 'text-red-600' : 'text-slate-600'
-                  )}
-                >
-                  {link.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-          
-          <Link
-            href="/donasi"
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-colors shadow-sm shadow-red-600/20"
-          >
-            <Heart size={16} className="fill-current" />
-            Donasi
-          </Link>
+        <nav className="hidden items-center gap-1 lg:flex" aria-label="Navigasi utama">
+          {navItems.map((item) => item.children ? (
+            <details key={item.name} className="nav-details group relative">
+              <summary className={`nav-link list-none ${isActive(item.href) ? 'nav-link-active' : ''}`}>
+                {item.name}<ChevronDown size={14} aria-hidden="true" />
+              </summary>
+              <div className="absolute left-0 top-[calc(100%+10px)] min-w-56 rounded-2xl border border-neutral-200 bg-white p-2 shadow-xl">
+                {item.children.map((child) => <Link key={child.href} href={child.href} className="block rounded-xl px-4 py-3 text-sm font-medium text-neutral-700 hover:bg-neutral-100 hover:text-brand-red">{child.name}</Link>)}
+              </div>
+            </details>
+          ) : <Link key={item.href} href={item.href} aria-current={isActive(item.href) ? 'page' : undefined} className={`nav-link ${isActive(item.href) ? 'nav-link-active' : ''}`}>{item.name}</Link>)}
         </nav>
 
-        {/* Mobile Toggle */}
-        <button
-          className="md:hidden p-2 -mr-2 text-slate-600 hover:bg-slate-100 rounded-md transition-colors"
-          onClick={() => setIsOpen(!isOpen)}
-          aria-label="Toggle menu"
-        >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        <div className="hidden items-center gap-2 lg:flex"><Link href="/cari" className="icon-button" aria-label="Cari di website"><Search size={19} /></Link><Link href="/donasi" className="button-primary"><Heart size={17} aria-hidden="true" />Donasi</Link></div>
+
+        <button ref={menuButtonRef} type="button" className="icon-button lg:hidden" onClick={() => setIsOpen((value) => !value)} aria-expanded={isOpen} aria-controls="mobile-navigation" aria-label={isOpen ? 'Tutup menu' : 'Buka menu'}>{isOpen ? <X size={22} /> : <Menu size={22} />}</button>
       </div>
 
-      {/* Mobile Navigation */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-b border-slate-100 overflow-hidden"
-          >
-            <nav className="container mx-auto px-4 py-4 flex flex-col gap-2">
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className={cn(
-                    'block px-4 py-3 rounded-lg text-sm font-medium transition-colors',
-                    pathname === link.href
-                      ? 'bg-red-50 text-red-600'
-                      : 'text-slate-600 hover:bg-slate-50'
-                  )}
-                >
-                  {link.name}
-                </Link>
-              ))}
-              <div className="pt-4 mt-2 border-t border-slate-100 px-4">
-                <Link
-                  href="/donasi"
-                  className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white w-full py-3 rounded-xl text-sm font-semibold transition-colors shadow-sm"
-                >
-                  <Heart size={16} className="fill-current" />
-                  Donasi Sekarang
-                </Link>
-              </div>
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isOpen ? (
+        <div ref={mobilePanelRef} id="mobile-navigation" role="dialog" aria-modal="true" aria-label="Menu navigasi" className="fixed inset-x-0 top-20 bottom-0 overflow-y-auto border-t border-neutral-200 bg-white lg:hidden">
+          <nav className="shell py-6" aria-label="Navigasi seluler">
+            <div className="space-y-2">
+              {navItems.map((item) => <div key={item.name}><Link onClick={closeMenu} href={item.href} aria-current={isActive(item.href) ? 'page' : undefined} className={`mobile-nav-link ${isActive(item.href) ? 'bg-red-50 text-brand-red' : ''}`}>{item.name}</Link>{item.children ? <div className="ml-4 border-l border-neutral-200 pl-3">{item.children.map((child) => <Link onClick={closeMenu} key={child.href} href={child.href} className="mobile-subnav-link">{child.name}</Link>)}</div> : null}</div>)}
+            </div>
+            <div className="mt-6 grid gap-3 border-t border-neutral-200 pt-6 sm:grid-cols-2"><Link onClick={closeMenu} href="/cari" className="button-secondary"><Search size={18} />Cari Informasi</Link><Link onClick={closeMenu} href="/donasi" className="button-primary"><Heart size={18} />Donasi</Link></div>
+          </nav>
+        </div>
+      ) : null}
     </header>
   );
 }
