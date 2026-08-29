@@ -1,19 +1,56 @@
-# Quality Gates V2
+# Quality Gates — Ruang Sejahtera V2
 
-Pull request V2 tidak dianggap siap merge hanya karena tampilannya menarik.
+Quality gate tidak hanya mengecek apakah halaman dapat dibangun. Tujuannya adalah mencegah regresi yang merusak integritas data, keamanan control plane, aksesibilitas, dan kesiapan deployment.
 
-## Otomatis di CI
-1. `npm ci`: lockfile harus sinkron dan instalasi reproducible.
-2. `npm run integrity`: menolak kembali placeholder gambar acak, link `#`, jejak AI Studio, lokasi prototipe, nilai rupiah hardcoded, dan statistik fiktif yang pernah ada.
-3. `npm run lint`: zero warning.
-4. `npm run typecheck`: TypeScript tanpa error.
-5. `npm run build`: production build harus sukses.
+## Gate otomatis saat ini
 
-## Wajib sebelum produksi
-- Audit WCAG 2.2 AA dengan keyboard dan screen reader.
-- Lighthouse/Core Web Vitals pada deployment nyata.
-- Review CSP setelah domain CDN, CMS, analytics, atau payment gateway ditetapkan.
-- Penetration/security review untuk auth, upload, form, dan payment.
-- Verifikasi semua legalitas, kontak, pengurus, rekening/QRIS, laporan, dan statistik dengan sumber resmi.
-- Review consent dokumentasi penerima manfaat.
-- Uji alur donasi end-to-end termasuk webhook, idempotency, kegagalan, refund, dan rekonsiliasi.
+Pipeline CI menjalankan:
+
+1. `npm ci` untuk instalasi dependency yang reproducible;
+2. `npm run integrity` untuk memeriksa pola data fiktif/placeholder dan struktur registry CMS;
+3. `npm run lint` tanpa warning;
+4. `npm run typecheck`;
+5. `npm run build` production.
+
+Integrity guard juga memvalidasi tiga registry editorial pada `content/cms/`:
+- root harus array;
+- id dan slug harus unik;
+- slug harus mengikuti format URL aman;
+- publication status harus valid;
+- timestamp dasar dan `lastEditedBy` wajib tersedia;
+- record `review` wajib mempunyai provenance review;
+- record `published` wajib mempunyai `publishedAt` dan `publishedBy`;
+- record `archived` wajib mempunyai provenance archive.
+
+## Gate deployment
+
+Build hijau belum cukup. Preview deployment harus diverifikasi untuk:
+- response HTTP berhasil;
+- public page tidak menerima fake data;
+- `/admin/*` tetap noindex + no-store;
+- control plane tidak merender public navigation/footer sebagai UI;
+- unauthenticated admin tidak membuka protected workspace;
+- bootstrap auth tetap disabled pada production environment;
+- health endpoint tidak mengungkap secret atau detail internal.
+
+## Gate perubahan CMS
+
+Perubahan pada model/editorial workflow harus memastikan:
+- `editor` tidak memperoleh `content.publish` secara tidak sengaja;
+- server route memeriksa permission, bukan hanya UI;
+- mutation tetap same-origin dan memiliki request limit;
+- data dari form tidak boleh menetapkan sendiri actor id atau timestamp workflow;
+- persistence backend yang belum tersedia harus fail-closed.
+
+## Gate manual sebelum go-live
+
+- review konten dan legalitas data;
+- keyboard-only + screen reader smoke test;
+- audit WCAG 2.2 AA;
+- Core Web Vitals pada domain nyata;
+- security review termasuk CSP, session, MFA, rate limiting, upload pipeline, dan dependency vulnerabilities;
+- backup/restore drill;
+- payment E2E, webhook signature, idempotency, settlement reconciliation, refund/failed/expired flow;
+- privacy review untuk donor dan penerima manfaat.
+
+Status `production ready` hanya boleh diberikan setelah gate manual dan infrastruktur yang relevan mempunyai bukti pengujian, bukan berdasarkan keberhasilan build semata.
