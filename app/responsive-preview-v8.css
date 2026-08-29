@@ -127,7 +127,7 @@
 .trust-activity-section { background: #f0eee9; }
 .trust-activity-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 1rem; }
 .trust-activity-card { overflow: hidden; border: 1px solid var(--trust-line); border-radius: 21px; background: #fff; }
-.trust-activity-card-featured { grid-column: span 2; grid-row: span 2; }
+.trust-activity-card-featured { display: grid; grid-column: span 2; grid-row: span 2; grid-template-rows: minmax(455px,1fr) auto; }
 .trust-activity-image { position: relative; min-height: 225px; background: #d8d3cb; }
 .trust-activity-card-featured .trust-activity-image { min-height: 455px; }
 .trust-activity-copy { padding: 1.15rem; }
@@ -391,6 +391,7 @@
   .trust-hero-layout-rich { grid-template-columns: minmax(0,1fr) minmax(370px,.75fr); }
   .trust-activity-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .trust-activity-card-featured { grid-row: span 1; }
+  .trust-activity-card-featured { display: block; }
   .trust-activity-card-featured .trust-activity-image { min-height: 225px; }
   .trust-news-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
@@ -523,4 +524,3 @@
   .trust-program-card-photo { grid-template-columns: 100px minmax(0,1fr); }
   .trust-program-card-photo p { display: block; }
 }
-
