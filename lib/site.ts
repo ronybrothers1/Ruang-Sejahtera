@@ -1,0 +1,25 @@
+export const siteConfig = {
+  name: 'Yayasan Ruang Sejahtera',
+  shortName: 'Ruang Sejahtera',
+  description:
+    'Platform resmi Yayasan Ruang Sejahtera untuk informasi program, kegiatan sosial, dampak, transparansi, dan dukungan publik.',
+  url: process.env.NEXT_PUBLIC_SITE_URL || null,
+  locale: 'id_ID',
+  contact: {
+    address: process.env.NEXT_PUBLIC_OFFICIAL_ADDRESS || null,
+    whatsapp: process.env.NEXT_PUBLIC_OFFICIAL_WHATSAPP || null,
+    email: process.env.NEXT_PUBLIC_OFFICIAL_EMAIL || null,
+    mapUrl: process.env.NEXT_PUBLIC_OFFICIAL_MAP_URL || null,
+  },
+  social: {
+    instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || null,
+    facebook: process.env.NEXT_PUBLIC_FACEBOOK_URL || null,
+    youtube: process.env.NEXT_PUBLIC_YOUTUBE_URL || null,
+    tiktok: process.env.NEXT_PUBLIC_TIKTOK_URL || null,
+  },
+} as const;
+
+export function absoluteUrl(path = '/') {
+  if (!siteConfig.url) return null;
+  return new URL(path, siteConfig.url).toString();
+}

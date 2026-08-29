@@ -1,0 +1,2 @@
+"use client";
+export default function ErrorPage({ reset }: { error: Error & { digest?: string }; reset: () => void }) { return <div className="shell flex min-h-[70vh] flex-col items-start justify-center pt-20"><p className="eyebrow">Terjadi gangguan</p><h1 className="font-heading text-4xl font-extrabold">Halaman belum dapat dimuat.</h1><p className="mt-4 max-w-xl leading-7 text-neutral-600">Tidak ada data yang diubah. Silakan coba lagi.</p><button type="button" className="button-primary mt-7" onClick={() => reset()}>Coba Lagi</button></div>; }

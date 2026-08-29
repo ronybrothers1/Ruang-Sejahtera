@@ -3,33 +3,30 @@ import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import { siteConfig } from '@/lib/site';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-plus-jakarta' });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
+const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-plus-jakarta', display: 'swap' });
+const hasOfficialUrl = Boolean(siteConfig.url);
 
 export const metadata: Metadata = {
-  title: 'Yayasan Ruang Sejahtera',
-  description: 'Ruang untuk Berbagi, Jalan untuk Sejahtera. Yayasan sosial dan kemanusiaan.',
-  openGraph: {
-    title: 'Yayasan Ruang Sejahtera',
-    description: 'Ruang untuk Berbagi, Jalan untuk Sejahtera. Yayasan sosial dan kemanusiaan.',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Yayasan Ruang Sejahtera',
-    description: 'Ruang untuk Berbagi, Jalan untuk Sejahtera. Yayasan sosial dan kemanusiaan.',
-  },
+  metadataBase: siteConfig.url ? new URL(siteConfig.url) : undefined,
+  title: { default: siteConfig.name, template: `%s | ${siteConfig.shortName}` },
+  description: siteConfig.description,
+  applicationName: siteConfig.name,
+  category: 'nonprofit',
+  robots: { index: hasOfficialUrl, follow: hasOfficialUrl },
+  openGraph: { title: siteConfig.name, description: siteConfig.description, type: 'website', locale: 'id_ID', siteName: siteConfig.name },
+  twitter: { card: 'summary_large_image', title: siteConfig.name, description: siteConfig.description },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="id">
-      <body className={`${inter.variable} ${plusJakarta.variable} font-sans antialiased bg-slate-50 text-slate-900 min-h-screen flex flex-col`} suppressHydrationWarning>
+      <body className={`${inter.variable} ${plusJakarta.variable} font-sans antialiased`}>
+        <a className="skip-link" href="#main-content">Lewati ke konten utama</a>
         <Navbar />
-        <main className="flex-grow">
-          {children}
-        </main>
+        <main id="main-content" className="min-h-screen">{children}</main>
         <Footer />
       </body>
     </html>
