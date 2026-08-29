@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { Instagram, Music2 } from 'lucide-react';
+import { Instagram, Mail, MapPin, Music2 } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
+import { siteConfig } from '@/lib/site';
 
 const socialHandle = '@ruangsejahtera.idn';
 
@@ -10,7 +11,8 @@ export function Footer() {
       <div className="shell footer-grid-v3">
         <div className="footer-brand">
           <BrandLogo compact />
-          <p>Yayasan Ruang Sejahtera berkomitmen menghadirkan ruang kepedulian yang terukur, transparan, dan dekat dengan kebutuhan masyarakat.</p>
+          <p>Menghubungkan kepedulian dengan program sosial yang terarah, terdokumentasi, dan terbuka untuk diperiksa publik.</p>
+          <Link className="footer-primary-link" href="/program">Kenali lima program kami</Link>
         </div>
 
         <div>
@@ -36,15 +38,11 @@ export function Footer() {
         </div>
 
         <div className="footer-contact-v3">
-          <h2 className="footer-title-v3">Media Sosial Resmi</h2>
-          <p>
-            <Instagram size={16} />
-            <a href="https://www.instagram.com/ruangsejahtera.idn" target="_blank" rel="noreferrer">Instagram {socialHandle}</a>
-          </p>
-          <p>
-            <Music2 size={16} />
-            <a href="https://www.tiktok.com/@ruangsejahtera.idn" target="_blank" rel="noreferrer">TikTok {socialHandle}</a>
-          </p>
+          <h2 className="footer-title-v3">Terhubung</h2>
+          {siteConfig.social.instagram ? <p><Instagram size={16} /><a href={siteConfig.social.instagram} target="_blank" rel="noreferrer">Instagram {socialHandle}</a></p> : null}
+          {siteConfig.social.tiktok ? <p><Music2 size={16} /><a href={siteConfig.social.tiktok} target="_blank" rel="noreferrer">TikTok {socialHandle}</a></p> : null}
+          {siteConfig.contact.email ? <p><Mail size={16} /><a href={`mailto:${siteConfig.contact.email}`}>{siteConfig.contact.email}</a></p> : null}
+          {siteConfig.contact.address ? <p><MapPin size={16} /><span>{siteConfig.contact.address}</span></p> : null}
         </div>
       </div>
 

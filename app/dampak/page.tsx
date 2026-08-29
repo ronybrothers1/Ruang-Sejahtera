@@ -1,18 +1,46 @@
 import type { Metadata } from 'next';
-import { ArrowUpRight, BarChart3, MapPin, Users } from 'lucide-react';
+import { BarChart3, FileSearch, MapPin, Users } from 'lucide-react';
+import { EmptyState } from '@/components/EmptyState';
 import { PageHero } from '@/components/PageHero';
-import { sampleStats } from '@/lib/content';
 
-export const metadata: Metadata = { title: 'Dampak', description: 'Data dampak dan metodologi pelaporan Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = {
+  title: 'Dampak',
+  description: 'Kerangka data dampak dan metodologi pelaporan Yayasan Ruang Sejahtera.',
+};
+
+const evidenceLayers = [
+  ['01', 'Input', 'Dana, waktu relawan, logistik, dan sumber daya yang digunakan.', FileSearch],
+  ['02', 'Output', 'Kegiatan, bantuan, layanan, dan wilayah yang benar-benar dijangkau.', MapPin],
+  ['03', 'Outcome', 'Perubahan yang dialami penerima manfaat dalam periode yang dijelaskan.', Users],
+  ['04', 'Evidence', 'Definisi, sumber, metode deduplikasi, dokumen, dan catatan keterbatasan.', BarChart3],
+] as const;
 
 export default function ImpactPage() {
-  const icons = [Users, BarChart3, MapPin, ArrowUpRight];
   return (
     <>
-      <PageHero eyebrow="Dampak" title="Dampak bukan sekadar angka. Ia harus menunjukkan perubahan." description="Untuk kebutuhan evaluasi desain, halaman ini menggunakan indikator dan angka contoh. Seluruh nilai akan diganti setelah dataset dampak resmi tersedia." />
-      <div className="sample-note"><strong>METRIK CONTOH</strong><span>Angka berikut bukan data resmi dan hanya digunakan untuk membangun dashboard dampak yang utuh.</span></div>
-      <section className="section-pad bg-[#f4f4f2]"><div className="shell impact-number-grid">{sampleStats.map((item,index) => { const Icon=icons[index]; return <article key={item.label}><Icon size={23}/><strong>{item.value}</strong><h2>{item.label}</h2><p>Periode contoh: Januari–Mei 2026. Sumber dan metodologi akan dicantumkan pada data final.</p></article>; })}</div></section>
-      <section className="section-pad section-white"><div className="shell impact-story-layout"><div><span className="eyebrow-v3">Cara membaca dampak</span><h2 className="display-h2">Dari output menuju perubahan yang terukur.</h2><p className="section-description">Dashboard final tidak hanya menampilkan berapa bantuan yang disalurkan. Setiap metrik akan diberi definisi, periode, sumber, cakupan wilayah, metode deduplikasi, dan catatan perubahan agar publik memahami apa yang sebenarnya diukur.</p></div><div className="impact-ladder">{[['01','Input','Dana, relawan, logistik, dan sumber daya.'],['02','Output','Kegiatan, paket bantuan, layanan, dan jangkauan.'],['03','Outcome','Perubahan yang dirasakan penerima manfaat.'],['04','Evidence','Dokumen, data sumber, evaluasi, dan laporan.']].map(([n,t,d])=><div key={n}><span>{n}</span><div><strong>{t}</strong><p>{d}</p></div></div>)}</div></div></section>
+      <PageHero
+        eyebrow="Dampak"
+        title="Angka hanya bermakna jika cara menghitungnya dapat dijelaskan."
+        description="Halaman dampak dirancang untuk memuat indikator yang memiliki definisi, periode, cakupan, sumber, dan metodologi yang dapat diperiksa."
+      />
+      <section className="trust-page-section">
+        <div className="shell trust-evidence-layout">
+          <div className="trust-page-intro">
+            <div><span>Kerangka pengukuran</span><h2>Dari sumber daya menuju perubahan.</h2></div>
+            <p>Pelaporan yang sehat membedakan apa yang digunakan, apa yang dikerjakan, siapa yang dijangkau, dan perubahan apa yang benar-benar dapat didukung bukti.</p>
+          </div>
+          <div className="trust-evidence-grid">
+            {evidenceLayers.map(([number, title, description, Icon]) => (
+              <article key={number}><span>{number}</span><Icon size={24} aria-hidden="true" /><h2>{title}</h2><p>{description}</p></article>
+            ))}
+          </div>
+          <EmptyState
+            eyebrow="Dataset dampak"
+            title="Belum ada metrik dampak yang dipublikasikan."
+            description="Kami tidak menampilkan jumlah penerima, kegiatan, wilayah, atau nilai penyaluran sebelum dataset sumber, periode, definisi indikator, dan metode perhitungannya tersedia."
+          />
+        </div>
+      </section>
     </>
   );
 }

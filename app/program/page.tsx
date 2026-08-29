@@ -1,26 +1,41 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, SearchCheck } from 'lucide-react';
 import { PageHero } from '@/components/PageHero';
+import { ProgramMark } from '@/components/ProgramMark';
 import { programs } from '@/lib/content';
 
-export const metadata: Metadata = { title: 'Program', description: 'Program resmi Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = {
+  title: 'Program',
+  description: 'Lima program utama Yayasan Ruang Sejahtera.',
+};
 
 export default function ProgramsPage() {
   return (
     <>
-      <PageHero eyebrow="Program" title="Dari kebutuhan nyata, menjadi aksi yang terarah." description="Lima nama program mengikuti hasil keputusan rapat Yayasan Ruang Sejahtera tanggal 29 Agustus 2026. Foto program pada versi website ini masih contoh sementara sampai dokumentasi resmi dipublikasikan." />
-      <div className="sample-note"><strong>PROGRAM RESMI</strong><span>Nama dan fokus program telah diperbarui; foto masih berupa contoh desain.</span></div>
-      <section className="section-pad section-white">
+      <PageHero
+        eyebrow="Program"
+        title="Lima jalur bantuan untuk kebutuhan yang berbeda."
+        description="Setiap program memiliki fokus yang jelas. Rincian pelaksanaan, jangkauan, dan hasil hanya ditambahkan dari data yang telah diperiksa."
+      />
+      <section className="trust-page-section">
         <div className="shell">
-          <div className="program-grid-large">
+          <div className="trust-page-intro">
+            <div><span>Ruang kerja</span><h2>Program yang mudah dipahami sejak awal.</h2></div>
+            <p>Nama dan ringkasan berikut menjadi pintu masuk untuk mengenali tujuan setiap program tanpa menampilkan klaim angka atau hasil yang belum terverifikasi.</p>
+          </div>
+          <div className="trust-program-archive">
             {programs.map((program) => (
-              <Link href={`/program/${program.slug}`} key={program.slug} className="program-story-card">
-                <div className="program-story-image"><Image src={program.image} alt={`Foto contoh program ${program.name}`} fill sizes="(max-width: 768px) 100vw, 33vw" /><div className="program-story-overlay"/><span>{program.accent}</span></div>
-                <div className="program-story-copy"><small>{program.focus}</small><h2>{program.name}</h2><p>{program.summary}</p><strong>Jelajahi program <ArrowRight size={16}/></strong></div>
+              <Link href={`/program/${program.slug}`} key={program.slug}>
+                <ProgramMark slug={program.slug} accent={program.accent} />
+                <div><span>{program.focus}</span><h2>{program.name}</h2><p>{program.summary}</p></div>
+                <strong>Jelajahi program <ArrowRight size={16} aria-hidden="true" /></strong>
               </Link>
             ))}
+          </div>
+          <div className="trust-integrity-note">
+            <SearchCheck size={22} aria-hidden="true" />
+            <p><strong>Prinsip publikasi program</strong> Target, wilayah, penerima manfaat, mitra, dokumentasi, serta capaian hanya ditampilkan setelah sumber dan konteksnya tersedia.</p>
           </div>
         </div>
       </section>

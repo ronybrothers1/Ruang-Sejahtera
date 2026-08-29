@@ -1,29 +1,48 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import { EmptyState } from '@/components/EmptyState';
 import { PageHero } from '@/components/PageHero';
-import { programs, sampleActivities } from '@/lib/content';
+import { publishedGalleries } from '@/lib/published-content';
 
-export const metadata: Metadata = { title: 'Galeri', description: 'Dokumentasi foto dan video kegiatan Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = {
+  title: 'Galeri',
+  description: 'Koleksi dokumentasi terpublikasi Yayasan Ruang Sejahtera.',
+};
+
+function formatDate(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+}
 
 export default function GalleryPage() {
-  const images = [
-    sampleActivities[0].image,
-    programs[1].image,
-    programs[2].image,
-    programs[3].image,
-    sampleActivities[3].image,
-    programs[0].image,
-    programs[4].image,
-    sampleActivities[1].image,
-  ];
-
   return (
     <>
-      <PageHero eyebrow="Galeri" title="Satu foto yang tepat dapat membawa publik lebih dekat ke kerja sosial." description="Galeri V3 memakai foto contoh untuk menilai komposisi visual. Seluruh media akan diganti dokumentasi asli lengkap dengan konteks, caption, alt text, serta persetujuan publikasi." />
-      <div className="sample-note"><strong>FOTO DRAFT</strong><span>Seluruh foto dalam galeri ini adalah contoh sementara dan bukan dokumentasi resmi kegiatan.</span></div>
-      <section className="section-pad bg-[#0a0a0a]">
-        <div className="shell gallery-mosaic">
-          {images.map((src, index) => <figure className={`gallery-tile gallery-tile-${(index % 4) + 1}`} key={`${src}-${index}`}><Image src={src} alt={`Foto dokumentasi contoh ${index + 1}`} fill sizes="(max-width: 768px) 100vw, 40vw"/><figcaption><span>Dokumentasi {String(index + 1).padStart(2,'0')}</span><small>CONTOH SEMENTARA</small></figcaption></figure>)}
+      <PageHero
+        eyebrow="Galeri"
+        title="Dokumentasi harus menjaga konteks dan martabat."
+        description="Koleksi hanya dipublikasikan setelah file, keterangan, teks alternatif, serta status persetujuan atau pembatasannya diperiksa."
+      />
+      <section className="trust-page-section trust-page-section-dark">
+        <div className="shell">
+          {publishedGalleries.length ? (
+            <div className="trust-gallery-grid">
+              {publishedGalleries.map((gallery, index) => (
+                <Link href={`/galeri/${gallery.slug}`} key={gallery.slug}>
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <div><small>{formatDate(gallery.publishedAt)}</small><h2>{gallery.title}</h2><p>{gallery.summary}</p></div>
+                  <strong>Buka koleksi <ArrowRight size={15} aria-hidden="true" /></strong>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              eyebrow="Dokumentasi terverifikasi"
+              title="Belum ada koleksi media yang dipublikasikan."
+              description="Kami tidak menggunakan foto stok untuk merepresentasikan kegiatan yayasan. Dokumentasi asli akan tampil setelah konteks, hak penggunaan, alt text, caption, dan persetujuan publikasinya lengkap."
+              action={<Link href="/kegiatan" className="trust-button trust-button-light">Lihat arsip kegiatan <ArrowRight size={17} aria-hidden="true" /></Link>}
+            />
+          )}
         </div>
       </section>
     </>

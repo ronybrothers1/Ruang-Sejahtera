@@ -1,13 +1,13 @@
-# Yayasan Ruang Sejahtera — V2
+# Yayasan Ruang Sejahtera — Trust-First Public Platform
 
-Rekonstruksi V2 memindahkan proyek dari prototipe visual menjadi fondasi platform nonprofit yang mengutamakan **trust, transparency, humanity, impact, accountability, accessibility**, keamanan, dan integritas data.
+Rekonstruksi terbaru memindahkan proyek dari prototipe visual menjadi fondasi platform nonprofit yang mengutamakan **trust, transparency, humanity, impact, accountability, accessibility**, keamanan, dan integritas data.
 
 ## Perubahan utama
 
 - Seluruh angka dampak dan laporan keuangan simulasi dihapus.
-- Foto acak/stock placeholder dihapus dari halaman publik.
+- Foto acak/stock placeholder dihapus dari halaman publik dan diganti sistem visual program berbasis identitas brand.
 - Logo resmi digunakan sebagai identitas utama tanpa menggambar ulang.
-- Homepage direkonstruksi sebagai humanitarian editorial platform.
+- Homepage direkonstruksi sebagai humanitarian trust-first platform.
 - Route publik mencakup Tentang, Program + detail, Kegiatan + detail, Berita + detail, Galeri + detail, Dampak, Transparansi, Organisasi, Donasi, Kontak, Pencarian, Privasi, Ketentuan, Kebijakan Donasi, Aksesibilitas, dan Disclaimer.
 - Dynamic content registry berasal dari `content/cms/*.json` dan hanya record berstatus `published` yang masuk ke website publik.
 - Control plane `/admin` dibangun terpisah dari chrome website publik dengan dashboard, CMS editorial, modul transparansi, dan observabilitas permission.
