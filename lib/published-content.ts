@@ -1,3 +1,5 @@
+import { cmsActivities, cmsArticles, cmsGalleries } from '@/lib/cms/content';
+
 export type PublishedActivity = {
   slug: string;
   title: string;
@@ -24,12 +26,34 @@ export type PublishedGallery = {
   publishedAt: string;
 };
 
-/**
- * Public registries intentionally start empty.
- * Production adapters must populate these only from records that have passed
- * the editorial/publication workflow. Do not seed this file with fictional
- * activities, dates, locations, beneficiary stories, images, or statistics.
- */
-export const publishedActivities: PublishedActivity[] = [];
-export const publishedArticles: PublishedArticle[] = [];
-export const publishedGalleries: PublishedGallery[] = [];
+export const publishedActivities: PublishedActivity[] = cmsActivities
+  .filter((item) => item.status === 'published')
+  .map(({ slug, title, summary, activityDate, locationLabel, programSlug, body }) => ({
+    slug,
+    title,
+    summary,
+    activityDate,
+    locationLabel,
+    programSlug,
+    body,
+  }));
+
+export const publishedArticles: PublishedArticle[] = cmsArticles
+  .filter((item) => item.status === 'published' && Boolean(item.publishedAt))
+  .map(({ slug, title, excerpt, publishedAt, category, body }) => ({
+    slug,
+    title,
+    excerpt,
+    publishedAt: publishedAt as string,
+    category,
+    body,
+  }));
+
+export const publishedGalleries: PublishedGallery[] = cmsGalleries
+  .filter((item) => item.status === 'published' && Boolean(item.publishedAt))
+  .map(({ slug, title, summary, publishedAt }) => ({
+    slug,
+    title,
+    summary,
+    publishedAt: publishedAt as string,
+  }));
