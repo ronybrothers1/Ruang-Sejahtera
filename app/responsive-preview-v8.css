@@ -1061,7 +1061,7 @@
 @media (max-width: 680px) {
   :root { --layout-section-space: 3.75rem; }
   html,
-  body { overflow-x: hidden; }
+  body { overflow-x: clip; }
   .trust-home {
     overflow-x: clip;
     overflow-y: visible;
@@ -1170,4 +1170,114 @@
   .trust-loading-title::after,
   .trust-loading-copy::after,
   .trust-loading-grid > div::after { animation: none; }
+}
+
+/* ==========================================================================
+   AUDIT 04 — responsive continuity, content resilience and short viewports
+   ========================================================================== */
+
+/* Constrain real overflow sources while allowing every grid and flex child to
+   shrink. Root clipping remains a defensive guard, not the layout solution. */
+.trust-home,
+.page-hero,
+.trust-page-section,
+.trust-document-section,
+.footer-v3 { max-width: 100%; }
+
+:where(
+  .trust-hero-layout-rich,
+  .trust-section-heading,
+  .trust-activity-grid,
+  .trust-principle-layout,
+  .trust-finance-layout,
+  .trust-closing-content,
+  .trust-archive-grid,
+  .trust-contact-preview-layout,
+  .trust-donation-preview-layout,
+  .trust-document-layout,
+  .footer-grid-v3
+) > * { min-width: 0; }
+
+.trust-home :where(h1, h2, h3, p, blockquote),
+.page-hero :where(h1, p),
+.trust-page-section :where(h1, h2, h3, p, strong, dd),
+.trust-document-section :where(h1, h2, h3, p, strong) { overflow-wrap: anywhere; }
+
+.trust-home img,
+.trust-page-section img,
+.trust-document-section img,
+.footer-v3 img,
+.trust-home svg,
+.trust-page-section svg,
+.trust-document-section svg,
+.footer-v3 svg { max-inline-size: 100%; }
+
+.trust-preview-form :where(input, select, textarea) {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.trust-option-grid label,
+.trust-amount-grid button { min-height: 48px; }
+
+.trust-report-row button { min-width: 44px; min-height: 44px; }
+
+/* A stacked tablet hero must be governed by content, not the desktop floor. */
+@media (max-width: 900px) {
+  .trust-hero-layout-rich { min-height: auto; }
+}
+
+/* Low-height desktop windows retain the same composition with less unused
+   vertical space. Content may still grow, so nothing is clipped. */
+@media (min-width: 1121px) and (max-height: 720px) {
+  .trust-hero-layout-rich {
+    min-height: calc(100svh - 98px);
+    padding-block: 3.25rem 3.75rem;
+  }
+  .trust-hero-main-image { min-height: 310px; }
+  .trust-hero-mini-grid > div { min-height: 105px; }
+  .page-hero-inner { padding-block: 3rem 3.4rem; }
+}
+
+/* Mobile and tablet landscape need a shorter fixed header and compact section
+   rhythm. All media, copy and actions remain present and scroll normally. */
+@media (max-width: 1120px) and (max-height: 560px) and (orientation: landscape) {
+  .nav-inner { min-height: 76px; height: 76px; }
+  .brand-logo-link-compact {
+    width: 142px !important;
+    max-width: calc(100vw - 92px) !important;
+    transform: translateY(3px);
+  }
+  .mobile-panel { top: 76px; }
+  .trust-hero,
+  .page-hero { padding-top: 76px; }
+  .trust-page-state { padding-top: 76px; }
+
+  .trust-hero-layout-rich {
+    min-height: auto;
+    gap: 1.5rem;
+    padding-block: 2.25rem 3rem;
+  }
+  .trust-hero-copy > h1 { font-size: clamp(2.25rem, 6vw, 3rem); }
+  .trust-hero-copy > p { margin-top: 1rem; line-height: 1.62; }
+  .trust-hero-copy .trust-actions { margin-top: 1.25rem; }
+  .trust-hero-assurance { margin-top: 1.25rem; padding-top: 1.1rem; }
+  .trust-hero-main-image { min-height: 230px; }
+  .trust-hero-mini-grid > div { min-height: 82px; }
+
+  .page-hero-inner { padding-block: 2.35rem 2.75rem; }
+  .page-hero h1 { max-width: 18ch; font-size: clamp(2.2rem, 5.6vw, 3rem); }
+  .trust-closing-photo { min-height: 360px; }
+  .trust-closing-content { padding-block: 3.25rem; }
+  .trust-page-state-inner { padding-block: 3rem; }
+}
+
+/* The specified mobile landscape widths have enough inline room for the hero
+   to remain two-column, avoiding an unnecessarily long image stack. */
+@media (min-width: 720px) and (max-width: 900px) and (max-height: 560px) and (orientation: landscape) {
+  .trust-hero-layout-rich {
+    grid-template-columns: minmax(0, 1.05fr) minmax(240px, .72fr);
+    align-items: center;
+  }
+  .trust-hero-media { max-width: none; }
 }

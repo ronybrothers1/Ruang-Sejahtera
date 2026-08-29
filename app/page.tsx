@@ -57,8 +57,8 @@ export default function Home() {
               <div className="trust-hero-image-caption"><small>Fokus program</small><strong>Air bersih untuk kebutuhan mendesak</strong></div>
             </div>
             <div className="trust-hero-mini-grid">
-              <div><Image src={programs[0].image} alt="Foto contoh bantuan kebutuhan dasar" fill sizes="(max-width: 680px) 50vw, 20vw" /></div>
-              <div><Image src={programs[4].image} alt="Foto contoh program pendidikan" fill sizes="(max-width: 680px) 50vw, 20vw" /></div>
+              <div><Image src={programs[0].image} alt="Foto contoh bantuan kebutuhan dasar" fill sizes="(max-width: 900px) 50vw, 20vw" /></div>
+              <div><Image src={programs[4].image} alt="Foto contoh program pendidikan" fill sizes="(max-width: 900px) 50vw, 20vw" /></div>
             </div>
             <Link href="/galeri" className="trust-hero-gallery-link">Lihat galeri preview <ArrowRight size={15} aria-hidden="true" /></Link>
           </div>
@@ -104,7 +104,7 @@ export default function Home() {
           <div className="trust-activity-grid">
             {sampleActivities.map((activity, index) => (
               <article key={activity.slug} className={index === 0 ? 'trust-activity-card trust-activity-card-featured' : 'trust-activity-card'}>
-                <div className="trust-activity-image"><Image src={activity.image} alt={`Foto contoh ${activity.title}`} fill sizes={index === 0 ? '(max-width: 900px) 100vw, 50vw' : '(max-width: 680px) 100vw, 25vw'} /><span className="preview-chip">CONTOH</span></div>
+                <div className="trust-activity-image"><Image src={activity.image} alt={`Foto contoh ${activity.title}`} fill sizes={index === 0 ? '(max-width: 900px) 100vw, 55vw' : '(max-width: 680px) 100vw, (max-width: 1120px) 50vw, 33vw'} /><span className="preview-chip">CONTOH</span></div>
                 <div className="trust-activity-copy">
                   <div><time>{activity.date}</time><span><MapPin size={13} aria-hidden="true" /> {activity.location}</span></div>
                   <h3>{activity.title}</h3><p>{activity.summary}</p><Link href={`/kegiatan#${activity.slug}`}>Lihat kegiatan <ArrowRight size={14} aria-hidden="true" /></Link>
