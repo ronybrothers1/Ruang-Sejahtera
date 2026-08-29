@@ -9,6 +9,12 @@ export type CmsBaseRecord = {
   createdAt: string;
   updatedAt: string;
   lastEditedBy: string;
+  reviewRequestedAt?: string;
+  reviewRequestedBy?: string;
+  publishedAt?: string;
+  publishedBy?: string;
+  archivedAt?: string;
+  archivedBy?: string;
 };
 
 export type CmsArticle = CmsBaseRecord & {
@@ -16,7 +22,6 @@ export type CmsArticle = CmsBaseRecord & {
   excerpt: string;
   category: string;
   body: string;
-  publishedAt?: string;
 };
 
 export type CmsActivity = CmsBaseRecord & {
@@ -31,7 +36,6 @@ export type CmsActivity = CmsBaseRecord & {
 export type CmsGallery = CmsBaseRecord & {
   title: string;
   summary: string;
-  publishedAt?: string;
 };
 
 export type CmsRecord = CmsArticle | CmsActivity | CmsGallery;
