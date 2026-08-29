@@ -10,7 +10,7 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
   const auth = getBootstrapAuthStatus();
 
   return (
-    <main className="grid min-h-screen place-items-center px-4 py-10">
+    <div className="grid min-h-screen place-items-center px-4 py-10">
       <section className="w-full max-w-md rounded-3xl border border-neutral-200 bg-white p-7 shadow-xl md:p-9" aria-labelledby="admin-login-title">
         <div className="inline-flex rounded-2xl border border-neutral-200 bg-white p-3"><BrandLogo compact priority /></div>
         <div className="mt-8 flex items-center gap-3 text-brand-red"><ShieldCheck size={22} aria-hidden="true" /><span className="text-xs font-extrabold uppercase tracking-[.16em]">Area Administrasi</span></div>
@@ -37,6 +37,6 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
           </div>
         )}
       </section>
-    </main>
+    </div>
   );
 }
