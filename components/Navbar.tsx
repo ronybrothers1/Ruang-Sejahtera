@@ -20,14 +20,11 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
+  const closeMenu = () => setIsOpen(false);
   const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
 
   return (
@@ -79,20 +76,20 @@ export function Navbar() {
             <div className="space-y-2">
               {navItems.map((item) => (
                 <div key={item.name}>
-                  <Link href={item.href} aria-current={isActive(item.href) ? 'page' : undefined} className={`mobile-nav-link ${isActive(item.href) ? 'bg-red-50 text-brand-red' : ''}`}>
+                  <Link onClick={closeMenu} href={item.href} aria-current={isActive(item.href) ? 'page' : undefined} className={`mobile-nav-link ${isActive(item.href) ? 'bg-red-50 text-brand-red' : ''}`}>
                     {item.name}
                   </Link>
                   {item.children ? (
                     <div className="ml-4 border-l border-neutral-200 pl-3">
-                      {item.children.map((child) => <Link key={child.href} href={child.href} className="mobile-subnav-link">{child.name}</Link>)}
+                      {item.children.map((child) => <Link onClick={closeMenu} key={child.href} href={child.href} className="mobile-subnav-link">{child.name}</Link>)}
                     </div>
                   ) : null}
                 </div>
               ))}
             </div>
             <div className="mt-6 grid gap-3 border-t border-neutral-200 pt-6 sm:grid-cols-2">
-              <Link href="/cari" className="button-secondary"><Search size={18} />Cari Informasi</Link>
-              <Link href="/donasi" className="button-primary"><Heart size={18} />Donasi</Link>
+              <Link onClick={closeMenu} href="/cari" className="button-secondary"><Search size={18} />Cari Informasi</Link>
+              <Link onClick={closeMenu} href="/donasi" className="button-primary"><Heart size={18} />Donasi</Link>
             </div>
           </nav>
         </div>
