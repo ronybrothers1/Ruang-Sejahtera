@@ -24,10 +24,10 @@ export const navItems: NavItem[] = [
     href: '/kegiatan',
     children: [
       { name: 'Semua Kegiatan', href: '/kegiatan' },
+      { name: 'Berita & Cerita', href: '/berita' },
       { name: 'Galeri Foto & Video', href: '/galeri' },
     ],
   },
-  { name: 'Berita', href: '/berita' },
   { name: 'Dampak', href: '/dampak' },
   {
     name: 'Transparansi',
