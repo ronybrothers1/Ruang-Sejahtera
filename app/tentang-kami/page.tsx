@@ -1,19 +1,64 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
-import { HeartHandshake, Scale, ShieldCheck, Sparkles } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, FileCheck2, HeartHandshake, Scale, ShieldCheck, Sparkles } from 'lucide-react';
+import { BrandLogo } from '@/components/BrandLogo';
 import { PageHero } from '@/components/PageHero';
-import { programs } from '@/lib/content';
 
-export const metadata: Metadata = { title: 'Tentang Kami', description: 'Profil dan komitmen Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = {
+  title: 'Tentang Kami',
+  description: 'Profil dan ruang akuntabilitas Yayasan Ruang Sejahtera.',
+};
+
+const publicPrinciples = [
+  [HeartHandshake, 'Martabat manusia', 'Informasi dan dokumentasi bantuan perlu menjaga martabat, privasi, dan konteks penerima manfaat.'],
+  [ShieldCheck, 'Kejujuran informasi', 'Data contoh tidak boleh tampil seolah-olah fakta kegiatan, dampak, keuangan, atau legalitas.'],
+  [Scale, 'Tanggung jawab', 'Program, keputusan, dan penggunaan sumber daya memerlukan pemilik tanggung jawab yang jelas.'],
+  [Sparkles, 'Kolaborasi', 'Ruang publik membantu masyarakat, relawan, donatur, dan mitra memahami cara terlibat.'],
+] as const;
 
 export default function AboutPage() {
-  const values = [[HeartHandshake,'Kemanusiaan','Menempatkan martabat dan kebutuhan masyarakat sebagai pusat keputusan.'],[ShieldCheck,'Akuntabilitas','Membangun jejak informasi yang dapat diperiksa dari program hingga laporan.'],[Scale,'Keadilan','Mengutamakan kebutuhan dan akses yang proporsional bagi kelompok rentan.'],[Sparkles,'Kolaborasi','Menghubungkan relawan, donatur, masyarakat, dan mitra dalam aksi yang terarah.']] as const;
   return (
     <>
-      <PageHero eyebrow="Tentang Kami" title="Ruang untuk kepedulian. Sistem untuk menjaga kepercayaan." description="Konten profil pada draft ini merupakan contoh narasi desain dan akan diselaraskan dengan dokumen resmi yayasan sebelum publikasi final." />
-      <div className="sample-note"><strong>PROFIL DRAFT</strong><span>Narasi profil, angka, wilayah, dan foto adalah contoh sementara.</span></div>
-      <section className="section-pad section-white"><div className="shell about-editorial"><div className="about-photo"><Image src={programs[1].image} alt="Foto contoh kegiatan sosial" fill sizes="(max-width: 900px) 100vw, 48vw"/><span>FOTO CONTOH</span></div><div className="about-copy"><span className="eyebrow-v3">Siapa kami</span><h2 className="display-h2">Kebaikan perlu bergerak dengan hati—dan dikelola dengan disiplin.</h2><p>Yayasan Ruang Sejahtera dibayangkan sebagai ruang kolaborasi sosial yang dekat dengan kebutuhan masyarakat: kebutuhan dasar, pendidikan, hunian, tanggap kemanusiaan, dan pemberdayaan.</p><p>Website ini dirancang bukan hanya sebagai etalase, tetapi sebagai pusat bukti kerja: program, kegiatan, cerita, dampak, dokumentasi, struktur organisasi, dan transparansi publik berada dalam satu alur yang mudah ditelusuri.</p><div className="about-quote">“Kami ingin setiap bantuan meninggalkan manfaat yang dapat dirasakan dan jejak yang dapat dipertanggungjawabkan.”<small>KUTIPAN CONTOH SEMENTARA</small></div></div></div></section>
-      <section className="section-pad bg-[#f4f4f2]"><div className="shell"><div className="center-heading"><span>Nilai kerja</span><h2>Prinsip yang menjaga arah.</h2></div><div className="value-grid-v3">{values.map(([Icon,title,description])=><article key={title}><Icon size={24}/><span>{title}</span><p>{description}</p></article>)}</div></div></section>
+      <PageHero
+        eyebrow="Tentang Kami"
+        title="Ruang untuk kepedulian. Sistem untuk menjaga kepercayaan."
+        description="Website ini menyatukan informasi program, kegiatan, akuntabilitas, kebijakan, dan kanal komunikasi Yayasan Ruang Sejahtera."
+      />
+      <section className="trust-page-section">
+        <div className="shell trust-about-layout">
+          <div className="trust-about-brand">
+            <BrandLogo />
+            <p>Identitas yayasan ditempatkan bersama komitmen untuk menyajikan informasi yang dapat dipahami dan diperiksa publik.</p>
+          </div>
+          <div className="trust-about-copy">
+            <span>Profil publik</span>
+            <h2>Kepedulian perlu dikelola dengan disiplin.</h2>
+            <p>Ruang Sejahtera mengembangkan program bantuan sosial, usaha rakyat, hunian layak, air bersih, dan pendidikan. Setiap informasi pelaksanaan akan ditambahkan melalui sumber dan proses publikasi yang dapat dipertanggungjawabkan.</p>
+            <p>Karena dokumen profil kelembagaan lengkap belum tersedia sebagai sumber publik, halaman ini tidak mengarang sejarah, nama pendiri, jangkauan, angka, atau kutipan tokoh.</p>
+            <div className="trust-actions">
+              <Link href="/program" className="trust-button trust-button-ink">Kenali program <ArrowRight size={17} aria-hidden="true" /></Link>
+              <Link href="/tentang-kami/legalitas" className="trust-button trust-button-outline">Ruang legalitas <ArrowRight size={17} aria-hidden="true" /></Link>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="trust-section trust-about-principles">
+        <div className="shell">
+          <div className="trust-page-intro">
+            <div><span>Standar informasi publik</span><h2>Empat batas yang menjaga kepercayaan.</h2></div>
+            <p>Prinsip ini mengarahkan cara website menyajikan identitas, program, dokumentasi, data, dan hubungan dengan publik.</p>
+          </div>
+          <div className="trust-value-grid">
+            {publicPrinciples.map(([Icon, title, description]) => (
+              <article key={title}><Icon size={25} aria-hidden="true" /><h2>{title}</h2><p>{description}</p></article>
+            ))}
+          </div>
+          <div className="trust-integrity-note">
+            <FileCheck2 size={22} aria-hidden="true" />
+            <p><strong>Profil akan terus dilengkapi.</strong> Visi, misi, nilai, sejarah, legalitas, dan organisasi memiliki ruang tersendiri agar setiap jenis informasi dapat diverifikasi secara tepat.</p>
+          </div>
+        </div>
+      </section>
     </>
   );
 }

@@ -1,20 +1,38 @@
 import type { Metadata } from 'next';
-import { Compass, Flag, HeartHandshake, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, Compass } from 'lucide-react';
+import { EmptyState } from '@/components/EmptyState';
 import { PageHero } from '@/components/PageHero';
 
-export const metadata: Metadata = { title: 'Visi & Misi', description: 'Visi dan misi Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = {
+  title: 'Visi & Misi',
+  description: 'Ruang publikasi visi dan misi Yayasan Ruang Sejahtera.',
+};
 
 export default function VisionMissionPage() {
-  const missions = [
-    ['01','Hadir dekat dengan kebutuhan','Mengembangkan program sosial yang berangkat dari kebutuhan nyata masyarakat dan asesmen lapangan.'],
-    ['02','Menjaga martabat penerima manfaat','Menyalurkan dukungan dengan pendekatan yang manusiawi, proporsional, dan menghormati privasi.'],
-    ['03','Membangun kepercayaan publik','Membuka jejak program, kegiatan, dokumentasi, dampak, dan penggunaan dana secara mudah dipahami.'],
-    ['04','Menguatkan kolaborasi','Menghubungkan masyarakat, relawan, donatur, dan mitra untuk menciptakan dampak yang lebih berkelanjutan.'],
-  ] as const;
-  return <>
-    <PageHero eyebrow="Tentang Kami" title="Visi & Misi" description="Rumusan berikut adalah contoh sementara untuk menyempurnakan pengalaman visual halaman. Teks final akan diganti dengan visi dan misi yang telah disahkan yayasan." />
-    <div className="sample-note"><strong>NARASI CONTOH</strong><span>Visi dan misi di halaman ini belum merupakan rumusan resmi yayasan.</span></div>
-    <section className="section-pad section-white"><div className="shell vision-layout"><article className="vision-card"><Compass size={28}/><span>Visi · contoh sementara</span><h2>Menjadi ruang kepedulian yang menghadirkan kesejahteraan melalui aksi sosial yang nyata, inklusif, dan dapat dipercaya.</h2><p>Rumusan ini digunakan sementara untuk menilai hierarki konten dan desain halaman.</p></article><div className="mission-stack"><span className="eyebrow-v3">Misi</span>{missions.map(([n,title,description])=><article key={n}><span>{n}</span><div><h2>{title}</h2><p>{description}</p></div></article>)}</div></div></section>
-    <section className="values-banner"><div className="shell values-banner-grid"><div><Flag size={23}/><strong>Arah yang jelas</strong><span>Program tumbuh dari fokus yang dipahami bersama.</span></div><div><HeartHandshake size={23}/><strong>Manusia sebagai pusat</strong><span>Martabat penerima manfaat dijaga dalam setiap proses.</span></div><div><ShieldCheck size={23}/><strong>Kepercayaan dijaga</strong><span>Informasi dan pertanggungjawaban menjadi bagian dari program.</span></div></div></section>
-  </>;
+  return (
+    <>
+      <PageHero
+        eyebrow="Tentang Kami"
+        title="Visi dan misi harus mengikuti rumusan yang disahkan."
+        description="Halaman ini disiapkan untuk menampilkan arah kelembagaan tanpa mengganti dokumen resmi dengan narasi contoh."
+      />
+      <section className="trust-page-section">
+        <div className="shell trust-single-column">
+          <div className="trust-icon-intro">
+            <Compass size={30} aria-hidden="true" />
+            <span>Arah kelembagaan</span>
+            <h2>Rumusan resmi lebih penting daripada kalimat yang sekadar terdengar baik.</h2>
+            <p>Visi dan misi contoh telah dihapus. Konten akan dipublikasikan setelah diselaraskan dengan dokumen dan keputusan internal yayasan.</p>
+          </div>
+          <EmptyState
+            eyebrow="Visi & misi"
+            title="Rumusan resmi belum dipublikasikan."
+            description="Setelah tersedia, halaman ini akan membedakan visi sebagai arah jangka panjang dan misi sebagai pilihan tindakan kelembagaan yang dapat diterjemahkan ke dalam program."
+            action={<Link href="/program" className="trust-button trust-button-ink">Lihat program yang tersedia <ArrowRight size={17} aria-hidden="true" /></Link>}
+          />
+        </div>
+      </section>
+    </>
+  );
 }

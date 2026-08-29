@@ -5,14 +5,15 @@ const roots = ['app', 'components', 'lib'];
 const extensions = new Set(['.ts', '.tsx', '.js', '.jsx']);
 const checks = [
   ['random image placeholder', /picsum\.photos/i],
+  ['external stock image', /images\.unsplash\.com/i],
   ['legacy AI Studio reference', /@google\/genai|GEMINI_API_KEY|ai-studio-applet/i],
   ['dead placeholder link', /href=["']#["']/i],
   ['fabricated location from prototype', /Jakarta,\s*Indonesia/i],
   ['hardcoded public rupiah amount', /Rp\s*[0-9][0-9.,]*/i],
   ['known fabricated impact statistic', /12\.450\+|1\.200\+|450\+/i],
   ['known fabricated report label', /Laporan\s+Q2\s+Tersedia/i],
+  ['known fabricated public identity', /Nama Ketua|Nama Pembina|Jl\. Kebaikan|AHU-XXXX|Siti Aisyah|Maria L\. Kolo|Slamet Riyadi/i],
 ];
-const draftDisclosure = /MODE DRAFT|CONTOH SEMENTARA|SIMULASI|sampleMode\s*=\s*true|data contoh/i;
 const cmsFiles = [
   ['articles', 'content/cms/articles.json'],
   ['activities', 'content/cms/activities.json'],
@@ -36,9 +37,7 @@ for (const root of roots) {
   const files = await walk(root);
   for (const file of files) {
     const text = await fs.readFile(file, 'utf8');
-    const explicitlyDraft = draftDisclosure.test(text);
     for (const [label, pattern] of checks) {
-      if (label === 'hardcoded public rupiah amount' && explicitlyDraft) continue;
       if (pattern.test(text)) violations.push(`${file}: ${label}`);
     }
   }
@@ -80,4 +79,4 @@ if (violations.length) {
   process.exit(1);
 }
 
-console.log('Public-content integrity guard passed. Draft/sample rupiah values are only permitted in files carrying an explicit draft disclosure.');
+console.log('Public-content integrity guard passed. Stock imagery, fabricated identities, and unverified public amounts were not found.');

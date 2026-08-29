@@ -1,17 +1,51 @@
 import type { Metadata } from 'next';
-import { Download, FileCheck2, Landmark, ReceiptText, WalletCards } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, FileCheck2, Landmark, ReceiptText, SearchCheck } from 'lucide-react';
+import { EmptyState } from '@/components/EmptyState';
 import { PageHero } from '@/components/PageHero';
-import { sampleFinance } from '@/lib/content';
 
-export const metadata: Metadata = { title: 'Transparansi', description: 'Laporan dan dokumen transparansi Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = {
+  title: 'Transparansi',
+  description: 'Laporan dan dokumen transparansi Yayasan Ruang Sejahtera.',
+};
+
+const publicationChecks = [
+  [SearchCheck, 'Sumber dan periode', 'Setiap angka harus memiliki sumber, rentang waktu, serta definisi yang jelas.'],
+  [ReceiptText, 'Rekonsiliasi', 'Penerimaan, penyaluran, biaya, dan saldo perlu disajikan dalam hubungan yang dapat diperiksa.'],
+  [FileCheck2, 'Dokumen pendukung', 'Berkas hanya ditautkan setelah otoritas, versi, serta kelayakan publikasinya dipastikan.'],
+] as const;
 
 export default function TransparencyPage() {
-  const headline = [['Rp224,8 Jt','Total penerimaan'],['Rp186,5 Jt','Total penyaluran'],['Rp18,2 Jt','Operasional'],['Rp20,1 Jt','Saldo/alokasi']];
   return (
     <>
-      <PageHero eyebrow="Transparansi" title="Kepercayaan tumbuh ketika informasi mudah diperiksa." description="Dashboard ini sengaja diisi data contoh agar desain transparansi dapat dinilai secara utuh. Seluruh nominal, periode, dokumen, dan status akan diganti dengan laporan resmi." />
-      <div className="sample-note"><strong>SIMULASI LAPORAN</strong><span>Seluruh nominal dan dokumen pada halaman ini adalah contoh sementara.</span></div>
-      <section className="section-pad bg-[#f4f4f2]"><div className="shell"><div className="transparency-metrics">{headline.map(([value,label],index)=>{const icons=[WalletCards,Landmark,ReceiptText,FileCheck2];const Icon=icons[index];return <article key={label}><Icon size={21}/><strong>{value}</strong><span>{label}</span><small>contoh sementara</small></article>})}</div><div className="transparency-dashboard"><div className="finance-panel light-panel"><div className="finance-head"><div><span>Komposisi Penyaluran</span><small>Periode contoh 2026</small></div><strong>Rp186,5 Juta</strong></div><div className="finance-content"><div className="donut light-donut"><div><b>100%</b><span>contoh</span></div></div><div className="finance-list">{sampleFinance.map(item=><div key={item.label}><span className="finance-dot"/><strong>{item.label}</strong><em>{item.value}%</em><small>{item.amount}</small></div>)}</div></div></div><div className="report-panel"><h2>Dokumen publik</h2>{['Laporan Penyaluran Mei 2026','Ringkasan Program Triwulan II','Kebijakan Donasi & Pengembalian','Dokumen Tata Kelola Yayasan'].map((name,index)=><div className="report-row" key={name}><div><FileCheck2 size={18}/><span><strong>{name}</strong><small>Dokumen contoh · belum resmi</small></span></div><button type="button" disabled aria-label={`Unduh ${name} belum aktif`}><Download size={16}/></button></div>)}</div></div></div></section>
+      <PageHero
+        eyebrow="Transparansi"
+        title="Kepercayaan tumbuh ketika informasi mudah diperiksa."
+        description="Ruang ini disiapkan untuk laporan keuangan, penyaluran program, metodologi, dan dokumen publik yang telah melewati pemeriksaan."
+      />
+      <section className="trust-page-section">
+        <div className="shell trust-transparency-layout">
+          <div className="trust-transparency-intro">
+            <Landmark size={30} aria-hidden="true" />
+            <span>Standar publikasi</span>
+            <h2>Lebih baik belum menampilkan angka daripada menampilkan angka yang belum dapat dipertanggungjawabkan.</h2>
+            <p>Karena itu, nominal simulasi dan dokumen contoh telah dihapus dari halaman publik. Laporan akan tersedia setelah sumber, periode, rekonsiliasi, persetujuan, dan konteksnya lengkap.</p>
+            <Link href="/kebijakan-donasi" className="trust-text-link">Baca kebijakan donasi <ArrowRight size={16} aria-hidden="true" /></Link>
+          </div>
+          <div className="trust-check-list">
+            {publicationChecks.map(([Icon, title, description]) => (
+              <article key={title}><span><Icon size={21} aria-hidden="true" /></span><div><h2>{title}</h2><p>{description}</p></div></article>
+            ))}
+          </div>
+          <div id="dokumen" className="trust-transparency-empty">
+            <EmptyState
+              eyebrow="Laporan & dokumen"
+              title="Belum ada laporan resmi yang dipublikasikan."
+              description="Bagian ini akan menampilkan judul dokumen, periode, tanggal terbit, penerbit, status pemeriksaan, format, dan tautan unduh setelah semuanya terverifikasi."
+            />
+          </div>
+        </div>
+      </section>
     </>
   );
 }

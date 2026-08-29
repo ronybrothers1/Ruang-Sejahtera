@@ -1,17 +1,38 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import { ArrowRight, Clock3 } from 'lucide-react';
+import { EmptyState } from '@/components/EmptyState';
 import { PageHero } from '@/components/PageHero';
 
-export const metadata: Metadata = { title: 'Sejarah', description: 'Sejarah Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = {
+  title: 'Sejarah',
+  description: 'Ruang publikasi sejarah Yayasan Ruang Sejahtera.',
+};
 
 export default function HistoryPage() {
-  const timeline = [
-    ['2024','Gagasan kepedulian mulai dirumuskan','Sekelompok penggerak sosial mulai mengorganisasi bantuan berbasis kebutuhan masyarakat.'],
-    ['2025','Gerakan diperluas','Kegiatan sosial berkembang dengan fokus kebutuhan dasar, pendidikan, dan respons kemanusiaan.'],
-    ['2026','Penguatan tata kelola digital','Ruang Sejahtera mulai membangun pusat informasi, dokumentasi, dampak, dan transparansi publik yang lebih terstruktur.'],
-  ] as const;
-  return <>
-    <PageHero eyebrow="Tentang Kami" title="Sejarah Yayasan" description="Timeline berikut adalah contoh sementara untuk menampilkan bagaimana perjalanan organisasi akan disajikan. Tahun dan peristiwa final harus diganti berdasarkan catatan resmi." />
-    <div className="sample-note"><strong>TIMELINE CONTOH</strong><span>Tahun dan peristiwa berikut belum merupakan kronologi resmi Yayasan Ruang Sejahtera.</span></div>
-    <section className="section-pad bg-[#f4f4f2]"><div className="shell history-layout"><div className="history-intro"><span className="eyebrow-v3">Perjalanan</span><h2 className="display-h2">Dari kepedulian menjadi gerakan yang lebih terstruktur.</h2><p>Sejarah final akan menghubungkan tonggak penting dengan dokumen, foto, tokoh, dan konteks yang dapat diverifikasi.</p></div><div className="history-timeline">{timeline.map(([year,title,description])=><article key={year}><span>{year}</span><div><h2>{title}</h2><p>{description}</p><small>PERISTIWA CONTOH SEMENTARA</small></div></article>)}</div></div></section>
-  </>;
+  return (
+    <>
+      <PageHero
+        eyebrow="Tentang Kami"
+        title="Sejarah harus ditulis dari catatan, bukan perkiraan."
+        description="Kronologi yayasan akan dipublikasikan setelah tahun, peristiwa, tokoh, dan dokumen pendukungnya dapat diverifikasi."
+      />
+      <section className="trust-page-section">
+        <div className="shell trust-single-column">
+          <div className="trust-icon-intro">
+            <Clock3 size={30} aria-hidden="true" />
+            <span>Jejak kelembagaan</span>
+            <h2>Timeline contoh dapat berubah menjadi informasi palsu jika dibiarkan tampil.</h2>
+            <p>Karena itu, tahun dan peristiwa simulasi telah dihapus. Sejarah final harus membedakan fakta terdokumentasi, kesaksian, dan konteks yang masih memerlukan konfirmasi.</p>
+          </div>
+          <EmptyState
+            eyebrow="Kronologi resmi"
+            title="Sejarah yayasan belum dipublikasikan."
+            description="Halaman ini nantinya akan menghubungkan tonggak penting dengan tanggal, dokumen, foto, serta keterangan yang cukup agar pembaca memahami konteksnya."
+            action={<Link href="/tentang-kami/legalitas" className="trust-button trust-button-ink">Periksa ruang legalitas <ArrowRight size={17} aria-hidden="true" /></Link>}
+          />
+        </div>
+      </section>
+    </>
+  );
 }

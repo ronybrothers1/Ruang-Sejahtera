@@ -1,15 +1,47 @@
 import type { Metadata } from 'next';
-import { CreditCard, Heart, LockKeyhole, ReceiptText, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, CreditCard, LockKeyhole, ReceiptText, ShieldCheck } from 'lucide-react';
 import { PageHero } from '@/components/PageHero';
 
-export const metadata: Metadata = { title: 'Donasi', description: 'Informasi donasi dan standar keamanan Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = {
+  title: 'Cara Mendukung',
+  description: 'Informasi dukungan dan standar keamanan donasi Yayasan Ruang Sejahtera.',
+};
+
+const safeguards = [
+  [LockKeyhole, 'Kanal resmi', 'Rekening, QRIS, atau tautan pembayaran harus dapat dikonfirmasi sebagai milik atau kanal resmi yayasan.'],
+  [CreditCard, 'Proses aman', 'Pembayaran digital harus menggunakan penyedia tepercaya tanpa menyimpan data sensitif kartu pada website.'],
+  [ReceiptText, 'Jejak transaksi', 'Setiap transaksi memerlukan referensi, bukti, rekonsiliasi, serta status yang dapat ditelusuri.'],
+] as const;
 
 export default function DonationPage() {
   return (
     <>
-      <PageHero eyebrow="Donasi" title="Satu tindakan baik, dibuat sederhana dan tetap bertanggung jawab." description="Form berikut adalah simulasi visual draft. Tidak ada transaksi nyata yang diproses sampai payment gateway dan kanal pembayaran resmi diaktifkan." />
-      <div className="sample-note"><strong>SIMULASI DONASI</strong><span>Nominal, rekening, QRIS, dan proses pembayaran belum aktif. Tombol transaksi sengaja dinonaktifkan.</span></div>
-      <section className="section-pad bg-[#f4f4f2]"><div className="shell donation-layout"><div className="donation-card"><span className="eyebrow-v3">Pilih dukungan</span><h2 className="display-h2">Mulai dari niat baik.</h2><p>Gunakan formulir ini untuk menilai pengalaman donasi. Tidak ada data yang dikirim atau pembayaran yang dibuat.</p><form className="donation-form"><fieldset><legend>Pilih program</legend><div className="option-grid"><label><input type="radio" name="program" defaultChecked/> Air Bersih</label><label><input type="radio" name="program"/> Sembako</label><label><input type="radio" name="program"/> Pendidikan</label><label><input type="radio" name="program"/> Kemanusiaan</label></div></fieldset><fieldset><legend>Nominal donasi</legend><div className="amount-grid">{['Rp25.000','Rp50.000','Rp100.000','Rp250.000'].map((amount,index)=><button type="button" className={index===2?'amount-active':''} key={amount}>{amount}</button>)}</div><label className="field-label">Nominal lainnya<input type="text" inputMode="numeric" placeholder="Rp 0" /></label></fieldset><div className="form-grid"><label className="field-label">Nama<input type="text" placeholder="Nama donatur (contoh)" /></label><label className="field-label">Email<input type="email" placeholder="nama@email.com" /></label></div><button type="button" disabled className="donation-disabled"><Heart size={17}/> Lanjutkan Pembayaran · SIMULASI</button></form></div><aside className="donation-trust"><ShieldCheck size={34}/><h2>Dirancang aman sejak awal.</h2><p>Ketika pembayaran resmi diaktifkan, transaksi harus melalui gateway tepercaya, memiliki referensi unik, webhook terverifikasi, bukti donasi, rekonsiliasi, dan pelaporan.</p>{[[LockKeyhole,'Data pembayaran sensitif tidak disimpan langsung.'],[CreditCard,'Metode pembayaran berasal dari kanal resmi.'],[ReceiptText,'Setiap transaksi memiliki referensi dan bukti.']].map(([Icon,text])=>{const I=Icon as typeof LockKeyhole;return <div key={text as string}><I size={19}/><span>{text as string}</span></div>})}</aside></div></section>
+      <PageHero
+        eyebrow="Cara Mendukung"
+        title="Niat baik perlu disalurkan melalui kanal yang benar."
+        description="Kami tidak menampilkan nomor rekening, QRIS, nominal, atau formulir pembayaran sebelum kanal donasi resmi dan kontrol keamanannya aktif."
+      />
+      <section className="trust-page-section">
+        <div className="shell trust-donation-layout">
+          <div className="trust-donation-status">
+            <ShieldCheck size={32} aria-hidden="true" />
+            <span>Status kanal donasi</span>
+            <h2>Pembayaran daring belum diaktifkan.</h2>
+            <p>Form simulasi telah dihapus agar pengunjung tidak mengetik nama, email, atau nominal pada alur yang tidak memproses transaksi. Informasi resmi akan ditampilkan setelah rekening atau payment gateway, kebijakan, bukti pembayaran, webhook, rekonsiliasi, dan kewenangan pengelolaannya siap.</p>
+            <div className="trust-actions">
+              <Link href="/kontak" className="trust-button trust-button-ink">Tanyakan cara mendukung <ArrowRight size={17} aria-hidden="true" /></Link>
+              <Link href="/kebijakan-donasi" className="trust-button trust-button-outline">Baca kebijakan donasi <ArrowRight size={17} aria-hidden="true" /></Link>
+            </div>
+          </div>
+          <div className="trust-safeguard-list">
+            <span>Standar sebelum aktivasi</span>
+            {safeguards.map(([Icon, title, description]) => (
+              <article key={title}><Icon size={22} aria-hidden="true" /><div><h2>{title}</h2><p>{description}</p></div></article>
+            ))}
+          </div>
+        </div>
+      </section>
     </>
   );
 }

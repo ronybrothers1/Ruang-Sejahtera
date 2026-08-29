@@ -5,16 +5,19 @@ export function EmptyState({
   title,
   description,
   action,
+  eyebrow = 'Informasi publik',
 }: {
   title: string;
   description: string;
   action?: ReactNode;
+  eyebrow?: string;
 }) {
   return (
-    <div className="empty-state" role="status">
+    <div className="empty-state empty-state-trust" role="status">
       <div className="empty-state-icon" aria-hidden="true"><FileSearch size={22} /></div>
-      <h3 className="text-lg font-bold text-brand-ink">{title}</h3>
-      <p className="mt-2 max-w-2xl text-sm leading-7 text-neutral-600">{description}</p>
+      <p className="empty-state-eyebrow">{eyebrow}</p>
+      <h2>{title}</h2>
+      <p>{description}</p>
       {action ? <div className="mt-5">{action}</div> : null}
     </div>
   );

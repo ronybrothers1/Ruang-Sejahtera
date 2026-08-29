@@ -1,226 +1,253 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowRight,
-  Droplets,
-  FileText,
-  GraduationCap,
-  HandHeart,
-  HardHat,
+  BookOpenText,
+  Building2,
+  FileCheck2,
   Heart,
-  Home as HomeIcon,
-  MapPin,
-  Quote,
+  Landmark,
+  SearchCheck,
   ShieldCheck,
   Sparkles,
-  Users,
-  WalletCards,
 } from 'lucide-react';
+import { EmptyState } from '@/components/EmptyState';
+import { ProgramMark } from '@/components/ProgramMark';
+import { programs, trustPrinciples } from '@/lib/content';
 import {
-  programs,
-  sampleActivities,
-  sampleFinance,
-  sampleNews,
-  sampleStats,
-  sampleTestimonials,
-  trustPrinciples,
-} from '@/lib/content';
+  publishedActivities,
+  publishedArticles,
+  publishedGalleries,
+} from '@/lib/published-content';
 
-const programIcons = [HandHeart, Users, HomeIcon, Droplets, GraduationCap, HardHat];
-const statIcons = [Users, Heart, MapPin, WalletCards];
+const trustSignals = [
+  {
+    title: 'Lima program utama',
+    description: 'Setiap program memiliki fokus yang berbeda agar ruang kerja yayasan mudah dipahami.',
+    icon: Sparkles,
+  },
+  {
+    title: 'Informasi terverifikasi',
+    description: 'Konten publik dipisahkan dari draf dan hanya diterbitkan melalui alur editorial.',
+    icon: SearchCheck,
+  },
+  {
+    title: 'Ruang akuntabilitas',
+    description: 'Laporan, legalitas, organisasi, dan kebijakan ditempatkan pada halaman khusus.',
+    icon: ShieldCheck,
+  },
+] as const;
+
+const accountabilityLinks = [
+  {
+    href: '/transparansi',
+    title: 'Transparansi',
+    description: 'Laporan dan dokumen hanya ditampilkan setelah sumber, periode, dan statusnya dapat dijelaskan.',
+    icon: Landmark,
+  },
+  {
+    href: '/tentang-kami/legalitas',
+    title: 'Legalitas',
+    description: 'Informasi hukum dipublikasikan secara proporsional tanpa membuka data yang semestinya dilindungi.',
+    icon: FileCheck2,
+  },
+  {
+    href: '/organisasi',
+    title: 'Organisasi',
+    description: 'Struktur tanggung jawab disiapkan agar publik mengetahui siapa mengelola setiap fungsi.',
+    icon: Building2,
+  },
+  {
+    href: '/kebijakan-donasi',
+    title: 'Kebijakan Donasi',
+    description: 'Prinsip penerimaan, penggunaan, pengembalian, dan perlindungan donatur dijelaskan sejak awal.',
+    icon: BookOpenText,
+  },
+] as const;
+
+const latestPublications = [
+  ...publishedActivities.map((item) => ({
+    type: 'Kegiatan',
+    title: item.title,
+    summary: item.summary,
+    date: item.activityDate,
+    href: `/kegiatan/${item.slug}`,
+  })),
+  ...publishedArticles.map((item) => ({
+    type: item.category,
+    title: item.title,
+    summary: item.excerpt,
+    date: item.publishedAt,
+    href: `/berita/${item.slug}`,
+  })),
+  ...publishedGalleries.map((item) => ({
+    type: 'Galeri',
+    title: item.title,
+    summary: item.summary,
+    date: item.publishedAt,
+    href: `/galeri/${item.slug}`,
+  })),
+]
+  .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
+  .slice(0, 3);
+
+function formatDate(value: string) {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return new Intl.DateTimeFormat('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(parsed);
+}
 
 export default function Home() {
   return (
-    <div className="home-v4 bg-[#f7f7f5]">
-      <section className="hero-stage hero-stage-v4">
-        <div className="hero-noise" aria-hidden="true" />
-        <div className="hero-red-plane" aria-hidden="true" />
-        <div className="hero-orbit" aria-hidden="true" />
-
-        <div className="shell hero-grid hero-grid-v4">
-          <div className="hero-copy hero-copy-v4">
-            <span className="hero-kicker"><Sparkles size={15} /> Gerakan sosial & kemanusiaan</span>
-            <h1 className="hero-title-v43" aria-label="Bersama kita hadirkan harapan, wujudkan kesejahteraan.">
-              <span className="hero-title-line hero-title-line-light">Bersama kita</span>
-              <span className="hero-title-line hero-title-line-accent">Hadirkan</span>
-              <span className="hero-title-line hero-title-line-accent">Harapan,</span>
-              <span className="hero-title-line hero-title-line-light">Wujudkan</span>
-              <span className="hero-title-line hero-title-line-light">Kesejahteraan.</span>
-            </h1>
-            <p>Ruang Sejahtera menghubungkan kepedulian dengan aksi nyata—dari air bersih dan kebutuhan dasar hingga pendidikan, hunian layak, dan tanggap kemanusiaan.</p>
-
-            <div className="hero-actions">
-              <Link href="/donasi" className="cta-red"><Heart size={18} fill="currentColor" /> Donasi Sekarang</Link>
-              <Link href="/kegiatan" className="cta-ghost">Lihat Kegiatan <ArrowRight size={18} /></Link>
+    <div className="trust-home">
+      <section className="trust-hero" aria-labelledby="home-title">
+        <div className="trust-hero-grid-lines" aria-hidden="true" />
+        <div className="shell trust-hero-layout">
+          <div className="trust-hero-copy">
+            <span className="trust-kicker"><Sparkles size={15} aria-hidden="true" /> Gerakan sosial & kemanusiaan</span>
+            <h1 id="home-title">Kepedulian perlu sampai ke tempat yang tepat.</h1>
+            <p>Yayasan Ruang Sejahtera mengembangkan lima jalur program untuk menghubungkan kepedulian publik dengan kebutuhan dasar, usaha rakyat, hunian layak, air bersih, dan pendidikan.</p>
+            <div className="trust-actions">
+              <Link href="/program" className="trust-button trust-button-primary">Kenali Program <ArrowRight size={18} aria-hidden="true" /></Link>
+              <Link href="/donasi" className="trust-button trust-button-secondary"><Heart size={18} aria-hidden="true" /> Cara Mendukung</Link>
             </div>
-
-            <div className="hero-proof hero-proof-v4">
-              <div className="avatar-stack" aria-hidden="true"><span>RS</span><span>01</span><span>02</span><span>03</span></div>
-              <div><strong>Gerakan yang tumbuh bersama publik</strong><small>Profil relawan & donatur · contoh sementara</small></div>
-            </div>
-
-            <div className="hero-trustline" aria-label="Prinsip pengalaman publik">
-              <span>Transparansi publik</span>
-              <span>Dokumentasi kegiatan</span>
-              <span>Berorientasi kebutuhan</span>
+            <div className="trust-hero-assurance">
+              <ShieldCheck size={20} aria-hidden="true" />
+              <p><strong>Kepercayaan dimulai dari informasi yang jujur.</strong> Data, dokumen, dan cerita lapangan hanya ditampilkan setelah layak dipublikasikan.</p>
             </div>
           </div>
 
-          <div className="hero-media hero-media-v4" aria-label="Kolase dokumentasi contoh sementara">
-            <div className="hero-main-image">
-              <Image src={programs[3].image} alt="Dokumentasi contoh program air bersih" fill priority sizes="(max-width: 820px) 100vw, (max-width: 1180px) 54vw, 48vw" />
-              <div className="image-shade" />
-              <div className="media-label">FOTO CONTOH · AKAN DIGANTI DOKUMENTASI ASLI</div>
+          <aside className="trust-program-console" aria-label="Lima program utama Ruang Sejahtera">
+            <div className="trust-console-head">
+              <div><span>Ruang kerja</span><strong>Program utama</strong></div>
+              <small>05 fokus</small>
             </div>
-            <div className="hero-side-stack">
-              <div className="mini-image"><Image src={programs[0].image} alt="Dokumentasi contoh bantuan sosial" fill sizes="(max-width: 820px) 48vw, 22vw" /></div>
-              <div className="mini-image"><Image src={programs[4].image} alt="Dokumentasi contoh pendidikan" fill sizes="(max-width: 820px) 48vw, 22vw" /></div>
-            </div>
-          </div>
-        </div>
-
-        <div className="shell hero-stats-wrap hero-stats-wrap-v4">
-          <div className="hero-stats hero-stats-v4">
-            {sampleStats.map((item, index) => {
-              const Icon = statIcons[index];
-              return (
-                <div className="hero-stat" key={item.label}>
-                  <Icon size={26} />
-                  <div><strong>{item.value}</strong><span>{item.label}</span><small>{item.note}</small></div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="section-white section-pad section-pad-v4">
-        <div className="shell">
-          <div className="center-heading center-heading-v4">
-            <span>Program Kami</span>
-            <h2>Solusi nyata untuk perubahan yang terasa.</h2>
-            <p>Lima program resmi Ruang Sejahtera untuk bantuan sosial, usaha rakyat, hunian layak, air bersih, dan pendidikan.</p>
-          </div>
-
-          <div className="program-grid-premium program-grid-v4">
-            {programs.map((program, index) => {
-              const Icon = programIcons[index];
-              return (
-                <Link href={`/program/${program.slug}`} className="program-card-premium program-card-v4" key={program.slug}>
-                  <div className="program-image">
-                    <Image src={program.image} alt={`Foto contoh ${program.name}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
-                    <span className="program-number">{program.accent}</span>
-                    <span className="program-icon"><Icon size={19} /></span>
-                  </div>
-                  <div className="program-body">
-                    <span>{program.focus}</span>
-                    <h3>{program.name}</h3>
-                    <p>{program.summary}</p>
-                    <strong>Lihat Program <ArrowRight size={15} /></strong>
-                  </div>
+            <div className="trust-console-list">
+              {programs.map((program) => (
+                <Link href={`/program/${program.slug}`} key={program.slug}>
+                  <ProgramMark slug={program.slug} accent={program.accent} compact />
+                  <span><small>{program.focus}</small><strong>{program.name}</strong></span>
+                  <ArrowRight size={17} aria-hidden="true" />
                 </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="section-pad section-pad-v4 bg-[#f4f4f2]">
-        <div className="shell">
-          <div className="split-heading split-heading-v4">
-            <div><span className="eyebrow-v3">Kegiatan terbaru</span><h2 className="display-h2">Aksi yang bisa dilihat, bukan hanya diceritakan.</h2></div>
-            <Link href="/kegiatan" className="text-link">Lihat semua kegiatan <ArrowRight size={16} /></Link>
-          </div>
-
-          <div className="activity-grid activity-grid-v4">
-            {sampleActivities.map((activity) => (
-              <article className="activity-card activity-card-v4" key={activity.slug}>
-                <div className="activity-photo">
-                  <Image src={activity.image} alt={`Foto contoh ${activity.title}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" />
-                  <span className="date-chip">{activity.date}</span>
-                  <span className="draft-chip">CONTOH</span>
-                </div>
-                <div className="activity-body">
-                  <span className="location-line"><MapPin size={14} /> {activity.location}</span>
-                  <h3>{activity.title}</h3>
-                  <p>{activity.summary}</p>
-                  <Link href="/kegiatan">Baca detail <ArrowRight size={14} /></Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="impact-stage section-pad section-pad-v4 impact-stage-v4">
-        <div className="shell impact-layout impact-layout-v4">
-          <div className="impact-copy impact-copy-v4">
-            <span className="eyebrow-v3 light">Transparansi & kepercayaan</span>
-            <h2>Amanah Anda,<br />tanggung jawab kami.</h2>
-            <p>Contoh visual laporan penyaluran, dokumen publik, dan prinsip tata kelola. Seluruh nominal pada bagian ini masih bersifat demonstrasi.</p>
-            <div className="impact-links">
-              <Link href="/transparansi"><FileText size={20} /> Lihat laporan</Link>
-              <Link href="/kebijakan-donasi"><ShieldCheck size={20} /> Kebijakan donasi</Link>
+              ))}
             </div>
-          </div>
+            <Link href="/program" className="trust-console-footer">Lihat seluruh program <ArrowRight size={15} aria-hidden="true" /></Link>
+          </aside>
+        </div>
+      </section>
 
-          <div className="finance-panel finance-panel-v4">
-            <div className="finance-head"><div><span>Ringkasan Penyaluran Dana</span><small>contoh sementara</small></div><strong>Rp186,5 Juta</strong></div>
-            <div className="finance-content">
-              <div className="donut" aria-label="Visual komposisi dana contoh"><div><b>100%</b><span>tersalurkan*</span></div></div>
-              <div className="finance-list">{sampleFinance.map((item) => <div key={item.label}><span className="finance-dot" /><strong>{item.label}</strong><em>{item.value}%</em><small>{item.amount}</small></div>)}</div>
+      <section className="trust-signal-band" aria-label="Fondasi kepercayaan">
+        <div className="shell trust-signal-grid">
+          {trustSignals.map(({ title, description, icon: Icon }) => (
+            <article key={title}>
+              <span><Icon size={21} aria-hidden="true" /></span>
+              <div><h2>{title}</h2><p>{description}</p></div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="trust-section trust-programs" aria-labelledby="program-heading">
+        <div className="shell">
+          <div className="trust-section-heading">
+            <div><span>Program utama</span><h2 id="program-heading">Lima jalur bantuan, satu arah kepedulian.</h2></div>
+            <p>Setiap program memberi pintu masuk yang jelas bagi kebutuhan yang berbeda. Informasi rinci, jangkauan, dan hasil akan dilengkapi dari sumber resmi.</p>
+          </div>
+          <div className="trust-program-grid">
+            {programs.map((program) => (
+              <Link href={`/program/${program.slug}`} key={program.slug} className="trust-program-card">
+                <ProgramMark slug={program.slug} accent={program.accent} />
+                <span>{program.focus}</span>
+                <h3>{program.name}</h3>
+                <p>{program.summary}</p>
+                <strong>Pelajari program <ArrowRight size={15} aria-hidden="true" /></strong>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="trust-section trust-principle-section" aria-labelledby="principle-heading">
+        <div className="shell trust-principle-layout">
+          <div className="trust-principle-intro">
+            <span>Prinsip kerja</span>
+            <h2 id="principle-heading">Kepercayaan tidak dibangun oleh tampilan, tetapi oleh cara kerja.</h2>
+            <p>Empat prinsip berikut menjadi kerangka untuk menyusun informasi program, pelaksanaan, dokumentasi, dan pertanggungjawaban publik.</p>
+            <Link href="/tentang-kami/nilai" className="trust-text-link">Lihat landasan nilai <ArrowRight size={16} aria-hidden="true" /></Link>
+          </div>
+          <div className="trust-principle-list">
+            {trustPrinciples.map(([title, description], index) => (
+              <article key={title}>
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <div><h3>{title}</h3><p>{description}</p></div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="trust-section trust-publication-section" aria-labelledby="publication-heading">
+        <div className="shell">
+          <div className="trust-section-heading trust-section-heading-compact">
+            <div><span>Jejak publik</span><h2 id="publication-heading">Kegiatan dan cerita yang sudah layak dibaca publik.</h2></div>
+            <Link href="/kegiatan" className="trust-text-link">Arsip kegiatan <ArrowRight size={16} aria-hidden="true" /></Link>
+          </div>
+          {latestPublications.length ? (
+            <div className="trust-publication-grid">
+              {latestPublications.map((item) => (
+                <article key={item.href}>
+                  <div><span>{item.type}</span><time dateTime={item.date}>{formatDate(item.date)}</time></div>
+                  <h3><Link href={item.href}>{item.title}</Link></h3>
+                  <p>{item.summary}</p>
+                  <Link href={item.href}>Baca selengkapnya <ArrowRight size={15} aria-hidden="true" /></Link>
+                </article>
+              ))}
             </div>
-            <p className="finance-disclaimer">*Seluruh angka merupakan data desain contoh dan bukan laporan resmi yayasan.</p>
-          </div>
-
-          <div className="principle-panel principle-panel-v4">
-            <h3>Prinsip Kami</h3>
-            {trustPrinciples.map(([title, description], i) => (
-              <div className="principle-item" key={title}>
-                <span>{String(i + 1).padStart(2, '0')}</span>
-                <div><strong>{title}</strong><p>{description}</p></div>
-              </div>
-            ))}
-          </div>
+          ) : (
+            <EmptyState
+              eyebrow="Arsip terverifikasi"
+              title="Belum ada kegiatan atau berita yang dipublikasikan."
+              description="Kami tidak menampilkan contoh seolah-olah kegiatan nyata. Arsip akan muncul setelah tanggal, lokasi, narasi, dokumentasi, dan status persetujuan publikasinya telah diperiksa."
+              action={<Link href="/program" className="trust-button trust-button-ink">Kenali program yang tersedia <ArrowRight size={17} aria-hidden="true" /></Link>}
+            />
+          )}
         </div>
       </section>
 
-      <section className="section-white section-pad section-pad-v4">
+      <section className="trust-section trust-accountability" aria-labelledby="accountability-heading">
         <div className="shell">
-          <div className="center-heading center-heading-v4"><span>Cerita dampak</span><h2>Mereka yang merasakan manfaat.</h2><p>Testimoni berikut merupakan contoh struktur konten dan akan diganti dengan cerita penerima manfaat yang telah mendapat persetujuan publikasi.</p></div>
-          <div className="testimonial-grid testimonial-grid-v4">
-            {sampleTestimonials.map((item) => (
-              <article className="testimonial-card testimonial-card-v4" key={item.name}>
-                <Quote size={32} />
-                <p>“{item.quote}”</p>
-                <div><div className="testimonial-avatar">{item.name.split(' ').map((x) => x[0]).join('').slice(0, 2)}</div><div><strong>{item.name}</strong><span>{item.role}</span></div></div>
-                <small>TESTIMONI CONTOH</small>
-              </article>
+          <div className="trust-section-heading">
+            <div><span>Akuntabilitas</span><h2 id="accountability-heading">Informasi penting tidak boleh tersembunyi di balik slogan.</h2></div>
+            <p>Empat ruang berikut disiapkan agar publik dapat menemukan dasar hukum, struktur tanggung jawab, kebijakan, dan laporan tanpa harus menebak.</p>
+          </div>
+          <div className="trust-accountability-grid">
+            {accountabilityLinks.map(({ href, title, description, icon: Icon }) => (
+              <Link href={href} key={href}>
+                <span><Icon size={23} aria-hidden="true" /></span>
+                <h3>{title}</h3>
+                <p>{description}</p>
+                <strong>Buka halaman <ArrowRight size={15} aria-hidden="true" /></strong>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="section-pad section-pad-v4 bg-[#f4f4f2]">
-        <div className="shell">
-          <div className="split-heading split-heading-v4"><div><span className="eyebrow-v3">Berita & cerita</span><h2 className="display-h2">Kabar dari lapangan.</h2></div><Link href="/berita" className="text-link">Lihat semua berita <ArrowRight size={16} /></Link></div>
-          <div className="news-grid-v3 news-grid-v4">
-            {sampleNews.map((item) => (
-              <article className="news-card-v3 news-card-v4" key={item.slug}>
-                <div className="news-image"><Image src={item.image} alt={`Foto contoh ${item.title}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" /><span>{item.category}</span></div>
-                <div><small>{item.date} · DATA CONTOH</small><h3>{item.title}</h3><Link href="/berita">Baca cerita <ArrowRight size={14} /></Link></div>
-              </article>
-            ))}
+      <section className="trust-closing" aria-labelledby="closing-heading">
+        <div className="trust-closing-grid" aria-hidden="true" />
+        <div className="shell trust-closing-content">
+          <div>
+            <span>Bergerak bersama</span>
+            <h2 id="closing-heading">Dukungan yang baik dimulai dari informasi yang benar.</h2>
+            <p>Pelajari program, periksa ruang transparansi, lalu pilih cara terlibat yang paling sesuai.</p>
           </div>
-        </div>
-      </section>
-
-      <section className="closing-cta closing-cta-v4">
-        <div className="closing-image"><Image src={programs[1].image} alt="Foto contoh relawan dan kegiatan sosial" fill sizes="100vw" /></div>
-        <div className="closing-overlay" />
-        <div className="shell closing-content closing-content-v4">
-          <div><span>Bergerak bersama</span><h2>Hadirkan kebaikan.<br />Ubah kehidupan.</h2><p>Setiap dukungan adalah ruang baru bagi harapan untuk tumbuh.</p></div>
-          <Link href="/donasi" className="cta-white"><Heart size={18} /> Donasi Sekarang</Link>
+          <div className="trust-actions">
+            <Link href="/donasi" className="trust-button trust-button-light"><Heart size={18} aria-hidden="true" /> Cara Mendukung</Link>
+            <Link href="/kontak" className="trust-button trust-button-dark">Hubungi Yayasan <ArrowRight size={18} aria-hidden="true" /></Link>
+          </div>
         </div>
       </section>
     </div>
