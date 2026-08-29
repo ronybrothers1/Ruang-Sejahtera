@@ -15,9 +15,10 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  output: 'standalone',
   images: { formats: ['image/avif', 'image/webp'] },
-  async headers() { return [{ source: '/(.*)', headers: securityHeaders }]; },
+  async headers() {
+    return [{ source: '/(.*)', headers: securityHeaders }];
+  },
 };
 
 export default nextConfig;
