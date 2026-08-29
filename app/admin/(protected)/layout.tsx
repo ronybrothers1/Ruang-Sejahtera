@@ -22,7 +22,7 @@ export default async function ProtectedAdminLayout({ children }: Readonly<{ chil
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-10">{children}</main>
+      <div className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-10">{children}</div>
     </div>
   );
 }
