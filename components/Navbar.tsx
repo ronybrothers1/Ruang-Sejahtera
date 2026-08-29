@@ -42,7 +42,7 @@ export function Navbar() {
   const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
 
   return (
-    <header className={`nav-shell sticky top-0 ${scrolled ? 'scrolled' : ''}`}>
+    <header className={`nav-shell ${scrolled ? 'scrolled' : ''}`}>
       <div className="shell nav-inner">
         <BrandLogo compact priority />
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Navigasi utama">
