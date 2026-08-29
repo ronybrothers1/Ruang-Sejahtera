@@ -5,13 +5,14 @@ export function BrandLogo({ compact = false, priority = false }: { compact?: boo
   return (
     <Link href="/" className="inline-flex items-center" aria-label="Yayasan Ruang Sejahtera, kembali ke beranda">
       <Image
-        src="/brand/logo-ruang-sejahtera.webp"
+        src="/brand/logo-ruang-sejahtera-transparent.svg"
         alt="Yayasan Ruang Sejahtera"
         width={1000}
         height={453}
         priority={priority}
-        sizes={compact ? '(max-width: 640px) 148px, 164px' : '(max-width: 768px) 260px, 320px'}
-        className={compact ? 'h-auto w-[148px] object-contain sm:w-[164px]' : 'h-auto w-[260px] object-contain md:w-[320px]'}
+        unoptimized
+        sizes={compact ? '(max-width: 640px) 150px, 174px' : '(max-width: 768px) 250px, 330px'}
+        className={compact ? 'h-auto w-[150px] object-contain sm:w-[174px]' : 'h-auto w-[250px] object-contain md:w-[330px]'}
       />
     </Link>
   );

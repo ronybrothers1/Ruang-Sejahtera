@@ -1,51 +1,119 @@
+import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, FileCheck2, HeartHandshake, Images, MapPinned, Newspaper, ShieldCheck, UsersRound } from 'lucide-react';
+import { ArrowRight, BadgeCheck, Droplets, FileText, GraduationCap, HandHeart, HardHat, Heart, Home as HomeIcon, MapPin, Quote, ShieldCheck, Sparkles, Users, WalletCards } from 'lucide-react';
 import { BrandLogo } from '@/components/BrandLogo';
-import { EmptyState } from '@/components/EmptyState';
-import { SectionHeading } from '@/components/SectionHeading';
-import { programs, trustPrinciples } from '@/lib/content';
+import { programs, sampleActivities, sampleFinance, sampleNews, sampleStats, sampleTestimonials, trustPrinciples } from '@/lib/content';
+
+const programIcons = [Droplets, HandHeart, GraduationCap, HomeIcon, HardHat, Users];
 
 export default function Home() {
-  const traceFlow = [
-    ['01', 'Program', 'Tujuan dan ruang lingkup bantuan dijelaskan terlebih dahulu.'],
-    ['02', 'Kegiatan', 'Pelaksanaan dicatat dengan waktu, lokasi, program, dan dokumentasi.'],
-    ['03', 'Dampak', 'Hasil dirangkum hanya dari metrik yang memiliki definisi dan sumber.'],
-    ['04', 'Laporan', 'Pendanaan dan dokumen publik dihubungkan ke konteks programnya.'],
-  ];
-
   return (
-    <div className="pt-20">
-      <section className="relative overflow-hidden bg-brand-black text-white">
-        <div className="absolute inset-y-0 right-0 w-[42%] bg-brand-red max-lg:hidden" aria-hidden="true" />
-        <div className="absolute right-[29%] top-0 h-full w-px rotate-[24deg] bg-white/15 max-lg:hidden" aria-hidden="true" />
-        <div className="shell relative grid min-h-[680px] items-center gap-12 py-16 lg:grid-cols-[1.08fr_.92fr] lg:py-24">
-          <div className="relative z-10 max-w-3xl">
-            <p className="mb-5 text-xs font-extrabold uppercase tracking-[.18em] text-red-300">Yayasan sosial & kemanusiaan</p>
-            <h1 className="font-heading text-5xl font-extrabold leading-[1.02] tracking-[-.055em] sm:text-6xl lg:text-7xl">Ruang untuk berbagi. Kerja sosial yang dapat dilihat dan dipertanggungjawabkan.</h1>
-            <p className="mt-7 max-w-2xl text-base leading-8 text-neutral-300 md:text-lg">Ruang Sejahtera membangun kepercayaan melalui program yang jelas, dokumentasi yang patut, data yang dapat ditelusuri, dan transparansi yang tidak mengandalkan klaim kosong.</p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row"><Link href="/kegiatan" className="button-primary">Lihat Kegiatan <ArrowRight size={18} /></Link><Link href="/transparansi" className="button-secondary border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">Lihat Transparansi</Link></div>
+    <div className="bg-[#f7f7f5]">
+      <div className="demo-ribbon">MODE DRAFT · SELURUH ANGKA, FOTO, TESTIMONI, DAN DATA DI HALAMAN INI ADALAH CONTOH SEMENTARA</div>
+
+      <section className="hero-stage">
+        <div className="hero-noise" aria-hidden="true" />
+        <div className="hero-red-plane" aria-hidden="true" />
+        <div className="shell hero-grid">
+          <div className="hero-copy">
+            <span className="hero-kicker"><Sparkles size={15} /> Gerakan sosial & kemanusiaan</span>
+            <h1>Bersama kita <span>hadirkan harapan,</span> wujudkan kesejahteraan.</h1>
+            <p>Ruang Sejahtera menghubungkan kepedulian dengan aksi nyata—dari air bersih dan kebutuhan dasar hingga pendidikan, hunian layak, dan tanggap kemanusiaan.</p>
+            <div className="hero-actions">
+              <Link href="/donasi" className="cta-red"><Heart size={18} fill="currentColor" /> Donasi Sekarang</Link>
+              <Link href="/kegiatan" className="cta-ghost">Lihat Kegiatan <ArrowRight size={18} /></Link>
+            </div>
+            <div className="hero-proof">
+              <div className="avatar-stack" aria-hidden="true"><span>RS</span><span>01</span><span>02</span><span>03</span></div>
+              <div><strong>Gerakan yang tumbuh bersama publik</strong><small>profil relawan & donatur · contoh sementara</small></div>
+            </div>
           </div>
-          <div className="relative z-10 lg:pl-10"><div className="brand-grid mx-auto max-w-md border border-white/15 bg-white p-7 shadow-2xl lg:ml-auto"><BrandLogo priority /><div className="mt-6 border-t border-neutral-200 pt-5 text-sm leading-7 text-neutral-600">Identitas visual menggunakan logo resmi yang diberikan yayasan. Logo tidak digambar ulang dan tidak diubah proporsinya.</div></div></div>
+
+          <div className="hero-media" aria-label="Kolase dokumentasi contoh sementara">
+            <div className="hero-main-image">
+              <Image src={programs[0].image} alt="Dokumentasi contoh program air bersih" fill priority sizes="(max-width: 1024px) 100vw, 48vw" />
+              <div className="image-shade" />
+              <div className="media-label">FOTO CONTOH · AKAN DIGANTI DOKUMENTASI ASLI</div>
+            </div>
+            <div className="hero-side-stack">
+              <div className="mini-image"><Image src={programs[1].image} alt="Dokumentasi contoh bantuan sosial" fill sizes="22vw" /></div>
+              <div className="mini-image"><Image src={programs[2].image} alt="Dokumentasi contoh pendidikan" fill sizes="22vw" /></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="shell hero-stats-wrap">
+          <div className="hero-stats">
+            {sampleStats.map((item, index) => {
+              const icons = [Users, Heart, MapPin, WalletCards];
+              const Icon = icons[index];
+              return <div className="hero-stat" key={item.label}><Icon size={26} /><div><strong>{item.value}</strong><span>{item.label}</span><small>{item.note}</small></div></div>;
+            })}
+          </div>
         </div>
       </section>
 
-      <section className="border-b border-neutral-200 bg-white py-10"><div className="shell grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{trustPrinciples.map(([title, description], index) => { const icons = [HeartHandshake, FileCheck2, ShieldCheck, CheckCircle2]; const Icon = icons[index]; return <div key={title} className="border-l-2 border-brand-red pl-4"><Icon size={19} className="mb-3 text-brand-red" /><h2 className="font-bold text-brand-ink">{title}</h2><p className="mt-2 text-sm leading-6 text-neutral-600">{description}</p></div>; })}</div></section>
+      <section className="section-white section-pad">
+        <div className="shell">
+          <div className="center-heading"><span>Program Kami</span><h2>Solusi nyata untuk perubahan yang terasa.</h2><p>Enam fokus program utama untuk menjawab kebutuhan dasar, pendidikan, hunian, dan keadaan darurat masyarakat.</p></div>
+          <div className="program-grid-premium">
+            {programs.slice(0,5).map((program, index) => {
+              const Icon = programIcons[index];
+              return <Link href={`/program/${program.slug}`} className="program-card-premium" key={program.slug}>
+                <div className="program-image"><Image src={program.image} alt={`Foto contoh ${program.name}`} fill sizes="(max-width: 768px) 100vw, 20vw" /><span className="program-number">{program.accent}</span><span className="program-icon"><Icon size={19} /></span></div>
+                <div className="program-body"><span>{program.focus}</span><h3>{program.name}</h3><p>{program.summary}</p><strong>Lihat Program <ArrowRight size={15} /></strong></div>
+              </Link>;
+            })}
+          </div>
+        </div>
+      </section>
 
-      <section className="py-20 md:py-28"><div className="shell"><SectionHeading eyebrow="Program" title="Fokus kerja yang mudah dipahami" description="Setiap program memiliki halaman sendiri agar publik dapat menelusuri tujuan, kegiatan terkait, dokumentasi, dampak, dan laporan ketika data resminya tersedia." action={<Link className="button-secondary" href="/program">Semua Program <ArrowRight size={17} /></Link>} /><div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">{programs.map((program, index) => <Link key={program.slug} href={`/program/${program.slug}`} className="group border border-neutral-200 bg-white p-7 transition hover:-translate-y-1 hover:border-red-200 hover:shadow-xl"><div className="mb-8 flex items-center justify-between"><span className="text-xs font-extrabold uppercase tracking-[.14em] text-brand-red">{program.focus}</span><span className="font-heading text-2xl font-extrabold text-neutral-300">0{index + 1}</span></div><h3 className="font-heading text-xl font-bold tracking-tight text-brand-ink group-hover:text-brand-red">{program.name}</h3><p className="mt-3 text-sm leading-7 text-neutral-600">{program.summary}</p><span className="mt-6 inline-flex items-center gap-2 text-sm font-bold">Lihat program <ArrowRight size={16} className="transition group-hover:translate-x-1" /></span></Link>)}</div></div></section>
+      <section className="section-pad bg-[#f4f4f2]">
+        <div className="shell">
+          <div className="split-heading"><div><span className="eyebrow-v3">Kegiatan terbaru</span><h2 className="display-h2">Aksi yang bisa dilihat, bukan hanya diceritakan.</h2></div><Link href="/kegiatan" className="text-link">Lihat semua kegiatan <ArrowRight size={16} /></Link></div>
+          <div className="activity-grid">
+            {sampleActivities.map((activity) => <article className="activity-card" key={activity.slug}>
+              <div className="activity-photo"><Image src={activity.image} alt={`Foto contoh ${activity.title}`} fill sizes="(max-width: 768px) 100vw, 25vw" /><span className="date-chip">{activity.date}</span><span className="draft-chip">CONTOH</span></div>
+              <div className="activity-body"><span className="location-line"><MapPin size={14} /> {activity.location}</span><h3>{activity.title}</h3><p>{activity.summary}</p><Link href="/kegiatan">Baca detail <ArrowRight size={14} /></Link></div>
+            </article>)}
+          </div>
+        </div>
+      </section>
 
-      <section className="border-y border-neutral-200 bg-neutral-50 py-16 md:py-20"><div className="shell"><SectionHeading eyebrow="Jejak Akuntabilitas" title="Dari program sampai laporan, konteksnya tidak terputus." description="Arsitektur V2 dirancang agar kegiatan sosial tidak berhenti sebagai unggahan foto. Setiap lapisan dapat ditelusuri kembali ke konteks sebelumnya." /><ol className="grid gap-px overflow-hidden border border-neutral-200 bg-neutral-200 md:grid-cols-2 lg:grid-cols-4">{traceFlow.map(([number, title, description]) => <li key={number} className="bg-white p-6"><span className="font-heading text-3xl font-extrabold text-red-200">{number}</span><h3 className="mt-6 font-heading text-xl font-extrabold">{title}</h3><p className="mt-3 text-sm leading-7 text-neutral-600">{description}</p></li>)}</ol></div></section>
+      <section className="impact-stage section-pad">
+        <div className="shell impact-layout">
+          <div className="impact-copy"><span className="eyebrow-v3 light">Transparansi & kepercayaan</span><h2>Amanah Anda,<br/>tanggung jawab kami.</h2><p>Draft ini menampilkan contoh bagaimana laporan penyaluran, dokumen publik, dan prinsip tata kelola akan disajikan. Semua nominal di bawah bersifat demonstrasi.</p><div className="impact-links"><Link href="/transparansi"><FileText size={20}/> Lihat laporan</Link><Link href="/kebijakan-donasi"><ShieldCheck size={20}/> Kebijakan donasi</Link></div></div>
+          <div className="finance-panel">
+            <div className="finance-head"><div><span>Ringkasan Penyaluran Dana</span><small>contoh sementara</small></div><strong>Rp186,5 Juta</strong></div>
+            <div className="finance-content">
+              <div className="donut" aria-label="Visual komposisi dana contoh"><div><b>100%</b><span>tersalurkan*</span></div></div>
+              <div className="finance-list">{sampleFinance.map((item) => <div key={item.label}><span className="finance-dot"/><strong>{item.label}</strong><em>{item.value}%</em><small>{item.amount}</small></div>)}</div>
+            </div>
+            <p className="finance-disclaimer">*Seluruh angka merupakan data desain contoh dan bukan laporan resmi yayasan.</p>
+          </div>
+          <div className="principle-panel"><h3>Prinsip Kami</h3>{trustPrinciples.map(([title, description], i) => <div className="principle-item" key={title}><span>{String(i+1).padStart(2,'0')}</span><div><strong>{title}</strong><p>{description}</p></div></div>)}</div>
+        </div>
+      </section>
 
-      <section className="py-20 md:py-28"><div className="shell"><SectionHeading eyebrow="Kegiatan" title="Bukti kerja ditempatkan sebelum klaim" description="Kegiatan terbaru akan ditampilkan berdasarkan data resmi yang telah melalui proses editorial. Sistem tidak mengisi kegiatan, foto, tanggal, atau penerima manfaat secara otomatis." /><EmptyState title="Belum ada kegiatan yang dipublikasikan di sistem V2" description="Setelah data kegiatan resmi dimigrasikan melalui CMS, bagian ini akan menampilkan tanggal, lokasi, program, ringkasan, serta dokumentasi yang memiliki status publikasi dan persetujuan yang sesuai." action={<Link href="/kegiatan" className="button-secondary">Buka Arsip Kegiatan</Link>} /></div></section>
+      <section className="section-white section-pad">
+        <div className="shell">
+          <div className="center-heading"><span>Cerita dampak</span><h2>Mereka yang merasakan manfaat.</h2><p>Testimoni berikut hanya contoh struktur konten dan akan diganti dengan cerita penerima manfaat yang telah mendapat persetujuan publikasi.</p></div>
+          <div className="testimonial-grid">{sampleTestimonials.map((item) => <article className="testimonial-card" key={item.name}><Quote size={32}/><p>“{item.quote}”</p><div><div className="testimonial-avatar">{item.name.split(' ').map(x=>x[0]).join('').slice(0,2)}</div><div><strong>{item.name}</strong><span>{item.role}</span></div></div><small>TESTIMONI CONTOH</small></article>)}</div>
+        </div>
+      </section>
 
-      <section className="bg-neutral-50 py-20 md:py-28"><div className="shell"><SectionHeading eyebrow="Publikasi" title="Berita dan dokumentasi dipisahkan, tetapi saling terhubung." description="Berita memberi konteks. Galeri memberi bukti visual. Keduanya akan mengambil data yang telah dipublikasikan melalui CMS, bukan materi stok untuk mengisi layout." /><div className="grid gap-5 lg:grid-cols-2"><article className="border border-neutral-200 bg-white p-7 md:p-9"><Newspaper className="text-brand-red" aria-hidden="true" /><h3 className="mt-6 font-heading text-2xl font-extrabold">Berita & cerita</h3><p className="mt-4 leading-7 text-neutral-600">Berita kegiatan, cerita penerima manfaat yang patut dipublikasikan, pengumuman, dan artikel sosial akan melalui proses editorial manusia.</p><Link href="/berita" className="button-secondary mt-7">Buka Berita <ArrowRight size={17} /></Link></article><article className="border border-brand-black bg-brand-black p-7 text-white md:p-9"><Images className="text-red-300" aria-hidden="true" /><h3 className="mt-6 font-heading text-2xl font-extrabold">Galeri dokumentasi</h3><p className="mt-4 leading-7 text-neutral-300">Foto dan video asli akan dilengkapi konteks kegiatan, alt text, caption, serta pengaturan consent atau restriction bila diperlukan.</p><Link href="/galeri" className="button-secondary mt-7 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">Buka Galeri <ArrowRight size={17} /></Link></article></div></div></section>
+      <section className="section-pad bg-[#f4f4f2]">
+        <div className="shell">
+          <div className="split-heading"><div><span className="eyebrow-v3">Berita & cerita</span><h2 className="display-h2">Kabar dari lapangan.</h2></div><Link href="/berita" className="text-link">Lihat semua berita <ArrowRight size={16}/></Link></div>
+          <div className="news-grid-v3">{sampleNews.map((item) => <article className="news-card-v3" key={item.slug}><div className="news-image"><Image src={item.image} alt={`Foto contoh ${item.title}`} fill sizes="(max-width: 768px) 100vw, 25vw"/><span>{item.category}</span></div><div><small>{item.date} · DATA CONTOH</small><h3>{item.title}</h3><Link href="/berita">Baca cerita <ArrowRight size={14}/></Link></div></article>)}</div>
+        </div>
+      </section>
 
-      <section className="py-20 md:py-28"><div className="shell grid gap-14 lg:grid-cols-[.8fr_1.2fr] lg:items-start"><div><p className="eyebrow">Dampak</p><h2 className="section-title">Angka tidak boleh lebih cepat daripada bukti.</h2><p className="section-description">Dashboard dampak V2 hanya akan menampilkan angka setelah sumber data, periode, dan metodologinya tersedia. Tidak ada angka penerima manfaat, kegiatan, wilayah, atau donatur yang dibuat untuk mengisi tampilan.</p><Link href="/dampak" className="button-primary mt-7">Metodologi Dampak <ArrowRight size={17} /></Link></div><div className="grid gap-4 sm:grid-cols-2">{['Penerima manfaat', 'Kegiatan sosial', 'Wilayah terjangkau', 'Donatur'].map((label) => <div key={label} className="stat-placeholder"><p className="text-sm font-bold text-neutral-500">{label}</p><p className="mt-5 font-heading text-2xl font-extrabold text-brand-ink">Belum dipublikasikan</p><p className="mt-2 text-xs leading-5 text-neutral-500">Menunggu sumber data resmi.</p></div>)}</div></div></section>
+      <section className="closing-cta">
+        <div className="closing-image"><Image src={programs[4].image} alt="Foto contoh relawan" fill sizes="100vw" /></div><div className="closing-overlay"/><div className="shell closing-content"><div><span>Bergerak bersama</span><h2>Hadirkan kebaikan.<br/>Ubah kehidupan.</h2><p>Setiap dukungan adalah ruang baru bagi harapan untuk tumbuh.</p></div><Link href="/donasi" className="cta-white"><Heart size={18}/> Donasi Sekarang</Link></div>
+      </section>
 
-      <section className="border-y border-neutral-200 bg-white py-20 md:py-24"><div className="shell grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end"><div><p className="eyebrow">Kredibilitas</p><h2 className="section-title max-w-3xl">Siapa yang bertanggung jawab harus mudah ditemukan.</h2><p className="section-description">Struktur organisasi, legalitas, dan kanal kontak mempunyai ruang khusus. Jika datanya belum resmi untuk publikasi, website menyatakan itu secara terbuka.</p></div><div className="flex flex-wrap gap-3"><Link href="/organisasi" className="button-secondary"><UsersRound size={17} />Organisasi</Link><Link href="/tentang-kami/legalitas" className="button-secondary">Legalitas</Link><Link href="/kontak" className="button-primary">Kontak Resmi</Link></div></div></section>
-
-      <section className="bg-brand-black py-20 text-white md:py-28"><div className="shell grid gap-10 lg:grid-cols-2 lg:items-center"><div><p className="mb-3 text-xs font-extrabold uppercase tracking-[.16em] text-red-300">Transparansi</p><h2 className="font-heading text-4xl font-extrabold tracking-[-.04em] md:text-5xl">Lebih baik kosong daripada angka yang tidak dapat dibuktikan.</h2><p className="mt-6 max-w-xl text-base leading-8 text-neutral-300">Halaman transparansi disiapkan untuk laporan penerimaan, penyaluran, biaya operasional, program, dan dokumen. Sampai data resmi tersedia, sistem menampilkan status kosong yang jujur.</p></div><div className="grid gap-4 sm:grid-cols-2"><div className="border border-white/15 bg-white/5 p-6"><FileCheck2 className="text-red-300" /><h3 className="mt-5 font-bold">Dokumen terhubung</h3><p className="mt-2 text-sm leading-6 text-neutral-400">Setiap laporan dapat memiliki periode, tanggal publikasi, status, dan berkas pendukung.</p></div><div className="border border-white/15 bg-white/5 p-6"><MapPinned className="text-red-300" /><h3 className="mt-5 font-bold">Dapat ditelusuri</h3><p className="mt-2 text-sm leading-6 text-neutral-400">Data dapat dihubungkan ke program dan kegiatan agar konteks penggunaan dana tidak terputus.</p></div><Link href="/transparansi" className="button-primary sm:col-span-2">Buka Transparansi <ArrowRight size={18} /></Link></div></div></section>
-
-      <section className="py-20 md:py-28"><div className="shell border border-red-100 bg-red-50 p-8 md:p-12"><div className="max-w-3xl"><p className="eyebrow">Dukungan publik</p><h2 className="font-heading text-3xl font-extrabold tracking-tight md:text-4xl">Donasi online hanya diaktifkan setelah kanal pembayaran resmi siap.</h2><p className="mt-4 leading-8 text-neutral-700">Website tidak menampilkan rekening, QRIS, status keamanan transaksi, atau payment gateway fiktif. Halaman donasi saat ini menjelaskan alur dan standar keamanan yang akan digunakan.</p><div className="mt-7 flex flex-wrap gap-3"><Link href="/donasi" className="button-primary">Pelajari Donasi</Link><Link href="/kontak" className="button-secondary">Hubungi Yayasan</Link></div></div></div></section>
+      <div className="sample-legend"><BadgeCheck size={16}/><span>Halaman ini sedang berada dalam mode draft visual. Seluruh foto, angka, tanggal, lokasi, nominal, dan testimoni adalah data contoh sementara.</span></div>
     </div>
   );
 }
