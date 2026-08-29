@@ -40,7 +40,13 @@ export default function Home() {
         <div className="shell hero-grid hero-grid-v4">
           <div className="hero-copy hero-copy-v4">
             <span className="hero-kicker"><Sparkles size={15} /> Gerakan sosial & kemanusiaan</span>
-            <h1>Bersama kita <span>hadirkan harapan,</span> wujudkan kesejahteraan.</h1>
+            <h1 className="hero-title-v43" aria-label="Bersama kita hadirkan harapan, wujudkan kesejahteraan.">
+              <span className="hero-title-line hero-title-line-light">Bersama kita</span>
+              <span className="hero-title-line hero-title-line-accent">Hadirkan</span>
+              <span className="hero-title-line hero-title-line-accent">Harapan,</span>
+              <span className="hero-title-line hero-title-line-light">Wujudkan</span>
+              <span className="hero-title-line hero-title-line-light">Kesejahteraan.</span>
+            </h1>
             <p>Ruang Sejahtera menghubungkan kepedulian dengan aksi nyata—dari air bersih dan kebutuhan dasar hingga pendidikan, hunian layak, dan tanggap kemanusiaan.</p>
 
             <div className="hero-actions">
