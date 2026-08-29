@@ -4,6 +4,7 @@ import './globals.css';
 import './v3.css';
 import './v31.css';
 import './v4.css';
+import './v41.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { OrganizationJsonLd } from '@/components/OrganizationJsonLd';
