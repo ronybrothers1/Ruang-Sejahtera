@@ -9,10 +9,14 @@ Rekonstruksi V2 memindahkan proyek dari prototipe visual menjadi fondasi platfor
 - Logo resmi digunakan sebagai identitas utama tanpa menggambar ulang.
 - Homepage direkonstruksi sebagai humanitarian editorial platform.
 - Route publik mencakup Tentang, Program + detail, Kegiatan + detail, Berita + detail, Galeri + detail, Dampak, Transparansi, Organisasi, Donasi, Kontak, Pencarian, Privasi, Ketentuan, Kebijakan Donasi, Aksesibilitas, dan Disclaimer.
-- Dynamic content registry dimulai kosong dan hanya boleh diisi dari record berstatus publikasi yang sah.
+- Dynamic content registry berasal dari `content/cms/*.json` dan hanya record berstatus `published` yang masuk ke website publik.
+- Control plane `/admin` dibangun terpisah dari chrome website publik dengan dashboard, CMS editorial, modul transparansi, dan observabilitas permission.
+- Preview admin authentication memakai signed HttpOnly session, hash access key, TTL terbatas, same-origin mutation guard, dan otomatis diblokir pada `VERCEL_ENV=production`.
+- RBAC server-side menggunakan role `super_admin`, `content_admin`, `finance`, dan `editor`.
+- Form Berita, Kegiatan, dan Galeri mempunyai server-side validation; backend tulis tetap **fail-closed** sampai persistence produksi tersedia.
 - Design system, skip link, focus state, reduced motion, semantic landmark, error/loading/empty states.
-- `robots`/`sitemap` bersifat aman: website tidak diindeks sampai `NEXT_PUBLIC_SITE_URL` resmi dikonfigurasi.
-- Security headers baseline, fail-closed API untuk donasi/kontak, serta health endpoint non-sensitif.
+- `robots`/`sitemap` bersifat aman: website tidak diindeks sampai `NEXT_PUBLIC_SITE_URL` resmi dikonfigurasi; route admin selalu noindex.
+- Security headers baseline, fail-closed API untuk donasi/kontak/CMS mutation, serta health endpoint non-sensitif.
 - Data model, PostgreSQL reference schema, CMS architecture, RBAC, payment contract, data governance, SEO, security, dan production-readiness terdokumentasi.
 
 ## Integritas data
@@ -31,9 +35,21 @@ Jangan memasukkan data contoh ke halaman publik untuk:
 
 Gunakan CMS dan sumber resmi. Jika data belum ada, tampilkan empty state yang jujur.
 
+## Admin & CMS
+
+Registry editorial versioned:
+
+- `content/cms/articles.json`
+- `content/cms/activities.json`
+- `content/cms/galleries.json`
+
+Status workflow: `draft → review → published → archived`. Public registry hanya membaca `published`. Form dan mutation endpoint sudah disiapkan, tetapi persistence write adapter sengaja dinonaktifkan sampai backend produksi dipilih dan diaudit. Tidak ada fallback ke localStorage atau filesystem serverless sementara.
+
+Bootstrap admin authentication hanya untuk local/preview dan bukan autentikasi production. Lihat `docs/ADMIN-CMS.md` untuk threat boundary dan konfigurasi.
+
 ## Quality gates
 
-CI menjalankan dependency install yang reproducible, public-content integrity guard, lint, TypeScript typecheck, dan production build. Preview deployment tetap harus diuji karena keberhasilan CI tidak menggantikan verifikasi runtime/platform.
+CI menjalankan dependency install yang reproducible, public-content + CMS registry integrity guard, lint, TypeScript typecheck, dan production build. Preview deployment tetap diuji karena keberhasilan CI tidak menggantikan verifikasi runtime/platform.
 
 ## Environment
 
@@ -41,6 +57,7 @@ Salin `.env.example` ke environment deployment. Jangan commit secret.
 
 ## Dokumen arsitektur
 
+- `docs/ADMIN-CMS.md`
 - `docs/CMS-ARCHITECTURE.md`
 - `docs/DATA-GOVERNANCE.md`
 - `docs/SECURITY-ARCHITECTURE.md`
@@ -51,10 +68,11 @@ Salin `.env.example` ke environment deployment. Jangan commit secret.
 
 ## Tahap produksi berikutnya
 
-1. Pilih dan deploy CMS/database/storage produksi.
-2. Implementasi authentication, session, MFA, dan RBAC server-side.
-3. Migrasi data kegiatan, berita, galeri dan dokumentasi asli melalui workflow publikasi.
-4. Konfigurasi domain resmi, kontak, legalitas, organisasi, dan akun sosial.
-5. Implementasi payment gateway resmi, signature webhook, idempotency, dan reconciliation.
-6. Implementasi laporan keuangan dan impact metrics dari sumber data resmi.
-7. Uji WCAG 2.2 AA, Core Web Vitals, security, privacy, SEO, dan payment E2E sebelum go-live.
+1. Pilih dan deploy persistence CMS/database/storage produksi dengan backup, restore, dan audit trail.
+2. Ganti preview bootstrap authentication dengan identity provider production + MFA + account lifecycle; pertahankan RBAC server-side.
+3. Implementasi workflow transition draft/review/publish/archive dan immutable application audit log.
+4. Migrasi data kegiatan, berita, galeri dan dokumentasi asli melalui workflow publikasi.
+5. Konfigurasi domain resmi, kontak, legalitas, organisasi, dan akun sosial.
+6. Implementasi payment gateway resmi, signature webhook, idempotency, reconciliation, dan finance approval flow.
+7. Implementasi laporan keuangan dan impact metrics dari sumber data resmi.
+8. Uji WCAG 2.2 AA, Core Web Vitals, security, privacy, SEO, restore drill, dan payment E2E sebelum go-live.
