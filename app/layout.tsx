@@ -8,6 +8,7 @@ import './v41.css';
 import './v42.css';
 import './v43.css';
 import './v5.css';
+import './v51.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { OrganizationJsonLd } from '@/components/OrganizationJsonLd';
