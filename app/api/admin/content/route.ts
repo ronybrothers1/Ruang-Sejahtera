@@ -3,18 +3,19 @@ import { getAdminSession } from '@/lib/auth/admin-session';
 import { can } from '@/lib/auth/permissions';
 import { getCmsWriteStatus, persistCmsMutation } from '@/lib/cms/store';
 import { CmsValidationError, isCmsCollection, parseCreateContent } from '@/lib/cms/validation';
+import { hasAllowedFormContentType, isDeclaredBodyWithinLimit } from '@/lib/security/request-limits';
 import { isSameOriginRequest } from '@/lib/security/same-origin';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   if (!isSameOriginRequest(request)) return NextResponse.json({ error: 'Permintaan ditolak.' }, { status: 403 });
+  if (!hasAllowedFormContentType(request)) return NextResponse.json({ error: 'Content-Type tidak didukung.' }, { status: 415 });
+  if (!isDeclaredBodyWithinLimit(request, 64_000)) return NextResponse.json({ error: 'Payload terlalu besar.' }, { status: 413 });
+
   const session = await getAdminSession();
   if (!session) return NextResponse.json({ error: 'Autentikasi diperlukan.' }, { status: 401 });
   if (!can(session.role, 'content.create')) return NextResponse.json({ error: 'Tidak memiliki izin.' }, { status: 403 });
-
-  const length = Number(request.headers.get('content-length') || '0');
-  if (length > 64_000) return NextResponse.json({ error: 'Payload terlalu besar.' }, { status: 413 });
 
   const form = await request.formData();
   const collectionValue = String(form.get('collection') || '');
