@@ -134,7 +134,7 @@ export function adminSessionCookieOptions(expiresAt: number) {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict' as const,
-    path: '/admin',
+    path: '/',
     maxAge: Math.max(0, expiresAt - Math.floor(Date.now() / 1000)),
   };
 }
