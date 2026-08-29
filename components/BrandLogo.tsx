@@ -10,11 +10,12 @@ export function BrandLogo({ compact = false, priority = false }: { compact?: boo
     >
       <Image
         src="/brand/logo-ruang-sejahtera.webp"
-        alt="Yayasan Ruang Sejahtera"
+        alt="Logo resmi Yayasan Ruang Sejahtera"
         width={1000}
         height={453}
         priority={priority}
-        sizes={compact ? '(max-width: 430px) 132px, (max-width: 1023px) 150px, 174px' : '(max-width: 768px) 220px, 330px'}
+        unoptimized
+        sizes={compact ? '(max-width: 430px) 144px, (max-width: 1023px) 164px, 190px' : '(max-width: 768px) 240px, 330px'}
         className="brand-logo-image"
       />
     </Link>
