@@ -9,13 +9,13 @@ export function BrandLogo({ compact = false, priority = false }: { compact?: boo
       aria-label="Yayasan Ruang Sejahtera, kembali ke beranda"
     >
       <Image
-        src="/brand/logo-ruang-sejahtera.webp"
+        src="/brand/logo-ruang-sejahtera-transparent.svg"
         alt="Logo resmi Yayasan Ruang Sejahtera"
-        width={1000}
-        height={453}
+        width={564}
+        height={251}
         priority={priority}
         unoptimized
-        sizes={compact ? '(max-width: 430px) 144px, (max-width: 1023px) 164px, 190px' : '(max-width: 768px) 240px, 330px'}
+        sizes={compact ? '(max-width: 430px) 150px, (max-width: 1023px) 172px, 198px' : '(max-width: 768px) 250px, 350px'}
         className="brand-logo-image"
       />
     </Link>
