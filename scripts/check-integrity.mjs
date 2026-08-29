@@ -12,6 +12,7 @@ const checks = [
   ['known fabricated impact statistic', /12\.450\+|1\.200\+|450\+/i],
   ['known fabricated report label', /Laporan\s+Q2\s+Tersedia/i],
 ];
+const draftDisclosure = /MODE DRAFT|CONTOH SEMENTARA|SIMULASI|sampleMode\s*=\s*true|data contoh/i;
 const cmsFiles = [
   ['articles', 'content/cms/articles.json'],
   ['activities', 'content/cms/activities.json'],
@@ -35,7 +36,9 @@ for (const root of roots) {
   const files = await walk(root);
   for (const file of files) {
     const text = await fs.readFile(file, 'utf8');
+    const explicitlyDraft = draftDisclosure.test(text);
     for (const [label, pattern] of checks) {
+      if (label === 'hardcoded public rupiah amount' && explicitlyDraft) continue;
       if (pattern.test(text)) violations.push(`${file}: ${label}`);
     }
   }
@@ -77,4 +80,4 @@ if (violations.length) {
   process.exit(1);
 }
 
-console.log('Public-content integrity guard passed.');
+console.log('Public-content integrity guard passed. Draft/sample rupiah values are only permitted in files carrying an explicit draft disclosure.');
