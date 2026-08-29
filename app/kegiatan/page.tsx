@@ -1,33 +1,24 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
-import { EmptyState } from '@/components/EmptyState';
+import Image from 'next/image';
+import { MapPin } from 'lucide-react';
 import { PageHero } from '@/components/PageHero';
-import { publishedActivities } from '@/lib/published-content';
+import { sampleActivities } from '@/lib/content';
 
 export const metadata: Metadata = { title: 'Kegiatan', description: 'Arsip kegiatan sosial Yayasan Ruang Sejahtera.' };
 
 export default function ActivitiesPage() {
   return (
     <>
-      <PageHero eyebrow="Kegiatan" title="Arsip kegiatan yang dapat ditelusuri." description="Setiap kegiatan akan memiliki tanggal, lokasi, program, latar belakang, bentuk bantuan, dokumentasi, dampak, dan informasi pendanaan jika relevan." />
-      <section className="py-18 md:py-24">
-        <div className="shell">
-          {publishedActivities.length ? (
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {publishedActivities.map((activity) => (
-                <article key={activity.slug} className="border border-neutral-200 bg-white p-6">
-                  <p className="text-xs font-extrabold uppercase tracking-[.14em] text-brand-red">{activity.activityDate}</p>
-                  <h2 className="mt-4 font-heading text-xl font-extrabold text-brand-ink">{activity.title}</h2>
-                  <p className="mt-3 text-sm leading-7 text-neutral-600">{activity.summary}</p>
-                  <p className="mt-4 text-xs font-semibold text-neutral-500">{activity.locationLabel}</p>
-                  <Link href={`/kegiatan/${activity.slug}`} className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-brand-ink hover:text-brand-red">Baca detail <ArrowRight size={16} aria-hidden="true" /></Link>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <EmptyState title="Belum ada kegiatan yang dipublikasikan" description="CMS V2 akan memungkinkan penyaringan berdasarkan program, lokasi, dan tahun. Sampai data resmi dimigrasikan, sistem sengaja tidak membuat kartu kegiatan contoh." />
-          )}
+      <PageHero eyebrow="Kegiatan" title="Jejak aksi yang dekat dengan masyarakat." description="Halaman draft ini diisi contoh kegiatan agar kualitas desain, hierarki informasi, fotografi, dan pengalaman membaca dapat dievaluasi sebelum data resmi dimigrasikan." />
+      <div className="sample-note"><strong>CONTOH SEMENTARA</strong><span>Tanggal, lokasi, foto, dan uraian kegiatan belum merupakan arsip resmi yayasan.</span></div>
+      <section className="section-pad bg-[#f4f4f2]">
+        <div className="shell activity-archive-grid">
+          {sampleActivities.concat(sampleActivities.slice(0,2)).map((activity, index) => (
+            <article className={`activity-feature ${index === 0 ? 'activity-feature-wide' : ''}`} key={`${activity.slug}-${index}`}>
+              <div className="activity-feature-photo"><Image src={activity.image} alt={`Foto contoh ${activity.title}`} fill sizes={index === 0 ? '(max-width: 900px) 100vw, 66vw' : '(max-width: 900px) 100vw, 33vw'} /><div className="program-story-overlay"/><span className="draft-chip">CONTOH</span></div>
+              <div className="activity-feature-copy"><div><span>{activity.date}</span><span><MapPin size={13}/>{activity.location}</span></div><h2>{activity.title}</h2><p>{activity.summary} Dokumentasi, indikator hasil, dan hubungan ke program akan ditampilkan pada halaman detail setelah data final tersedia.</p></div>
+            </article>
+          ))}
         </div>
       </section>
     </>
