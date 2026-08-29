@@ -17,7 +17,7 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
         <h1 id="admin-login-title" className="mt-4 font-heading text-3xl font-extrabold tracking-tight">Akses pengelolaan konten</h1>
         <p className="mt-4 text-sm leading-7 text-neutral-600">Halaman ini tidak menggunakan akun contoh. Akses hanya tersedia setelah autentikasi admin dikonfigurasi secara eksplisit pada environment deployment.</p>
 
-        {error === 'invalid' ? <div role="alert" className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800">Kredensial tidak valid.</div> : null}
+        {error === 'invalid' ? <div role="alert" className="status-message-error mt-6 rounded-xl border p-4 text-sm font-semibold">Kredensial tidak valid.</div> : null}
 
         {auth.configured ? (
           <form action="/api/admin/session" method="post" className="mt-7 space-y-5">
@@ -31,9 +31,9 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
             <button className="button-primary w-full" type="submit">Masuk ke Admin</button>
           </form>
         ) : (
-          <div className="mt-7 rounded-2xl border border-amber-200 bg-amber-50 p-5">
-            <p className="text-sm font-bold text-amber-950">Autentikasi admin belum diaktifkan.</p>
-            <p className="mt-2 text-sm leading-6 text-amber-900">Bootstrap login hanya diizinkan pada local/preview dan otomatis diblokir pada environment production. Konfigurasi production harus memakai identity provider dengan MFA.</p>
+          <div className="status-message-warning mt-7 rounded-2xl border p-5">
+            <p className="text-sm font-bold">Autentikasi admin belum diaktifkan.</p>
+            <p className="mt-2 text-sm leading-6">Bootstrap login hanya diizinkan pada local/preview dan otomatis diblokir pada environment production. Konfigurasi production harus memakai identity provider dengan MFA.</p>
           </div>
         )}
       </section>

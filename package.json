@@ -12,7 +12,8 @@
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "integrity": "node scripts/check-integrity.mjs",
-    "responsive:audit": "node scripts/check-responsive-contract.mjs"
+    "responsive:audit": "node scripts/check-responsive-contract.mjs",
+    "color:audit": "node scripts/check-color-system.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.553.0",
