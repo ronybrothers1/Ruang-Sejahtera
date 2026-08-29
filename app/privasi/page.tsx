@@ -1,4 +1,20 @@
 import type { Metadata } from 'next';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { DocumentLayout } from '@/components/DocumentLayout';
 import { PageHero } from '@/components/PageHero';
 export const metadata: Metadata = { title: 'Kebijakan Privasi' };
-export default function PrivacyPage() { return <><PageHero eyebrow="Privasi" title="Data pribadi diperlakukan sebagai tanggung jawab, bukan aset pemasaran." description="Kebijakan ini merupakan baseline V2 dan harus diperbarui ketika formulir, analytics, CMS, atau pembayaran resmi diaktifkan." /><section className="py-18 md:py-24"><article className="shell max-w-4xl space-y-8 leading-8 text-neutral-700"><section><h2 className="font-heading text-2xl font-extrabold text-brand-ink">Prinsip minimum</h2><p className="mt-3">Website hanya boleh mengumpulkan data yang diperlukan untuk tujuan yang jelas, membatasi akses berdasarkan peran, menjaga keamanan, dan menghapus atau menganonimkan data sesuai kebijakan retensi.</p></section><section><h2 className="font-heading text-2xl font-extrabold text-brand-ink">Penerima manfaat dan kelompok rentan</h2><p className="mt-3">Foto, identitas, lokasi rinci, kondisi sosial, dan informasi penerima manfaat tidak boleh dipublikasikan secara berlebihan. Dokumentasi anak, lansia, korban bencana, atau pihak rentan harus memperhatikan persetujuan dan kepatutan publikasi.</p></section><section><h2 className="font-heading text-2xl font-extrabold text-brand-ink">Analytics dan formulir</h2><p className="mt-3">Integrasi analytics harus privacy-conscious. Formulir kontak dan donasi belum dianggap aktif sampai endpoint, keamanan, tujuan pemrosesan, dan retensinya terdokumentasi.</p></section></article></section></>; }
+export default function PrivacyPage() {
+  const sections = [
+    { id: 'prinsip-minimum', title: 'Prinsip minimum', content: 'Website hanya boleh mengumpulkan data yang diperlukan untuk tujuan yang jelas, membatasi akses berdasarkan peran, menjaga keamanan, dan menghapus atau menganonimkan data sesuai kebijakan retensi.' },
+    { id: 'kelompok-rentan', title: 'Penerima manfaat dan kelompok rentan', content: 'Foto, identitas, lokasi rinci, kondisi sosial, dan informasi penerima manfaat tidak boleh dipublikasikan secara berlebihan. Dokumentasi anak, lansia, korban bencana, atau pihak rentan harus memperhatikan persetujuan dan kepatutan publikasi.' },
+    { id: 'analytics-formulir', title: 'Analytics dan formulir', content: 'Integrasi analytics harus privacy-conscious. Formulir kontak dan donasi belum dianggap aktif sampai endpoint, keamanan, tujuan pemrosesan, dan retensinya terdokumentasi.' },
+  ];
+
+  return (
+    <>
+      <PageHero eyebrow="Privasi" title="Data pribadi diperlakukan sebagai tanggung jawab, bukan aset pemasaran." description="Kebijakan ini merupakan baseline V2 dan harus diperbarui ketika formulir, analytics, CMS, atau pembayaran resmi diaktifkan." />
+      <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: 'Kebijakan Privasi' }]} />
+      <DocumentLayout sections={sections} />
+    </>
+  );
+}

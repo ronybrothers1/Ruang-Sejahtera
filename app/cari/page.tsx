@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Search } from 'lucide-react';
+import { ArrowRight, Search } from 'lucide-react';
+import { EmptyState } from '@/components/EmptyState';
 import { PageHero } from '@/components/PageHero';
 import { publicSearchIndex, type PublicSearchItem } from '@/lib/content';
 import { publishedActivities, publishedArticles, publishedGalleries } from '@/lib/published-content';
@@ -27,22 +28,48 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   return (
     <>
       <PageHero eyebrow="Pencarian" title="Temukan informasi dengan cepat." description="Cari program, kegiatan, berita, kebijakan, laporan, dan cara terlibat dari seluruh informasi yang tersedia untuk publik." />
-      <section className="py-18 md:py-24">
-        <div className="shell">
-          <form action="/cari" method="get" className="flex max-w-3xl gap-2" role="search">
-            <label htmlFor="search" className="sr-only">Kata kunci</label>
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={19} aria-hidden="true" />
-              <input id="search" name="q" defaultValue={q} autoComplete="off" placeholder="Cari program atau informasi..." className="min-h-12 w-full rounded-xl border border-neutral-300 bg-white pl-12 pr-4 text-sm" />
-            </div>
-            <button className="button-primary" type="submit">Cari</button>
-          </form>
+      <section className="trust-search-section">
+        <div className="shell trust-search-layout">
+          <div className="trust-search-panel">
+            <span>Jelajahi informasi publik</span>
+            <form action="/cari" method="get" role="search">
+              <label htmlFor="search">Kata kunci</label>
+              <div>
+                <Search size={20} aria-hidden="true" />
+                <input id="search" name="q" defaultValue={q} autoComplete="off" placeholder="Cari program atau informasi..." />
+                <button className="trust-button trust-button-primary" type="submit">Cari <ArrowRight size={17} aria-hidden="true" /></button>
+              </div>
+            </form>
+            <p>Coba kata kunci seperti “air bersih”, “kegiatan”, “laporan”, atau “kontak”.</p>
+          </div>
+
           {query ? (
-            <div className="mt-10" aria-live="polite">
-              <p className="mb-5 text-sm text-neutral-500">{results.length} hasil untuk “{q}”</p>
-              {results.length ? <div className="grid gap-3">{results.map((item) => <Link key={`${item.href}-${item.title}`} href={item.href} className="border border-neutral-200 p-5 hover:border-red-200"><small className="text-[.65rem] font-extrabold uppercase tracking-[.08em] text-brand-red">{item.category}</small><h2 className="mt-1 font-bold text-brand-ink">{item.title}</h2><p className="mt-2 text-sm leading-6 text-neutral-600">{item.description}</p></Link>)}</div> : <div className="text-sm text-neutral-600"><p>Tidak ada informasi publik yang cocok dengan kata kunci tersebut.</p><p className="mt-4">Coba istilah yang lebih umum, atau jelajahi <Link className="font-bold text-brand-red hover:underline" href="/program">program</Link>, <Link className="font-bold text-brand-red hover:underline" href="/kegiatan">kegiatan</Link>, <Link className="font-bold text-brand-red hover:underline" href="/transparansi">transparansi</Link>, dan <Link className="font-bold text-brand-red hover:underline" href="/kontak">kontak</Link>.</p></div>}
+            <div className="trust-search-results" aria-live="polite">
+              <div className="trust-search-results-heading">
+                <p>Hasil pencarian</p>
+                <strong>{results.length} hasil untuk “{q}”</strong>
+              </div>
+              {results.length ? (
+                <div className="trust-search-results-grid">
+                  {results.map((item) => (
+                    <Link key={`${item.href}-${item.title}`} href={item.href}>
+                      <small>{item.category}</small>
+                      <h2>{item.title}</h2>
+                      <p>{item.description}</p>
+                      <strong>Buka informasi <ArrowRight size={15} aria-hidden="true" /></strong>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  eyebrow="Pencarian"
+                  title="Belum ada hasil yang cocok."
+                  description="Coba istilah yang lebih umum, atau gunakan jalur informasi utama di bawah ini."
+                  action={<div className="trust-search-suggestions"><Link href="/program">Program</Link><Link href="/kegiatan">Kegiatan</Link><Link href="/transparansi">Transparansi</Link><Link href="/kontak">Kontak</Link></div>}
+                />
+              )}
             </div>
-          ) : <p className="mt-8 text-sm text-neutral-500">Masukkan kata kunci untuk memulai pencarian.</p>}
+          ) : <p className="trust-search-prompt">Masukkan kata kunci untuk memulai pencarian. Hasil akan dikelompokkan dalam kartu yang mudah dipindai.</p>}
         </div>
       </section>
     </>
