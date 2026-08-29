@@ -5,9 +5,10 @@ type SectionNavigationProps = {
   label: string;
   items: NavLink[];
   currentHref: string;
+  currentType?: 'page' | 'location';
 };
 
-export function SectionNavigation({ label, items, currentHref }: SectionNavigationProps) {
+export function SectionNavigation({ label, items, currentHref, currentType = 'page' }: SectionNavigationProps) {
   return (
     <nav className="section-directory shell" aria-label={label}>
       <span>{label}</span>
@@ -18,7 +19,7 @@ export function SectionNavigation({ label, items, currentHref }: SectionNavigati
             <Link
               key={item.href}
               href={item.href}
-              aria-current={isCurrent ? 'page' : undefined}
+              aria-current={isCurrent ? currentType : undefined}
               className={isCurrent ? 'is-active' : undefined}
             >
               {item.name}

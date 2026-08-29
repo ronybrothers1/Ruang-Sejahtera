@@ -2,9 +2,11 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { PageHero } from '@/components/PageHero';
 import { PreviewNotice } from '@/components/PreviewNotice';
+import { PublishedContentIndex } from '@/components/PublishedContentIndex';
 import { SectionNavigation } from '@/components/SectionNavigation';
 import { programs, sampleActivities } from '@/lib/content';
 import { activityNavItems } from '@/lib/navigation';
+import { publishedGalleries } from '@/lib/published-content';
 
 export const metadata: Metadata = { title: 'Galeri', description: 'Dokumentasi foto dan video kegiatan Yayasan Ruang Sejahtera.' };
 
@@ -15,6 +17,17 @@ export default function GalleryPage() {
       <PageHero eyebrow="Galeri" title="Satu foto yang tepat membawa publik lebih dekat pada kerja sosial." description="Komposisi galeri tetap diisi foto contoh agar proporsi, ritme visual, caption, dan perilaku responsif dapat ditinjau sebelum dokumentasi asli tersedia." />
       <SectionNavigation label="Jelajahi Kegiatan" items={activityNavItems} currentHref="/galeri" />
       <PreviewNotice label="Galeri preview">Seluruh media di bawah adalah foto contoh dan akan diganti dokumentasi asli lengkap dengan konteks, caption, alt text, serta persetujuan publikasi.</PreviewNotice>
+      <PublishedContentIndex
+        id="galeri-terbit"
+        eyebrow="Galeri resmi"
+        title="Koleksi yang telah diterbitkan"
+        items={publishedGalleries.map((gallery) => ({
+          href: `/galeri/${gallery.slug}`,
+          title: gallery.title,
+          description: gallery.summary,
+          meta: gallery.publishedAt,
+        }))}
+      />
       <section className="trust-page-section trust-gallery-section">
         <div className="shell trust-gallery-mosaic">
           {images.map((src, index) => (

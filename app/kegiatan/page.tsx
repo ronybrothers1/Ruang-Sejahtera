@@ -3,9 +3,11 @@ import Image from 'next/image';
 import { MapPin } from 'lucide-react';
 import { PageHero } from '@/components/PageHero';
 import { PreviewNotice } from '@/components/PreviewNotice';
+import { PublishedContentIndex } from '@/components/PublishedContentIndex';
 import { SectionNavigation } from '@/components/SectionNavigation';
 import { sampleActivities } from '@/lib/content';
 import { activityNavItems } from '@/lib/navigation';
+import { publishedActivities } from '@/lib/published-content';
 
 export const metadata: Metadata = { title: 'Kegiatan', description: 'Arsip kegiatan sosial Yayasan Ruang Sejahtera.' };
 
@@ -16,6 +18,17 @@ export default function ActivitiesPage() {
       <PageHero eyebrow="Kegiatan" title="Jejak aksi yang dekat dengan masyarakat." description="Arsip preview ini mempertahankan foto, tanggal, lokasi, dan narasi contoh agar pengalaman membaca dapat dievaluasi secara utuh." />
       <SectionNavigation label="Jelajahi Kegiatan" items={activityNavItems} currentHref="/kegiatan" />
       <PreviewNotice label="Kegiatan contoh">Tanggal, lokasi, foto, dan uraian di bawah akan diganti dengan arsip resmi tanpa mengubah struktur desain.</PreviewNotice>
+      <PublishedContentIndex
+        id="kegiatan-terbit"
+        eyebrow="Kegiatan resmi"
+        title="Kegiatan yang telah diterbitkan"
+        items={publishedActivities.map((activity) => ({
+          href: `/kegiatan/${activity.slug}`,
+          title: activity.title,
+          description: activity.summary,
+          meta: `${activity.activityDate} · ${activity.locationLabel}`,
+        }))}
+      />
       <section className="trust-page-section trust-archive-section">
         <div className="shell trust-archive-grid trust-activity-archive">
           {items.map((activity, index) => (
