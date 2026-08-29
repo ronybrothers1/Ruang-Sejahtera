@@ -53,8 +53,7 @@ export function Navbar() {
             </details>
           ) : <Link key={item.href} href={item.href} aria-current={isActive(item.href) ? 'page' : undefined} className={`nav-link ${isActive(item.href) ? 'nav-link-active' : ''}`}>{item.name}</Link>)}
         </nav>
-        <div className="hidden items-center gap-2 lg:flex">
-          <Link href="/cari" className="icon-button" aria-label="Cari di website"><Search size={18} /></Link>
+        <div className="hidden items-center lg:flex">
           <Link href="/donasi" className="cta-red"><Heart size={16} fill="currentColor"/> Donasi</Link>
         </div>
         <button ref={menuButtonRef} type="button" className="icon-button lg:hidden" onClick={() => setIsOpen(v => !v)} aria-expanded={isOpen} aria-controls="mobile-navigation" aria-label={isOpen ? 'Tutup menu' : 'Buka menu'}>{isOpen ? <X size={22}/> : <Menu size={22}/>}</button>
