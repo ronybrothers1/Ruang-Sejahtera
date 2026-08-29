@@ -28,9 +28,9 @@ export function ProgramMark({
 
   return (
     <span className={`program-mark program-mark-${slug} ${compact ? 'program-mark-compact' : ''}`} aria-hidden="true">
-      <span className="program-mark-orbit" />
+      {compact ? null : <span className="program-mark-orbit" />}
       <Icon size={compact ? 18 : 28} strokeWidth={1.8} />
-      <strong>{accent}</strong>
+      {compact ? null : <strong>{accent}</strong>}
     </span>
   );
 }

@@ -46,10 +46,10 @@ export const programs: Program[] = [
 
 
 export const trustPrinciples = [
-  ['Transparan', 'Laporan kegiatan dan penggunaan dana dapat dipantau publik.'],
-  ['Akuntabel', 'Setiap program memiliki penanggung jawab dan jejak dokumentasi.'],
-  ['Tepat sasaran', 'Prioritas bantuan ditetapkan melalui asesmen kebutuhan.'],
-  ['Berintegritas', 'Keputusan program ditempatkan di atas kepentingan pribadi.'],
+  ['Transparan', 'Informasi kegiatan dan penggunaan dana perlu disiapkan agar dapat dipantau publik.'],
+  ['Akuntabel', 'Setiap program perlu memiliki penanggung jawab dan jejak dokumentasi.'],
+  ['Tepat sasaran', 'Prioritas bantuan perlu ditetapkan melalui asesmen kebutuhan.'],
+  ['Berintegritas', 'Keputusan program harus ditempatkan di atas kepentingan pribadi.'],
 ] as const;
 
 export const publicSearchIndex = [
