@@ -90,6 +90,7 @@ export function createBootstrapSessionToken() {
 }
 
 function verifyToken(token: string): AdminSession | null {
+  if (!getBootstrapAuthStatus().configured) return null;
   const secret = sessionSecret();
   if (!secret) return null;
   const [encoded, signature, extra] = token.split('.');
