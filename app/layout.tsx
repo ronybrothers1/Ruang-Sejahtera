@@ -27,8 +27,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="id">
       <body className={`${inter.variable} ${plusJakarta.variable} font-sans antialiased`}>
-        <OrganizationJsonLd />
-        <RouteShell publicHeader={<Navbar />} publicFooter={<Footer />}>
+        <RouteShell publicHeader={<Navbar />} publicFooter={<Footer />} publicStructuredData={<OrganizationJsonLd />}>
           {children}
         </RouteShell>
       </body>
