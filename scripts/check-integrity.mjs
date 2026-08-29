@@ -63,7 +63,12 @@ for (const [collection, file] of cmsFiles) {
     if (slugs.has(record.slug)) violations.push(`${file}: duplicate slug ${record.slug}`); else slugs.add(record.slug);
     if (!validStatuses.has(record.status)) violations.push(`${file}: invalid publication status`);
     if (typeof record.title !== 'string' || !record.title.trim()) violations.push(`${file}: title required`);
-    if (record.status === 'published' && (collection === 'articles' || collection === 'galleries') && !record.publishedAt) violations.push(`${file}: publishedAt required for published ${collection}`);
+    if (typeof record.createdAt !== 'string' || Number.isNaN(Date.parse(record.createdAt))) violations.push(`${file}: valid createdAt required`);
+    if (typeof record.updatedAt !== 'string' || Number.isNaN(Date.parse(record.updatedAt))) violations.push(`${file}: valid updatedAt required`);
+    if (typeof record.lastEditedBy !== 'string' || !record.lastEditedBy) violations.push(`${file}: lastEditedBy required`);
+    if (record.status === 'review' && (!record.reviewRequestedAt || !record.reviewRequestedBy)) violations.push(`${file}: review provenance required for ${collection}`);
+    if (record.status === 'published' && (!record.publishedAt || !record.publishedBy)) violations.push(`${file}: publication provenance required for ${collection}`);
+    if (record.status === 'archived' && (!record.archivedAt || !record.archivedBy)) violations.push(`${file}: archive provenance required for ${collection}`);
   }
 }
 
