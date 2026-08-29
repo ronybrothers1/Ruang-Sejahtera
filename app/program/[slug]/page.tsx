@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, FileCheck2, SearchCheck, ShieldCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
@@ -29,14 +30,18 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
       <section className="trust-page-section">
         <div className="shell trust-program-detail">
           <div className="trust-program-detail-mark">
-            <ProgramMark slug={program.slug} accent={program.accent} />
+            <div className="trust-program-detail-photo">
+              <Image src={program.image} alt={`Foto contoh ${program.name}`} fill priority sizes="(max-width: 900px) 100vw, 32vw" />
+              <ProgramMark slug={program.slug} accent={program.accent} compact />
+              <span className="preview-chip">FOTO CONTOH</span>
+            </div>
             <span>{program.focus}</span>
           </div>
           <div className="trust-program-detail-copy">
             <span>Ruang lingkup</span>
-            <h2>Bantuan yang dijelaskan tanpa melebihkan bukti.</h2>
+            <h2>Fokus bantuan yang mudah dipahami.</h2>
             <p>{program.summary}</p>
-            <p>Informasi mengenai kriteria penerima, wilayah pelaksanaan, metode asesmen, sumber pendanaan, mitra, dan hasil program akan dilengkapi bertahap setelah dokumen pendukung tersedia.</p>
+            <p>Struktur ini menyiapkan ruang untuk kriteria penerima, wilayah pelaksanaan, metode asesmen, sumber pendanaan, mitra, dokumentasi, dan hasil program ketika data final tersedia.</p>
             <div className="trust-actions">
               <Link href="/kegiatan" className="trust-button trust-button-ink">Lihat kegiatan terbit <ArrowRight size={17} aria-hidden="true" /></Link>
               <Link href="/transparansi" className="trust-button trust-button-outline">Ruang transparansi <ArrowRight size={17} aria-hidden="true" /></Link>

@@ -1,38 +1,19 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { ArrowRight, UsersRound } from 'lucide-react';
-import { EmptyState } from '@/components/EmptyState';
+import { UsersRound } from 'lucide-react';
 import { PageHero } from '@/components/PageHero';
+import { PreviewNotice } from '@/components/PreviewNotice';
+import { sampleOrganization } from '@/lib/content';
 
-export const metadata: Metadata = {
-  title: 'Organisasi',
-  description: 'Struktur tanggung jawab Yayasan Ruang Sejahtera.',
-};
+export const metadata: Metadata = { title: 'Organisasi', description: 'Struktur organisasi Yayasan Ruang Sejahtera.' };
 
 export default function OrganizationPage() {
+  const leader = sampleOrganization.find((item) => item.role === 'Ketua')!;
+  const team = sampleOrganization.filter((item) => item.role !== 'Ketua');
   return (
     <>
-      <PageHero
-        eyebrow="Organisasi"
-        title="Tanggung jawab kelembagaan harus terlihat."
-        description="Struktur organisasi akan memuat identitas dan fungsi pengurus yang telah diverifikasi serta memang layak untuk akses publik."
-      />
-      <section className="trust-page-section">
-        <div className="shell trust-single-column">
-          <div className="trust-icon-intro">
-            <UsersRound size={30} aria-hidden="true" />
-            <span>Tata kelola</span>
-            <h2>Nama, jabatan, dan kewenangan tidak boleh diisi dengan identitas contoh.</h2>
-            <p>Struktur contoh telah dihapus agar publik tidak keliru menganggapnya sebagai susunan pengurus resmi. Informasi akan ditambahkan setelah diselaraskan dengan dokumen yayasan.</p>
-          </div>
-          <EmptyState
-            eyebrow="Struktur pengurus"
-            title="Struktur organisasi resmi belum dipublikasikan."
-            description="Ketika tersedia, halaman ini akan menjelaskan pembina, pengawas, pengurus, fungsi operasional, masa jabatan atau periode, serta batas kewenangan yang relevan."
-            action={<Link href="/tentang-kami/legalitas" className="trust-button trust-button-ink">Lihat ruang legalitas <ArrowRight size={17} aria-hidden="true" /></Link>}
-          />
-        </div>
-      </section>
+      <PageHero eyebrow="Organisasi" title="Kerja bersama membutuhkan tanggung jawab yang terlihat." description="Struktur dan nama contoh dipertahankan untuk memperlihatkan hierarki organisasi yang lengkap sebelum data pengurus resmi menggantikannya." />
+      <PreviewNotice label="Struktur contoh">Nama pengurus berikut adalah placeholder yang sengaja ditandai, bukan identitas resmi.</PreviewNotice>
+      <section className="trust-page-section trust-org-section"><div className="shell trust-org-chart"><article className="trust-org-leader"><span><UsersRound size={23} aria-hidden="true" /></span><small>PIMPINAN YAYASAN · CONTOH</small><h2>{leader.name}</h2><p>{leader.role}</p></article><div className="trust-org-line" aria-hidden="true" /><div className="trust-org-grid">{team.map((item, index) => <article key={item.role}><span>{String(index + 1).padStart(2, '0')}</span><small>{item.role}</small><h2>{item.name}</h2><p>Data identitas sementara</p></article>)}</div></div></section>
     </>
   );
 }

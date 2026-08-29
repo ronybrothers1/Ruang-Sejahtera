@@ -1,49 +1,26 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
-import { EmptyState } from '@/components/EmptyState';
 import { PageHero } from '@/components/PageHero';
-import { publishedArticles } from '@/lib/published-content';
+import { PreviewNotice } from '@/components/PreviewNotice';
+import { sampleNews } from '@/lib/content';
 
-export const metadata: Metadata = {
-  title: 'Berita',
-  description: 'Berita, cerita dampak, dan pengumuman terpublikasi Yayasan Ruang Sejahtera.',
-};
-
-function formatDate(value: string) {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
-}
+export const metadata: Metadata = { title: 'Berita', description: 'Berita, cerita dampak, dan pengumuman Yayasan Ruang Sejahtera.' };
 
 export default function NewsPage() {
+  const items = [...sampleNews, ...sampleNews.slice(0, 2)];
   return (
     <>
-      <PageHero
-        eyebrow="Berita & Cerita"
-        title="Kabar lapangan memerlukan konteks, bukan sekadar judul."
-        description="Setiap artikel yang tampil di sini telah diterbitkan melalui registri konten publik dan memiliki status editorial yang jelas."
-      />
-      <section className="trust-page-section">
-        <div className="shell">
-          {publishedArticles.length ? (
-            <div className="trust-content-grid">
-              {publishedArticles.map((article) => (
-                <article key={article.slug}>
-                  <div><span>{article.category}</span><time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time></div>
-                  <h2><Link href={`/berita/${article.slug}`}>{article.title}</Link></h2>
-                  <p>{article.excerpt}</p>
-                  <Link href={`/berita/${article.slug}`}>Baca selengkapnya <ArrowRight size={15} aria-hidden="true" /></Link>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <EmptyState
-              eyebrow="Ruang editorial"
-              title="Belum ada berita atau cerita yang dipublikasikan."
-              description="Artikel akan ditampilkan setelah judul, kutipan, fakta, tanggal, kategori, dan otoritas penerbitannya telah diperiksa. Tidak ada artikel contoh yang disamarkan sebagai berita nyata."
-              action={<Link href="/kegiatan" className="trust-button trust-button-ink">Periksa arsip kegiatan <ArrowRight size={17} aria-hidden="true" /></Link>}
-            />
-          )}
+      <PageHero eyebrow="Berita & Cerita" title="Cerita lapangan memberi konteks pada setiap aksi." description="Draft editorial ini memakai judul dan foto contoh agar ritme berita, hierarki informasi, dan tampilan arsip dapat dinilai secara lengkap." />
+      <PreviewNotice label="Editorial preview">Judul, tanggal, kategori, ringkasan, dan foto berikut adalah materi contoh yang akan diganti ketika artikel resmi siap.</PreviewNotice>
+      <section className="trust-page-section trust-archive-section trust-archive-white">
+        <div className="shell trust-news-archive">
+          {items.map((item, index) => (
+            <article className={index === 0 ? 'trust-news-archive-card trust-news-lead' : 'trust-news-archive-card'} key={`${item.slug}-${index}`}>
+              <div className="trust-archive-image"><Image src={item.image} alt={`Foto contoh ${item.title}`} fill sizes={index === 0 ? '(max-width: 900px) 100vw, 58vw' : '(max-width: 900px) 100vw, 30vw'} /><span>{item.category}</span></div>
+              <div className="trust-news-archive-copy"><small>{item.date} · CONTOH</small><h2>{item.title}</h2><p>Artikel contoh ini menunjukkan ritme judul, ringkasan, metadata, dan hubungan visual dengan dokumentasi program.</p><strong>Preview artikel <ArrowRight size={15} aria-hidden="true" /></strong></div>
+            </article>
+          ))}
         </div>
       </section>
     </>

@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, FileCheck2, HeartHandshake, Scale, ShieldCheck, Sparkles } from 'lucide-react';
-import { BrandLogo } from '@/components/BrandLogo';
 import { PageHero } from '@/components/PageHero';
+import { PreviewNotice } from '@/components/PreviewNotice';
+import { programs } from '@/lib/content';
 
 export const metadata: Metadata = {
   title: 'Tentang Kami',
@@ -24,17 +26,19 @@ export default function AboutPage() {
         title="Ruang untuk kepedulian. Sistem untuk menjaga kepercayaan."
         description="Website ini menyatukan informasi program, kegiatan, akuntabilitas, kebijakan, dan kanal komunikasi Yayasan Ruang Sejahtera."
       />
+      <PreviewNotice label="Profil draft">Narasi profil, kutipan, dan foto adalah contoh sementara yang mempertahankan komposisi halaman hingga materi resmi tersedia.</PreviewNotice>
       <section className="trust-page-section">
         <div className="shell trust-about-layout">
           <div className="trust-about-brand">
-            <BrandLogo />
-            <p>Identitas yayasan ditempatkan bersama komitmen untuk menyajikan informasi yang dapat dipahami dan diperiksa publik.</p>
+            <Image src={programs[1].image} alt="Foto contoh kegiatan sosial" fill priority sizes="(max-width: 900px) 100vw, 44vw" />
+            <span className="preview-chip">FOTO CONTOH</span>
           </div>
           <div className="trust-about-copy">
             <span>Profil publik</span>
             <h2>Kepedulian perlu dikelola dengan disiplin.</h2>
             <p>Ruang Sejahtera mengembangkan program bantuan sosial, usaha rakyat, hunian layak, air bersih, dan pendidikan. Setiap informasi pelaksanaan akan ditambahkan melalui sumber dan proses publikasi yang dapat dipertanggungjawabkan.</p>
-            <p>Karena dokumen profil kelembagaan lengkap belum tersedia sebagai sumber publik, halaman ini tidak mengarang sejarah, nama pendiri, jangkauan, angka, atau kutipan tokoh.</p>
+            <p>Website dirancang sebagai pusat informasi yang menghubungkan program, kegiatan, cerita, dampak, dokumentasi, organisasi, dan transparansi publik dalam alur yang mudah ditelusuri.</p>
+            <blockquote className="trust-about-quote">“Kami ingin setiap bantuan meninggalkan manfaat yang dapat dirasakan dan jejak yang dapat dipertanggungjawabkan.”<small>KUTIPAN CONTOH</small></blockquote>
             <div className="trust-actions">
               <Link href="/program" className="trust-button trust-button-ink">Kenali program <ArrowRight size={17} aria-hidden="true" /></Link>
               <Link href="/tentang-kami/legalitas" className="trust-button trust-button-outline">Ruang legalitas <ArrowRight size={17} aria-hidden="true" /></Link>
