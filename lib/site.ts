@@ -12,10 +12,10 @@ export const siteConfig = {
     mapUrl: process.env.NEXT_PUBLIC_OFFICIAL_MAP_URL || null,
   },
   social: {
-    instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || null,
+    instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || 'https://www.instagram.com/ruangsejahtera.idn',
     facebook: process.env.NEXT_PUBLIC_FACEBOOK_URL || null,
     youtube: process.env.NEXT_PUBLIC_YOUTUBE_URL || null,
-    tiktok: process.env.NEXT_PUBLIC_TIKTOK_URL || null,
+    tiktok: process.env.NEXT_PUBLIC_TIKTOK_URL || 'https://www.tiktok.com/@ruangsejahtera.idn',
   },
 } as const;
 

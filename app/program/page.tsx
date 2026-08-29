@@ -5,13 +5,13 @@ import { ArrowRight } from 'lucide-react';
 import { PageHero } from '@/components/PageHero';
 import { programs } from '@/lib/content';
 
-export const metadata: Metadata = { title: 'Program', description: 'Fokus program sosial Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = { title: 'Program', description: 'Program resmi Yayasan Ruang Sejahtera.' };
 
 export default function ProgramsPage() {
   return (
     <>
-      <PageHero eyebrow="Program" title="Dari kebutuhan nyata, menjadi aksi yang terarah." description="Dalam draft visual ini, seluruh foto dan ilustrasi program adalah contoh sementara. Struktur akhirnya disiapkan agar setiap program terhubung dengan kegiatan, dampak, dokumentasi, dan laporan." />
-      <div className="sample-note"><strong>DATA DRAFT</strong><span>Foto dan narasi program pada halaman ini masih contoh untuk evaluasi desain.</span></div>
+      <PageHero eyebrow="Program" title="Dari kebutuhan nyata, menjadi aksi yang terarah." description="Lima nama program mengikuti hasil keputusan rapat Yayasan Ruang Sejahtera tanggal 29 Agustus 2026. Foto program pada versi website ini masih contoh sementara sampai dokumentasi resmi dipublikasikan." />
+      <div className="sample-note"><strong>PROGRAM RESMI</strong><span>Nama dan fokus program telah diperbarui; foto masih berupa contoh desain.</span></div>
       <section className="section-pad section-white">
         <div className="shell">
           <div className="program-grid-large">

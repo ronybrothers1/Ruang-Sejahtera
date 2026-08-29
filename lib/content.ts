@@ -10,12 +10,46 @@ export type Program = {
 export const sampleMode = true;
 
 export const programs: Program[] = [
-  { slug: 'air-bersih', name: 'Air Bersih', summary: 'Distribusi air bersih untuk wilayah yang mengalami keterbatasan akses selama musim kemarau.', focus: 'Kebutuhan dasar', image: 'https://images.unsplash.com/photo-1768381569898-7a2613a67356?auto=format&fit=crop&w=1400&q=82', accent: '01' },
-  { slug: 'bantuan-sembako', name: 'Bantuan Sembako', summary: 'Paket kebutuhan pokok untuk keluarga rentan, lansia, dan masyarakat yang membutuhkan.', focus: 'Ketahanan keluarga', image: 'https://images.unsplash.com/photo-1758599669327-83d310882929?auto=format&fit=crop&w=1400&q=82', accent: '02' },
-  { slug: 'bantuan-pendidikan', name: 'Bantuan Pendidikan', summary: 'Dukungan perlengkapan belajar, kelas pendampingan, dan kebutuhan pendidikan anak.', focus: 'Pendidikan', image: 'https://images.unsplash.com/photo-1727553957788-9ddfd38889d2?auto=format&fit=crop&w=1400&q=82', accent: '03' },
-  { slug: 'bedah-rumah', name: 'Bedah Rumah', summary: 'Perbaikan rumah tidak layak huni agar keluarga dapat tinggal lebih aman dan bermartabat.', focus: 'Hunian layak', image: 'https://images.unsplash.com/photo-1632215861513-130b66fe97f4?auto=format&fit=crop&w=1400&q=82', accent: '04' },
-  { slug: 'tanggap-bencana', name: 'Tanggap Bencana', summary: 'Respons cepat, logistik dasar, dan dukungan pemulihan awal bagi masyarakat terdampak bencana.', focus: 'Kemanusiaan', image: 'https://images.unsplash.com/photo-1758599668949-5118d71838fd?auto=format&fit=crop&w=1400&q=82', accent: '05' },
-  { slug: 'program-sosial', name: 'Sosial & Pemberdayaan', summary: 'Program sosial berbasis kebutuhan lokal untuk memperkuat daya tahan dan kemandirian masyarakat.', focus: 'Pemberdayaan', image: 'https://images.unsplash.com/photo-1758599669327-83d310882929?auto=format&fit=crop&w=1400&q=82', accent: '06' },
+  {
+    slug: 'berbagi-rasa',
+    name: 'Berbagi Rasa',
+    summary: 'Berbagi Rasa (Rakyat Sejahtera): bantuan sembako dan uang tunai bagi masyarakat yang membutuhkan.',
+    focus: 'Rakyat Sejahtera',
+    image: 'https://images.unsplash.com/photo-1758599669327-83d310882929?auto=format&fit=crop&w=1400&q=82',
+    accent: '01',
+  },
+  {
+    slug: 'merakyat',
+    name: 'Merakyat',
+    summary: 'Merakyat (Mabecce’ Usahanah Rakyat): bantuan renovasi serta modal bagi usaha mikro dan kecil.',
+    focus: 'Usaha rakyat',
+    image: 'https://images.unsplash.com/photo-1758599668949-5118d71838fd?auto=format&fit=crop&w=1400&q=82',
+    accent: '02',
+  },
+  {
+    slug: 'rehat',
+    name: 'REHAT',
+    summary: 'REHAT (Renovasi Rumah Rakyat): bedah dan renovasi rumah agar menjadi hunian yang lebih layak.',
+    focus: 'Renovasi Rumah Rakyat',
+    image: 'https://images.unsplash.com/photo-1632215861513-130b66fe97f4?auto=format&fit=crop&w=1400&q=82',
+    accent: '03',
+  },
+  {
+    slug: 'berbagi-air-bersih',
+    name: 'Berbagi Air Bersih',
+    summary: 'Bantuan air bersih untuk masyarakat di wilayah yang terdampak kekeringan.',
+    focus: 'Air bersih',
+    image: 'https://images.unsplash.com/photo-1768381569898-7a2613a67356?auto=format&fit=crop&w=1400&q=82',
+    accent: '04',
+  },
+  {
+    slug: 'berbagi-masa-depan',
+    name: 'Berbagi Masa Depan',
+    summary: 'Bantuan pendidikan berupa peralatan sekolah dan dukungan biaya pendidikan.',
+    focus: 'Pendidikan',
+    image: 'https://images.unsplash.com/photo-1727553957788-9ddfd38889d2?auto=format&fit=crop&w=1400&q=82',
+    accent: '05',
+  },
 ];
 
 export const sampleStats = [
@@ -46,11 +80,11 @@ export const sampleTestimonials = [
 ] as const;
 
 export const sampleFinance = [
-  { label: 'Air Bersih', value: 28, amount: 'Rp52,2 Juta' },
-  { label: 'Bantuan Sembako', value: 24, amount: 'Rp44,8 Juta' },
-  { label: 'Pendidikan', value: 20, amount: 'Rp37,3 Juta' },
-  { label: 'Bedah Rumah', value: 18, amount: 'Rp33,5 Juta' },
-  { label: 'Tanggap Bencana', value: 10, amount: 'Rp18,7 Juta' },
+  { label: 'Berbagi Air Bersih', value: 28, amount: 'Rp52,2 Juta' },
+  { label: 'Berbagi Rasa', value: 24, amount: 'Rp44,8 Juta' },
+  { label: 'Berbagi Masa Depan', value: 20, amount: 'Rp37,3 Juta' },
+  { label: 'REHAT', value: 18, amount: 'Rp33,5 Juta' },
+  { label: 'Merakyat', value: 10, amount: 'Rp18,7 Juta' },
 ] as const;
 
 export const trustPrinciples = [

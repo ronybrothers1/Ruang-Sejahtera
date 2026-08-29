@@ -26,7 +26,7 @@ import {
   trustPrinciples,
 } from '@/lib/content';
 
-const programIcons = [Droplets, HandHeart, GraduationCap, HomeIcon, HardHat, Users];
+const programIcons = [HandHeart, Users, HomeIcon, Droplets, GraduationCap, HardHat];
 const statIcons = [Users, Heart, MapPin, WalletCards];
 
 export default function Home() {
@@ -62,13 +62,13 @@ export default function Home() {
 
           <div className="hero-media hero-media-v4" aria-label="Kolase dokumentasi contoh sementara">
             <div className="hero-main-image">
-              <Image src={programs[0].image} alt="Dokumentasi contoh program air bersih" fill priority sizes="(max-width: 820px) 100vw, (max-width: 1180px) 54vw, 48vw" />
+              <Image src={programs[3].image} alt="Dokumentasi contoh program air bersih" fill priority sizes="(max-width: 820px) 100vw, (max-width: 1180px) 54vw, 48vw" />
               <div className="image-shade" />
               <div className="media-label">FOTO CONTOH · AKAN DIGANTI DOKUMENTASI ASLI</div>
             </div>
             <div className="hero-side-stack">
-              <div className="mini-image"><Image src={programs[1].image} alt="Dokumentasi contoh bantuan sosial" fill sizes="(max-width: 820px) 48vw, 22vw" /></div>
-              <div className="mini-image"><Image src={programs[2].image} alt="Dokumentasi contoh pendidikan" fill sizes="(max-width: 820px) 48vw, 22vw" /></div>
+              <div className="mini-image"><Image src={programs[0].image} alt="Dokumentasi contoh bantuan sosial" fill sizes="(max-width: 820px) 48vw, 22vw" /></div>
+              <div className="mini-image"><Image src={programs[4].image} alt="Dokumentasi contoh pendidikan" fill sizes="(max-width: 820px) 48vw, 22vw" /></div>
             </div>
           </div>
         </div>
@@ -93,7 +93,7 @@ export default function Home() {
           <div className="center-heading center-heading-v4">
             <span>Program Kami</span>
             <h2>Solusi nyata untuk perubahan yang terasa.</h2>
-            <p>Enam fokus program untuk menjawab kebutuhan dasar, pendidikan, hunian, pemberdayaan, dan keadaan darurat masyarakat.</p>
+            <p>Lima program resmi Ruang Sejahtera untuk bantuan sosial, usaha rakyat, hunian layak, air bersih, dan pendidikan.</p>
           </div>
 
           <div className="program-grid-premium program-grid-v4">
@@ -210,7 +210,7 @@ export default function Home() {
       </section>
 
       <section className="closing-cta closing-cta-v4">
-        <div className="closing-image"><Image src={programs[4].image} alt="Foto contoh relawan" fill sizes="100vw" /></div>
+        <div className="closing-image"><Image src={programs[1].image} alt="Foto contoh relawan dan kegiatan sosial" fill sizes="100vw" /></div>
         <div className="closing-overlay" />
         <div className="shell closing-content closing-content-v4">
           <div><span>Bergerak bersama</span><h2>Hadirkan kebaikan.<br />Ubah kehidupan.</h2><p>Setiap dukungan adalah ruang baru bagi harapan untuk tumbuh.</p></div>

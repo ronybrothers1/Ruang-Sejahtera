@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import { Instagram, Music2 } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
-import { Mail, MapPin, Phone, Instagram, Facebook, Youtube } from 'lucide-react';
+
+const socialHandle = '@ruangsejahtera.idn';
 
 export function Footer() {
   return (
@@ -9,11 +11,6 @@ export function Footer() {
         <div className="footer-brand">
           <BrandLogo compact />
           <p>Yayasan Ruang Sejahtera berkomitmen menghadirkan ruang kepedulian yang terukur, transparan, dan dekat dengan kebutuhan masyarakat.</p>
-          <div className="mt-5 flex gap-2" aria-label="Pratinjau kanal sosial">
-            <span className="icon-button" aria-label="Instagram contoh"><Instagram size={16} /></span>
-            <span className="icon-button" aria-label="Facebook contoh"><Facebook size={16} /></span>
-            <span className="icon-button" aria-label="YouTube contoh"><Youtube size={16} /></span>
-          </div>
         </div>
 
         <div>
@@ -39,11 +36,15 @@ export function Footer() {
         </div>
 
         <div className="footer-contact-v3">
-          <h2 className="footer-title-v3">Kontak sementara</h2>
-          <p><MapPin size={16} /> <span>Jl. Kebaikan No. 10, Kabupaten Sampang, Jawa Timur</span></p>
-          <p><Phone size={16} /> <span>+62 812-0000-2026</span></p>
-          <p><Mail size={16} /> <span>halo@ruangsejahtera.org</span></p>
-          <small className="mt-3 block text-[10px] leading-5 text-neutral-600">Alamat, nomor, email, dan akun sosial masih berupa contoh desain dan akan diganti dengan kanal resmi.</small>
+          <h2 className="footer-title-v3">Media Sosial Resmi</h2>
+          <p>
+            <Instagram size={16} />
+            <a href="https://www.instagram.com/ruangsejahtera.idn" target="_blank" rel="noreferrer">Instagram {socialHandle}</a>
+          </p>
+          <p>
+            <Music2 size={16} />
+            <a href="https://www.tiktok.com/@ruangsejahtera.idn" target="_blank" rel="noreferrer">TikTok {socialHandle}</a>
+          </p>
         </div>
       </div>
 
