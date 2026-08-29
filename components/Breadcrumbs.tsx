@@ -5,14 +5,15 @@ import { siteConfig } from '@/lib/site';
 type BreadcrumbItem = { label: string; href?: string };
 
 export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
-  const schema = siteConfig.url ? {
+  const baseUrl = siteConfig.url;
+  const schema = baseUrl ? {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: items.map((item, index) => ({
       '@type': 'ListItem',
       position: index + 1,
       name: item.label,
-      item: item.href ? new URL(item.href, siteConfig.url).toString() : undefined,
+      item: item.href ? new URL(item.href, baseUrl).toString() : undefined,
     })),
   } : null;
 
