@@ -7,10 +7,10 @@ export function BrandLogo({ compact = false }: { compact?: boolean }) {
       <Image
         src="/brand/logo-ruang-sejahtera.webp"
         alt="Yayasan Ruang Sejahtera"
-        width={640}
-        height={425}
+        width={1000}
+        height={453}
         priority
-        className={compact ? 'h-10 w-auto object-contain' : 'h-12 md:h-14 w-auto object-contain'}
+        className={compact ? 'h-auto w-[148px] object-contain sm:w-[164px]' : 'h-auto w-[260px] object-contain md:w-[320px]'}
       />
     </Link>
   );
