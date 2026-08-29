@@ -42,11 +42,26 @@ dan `--color-brand-red-dark` (#b40810), tapi kode hex-nya di-hardcode ulang
 juga tidak mengubah tampilan — tapi sekarang kalau brand color pernah perlu
 diubah, cukup di satu tempat.
 
-## Belum diaudit ronde ini (di luar cakupan "aman tanpa preview visual")
+## Ronde 2 — Kontras teks (WCAG AA)
+
+Dihitung rasio kontras aktual (rumus relative-luminance WCAG) untuk setiap
+warna teks abu-abu/muted terhadap background sungguhan tempat ia dipakai —
+bukan tebakan visual. **20 dari selector yang diperiksa gagal AA** (ambang
+4.5:1 untuk teks kecil), terendah 2.11:1 (`.testimonial-card small`, teks
+abu terang di atas kartu abu terang). Semua diganti dengan abu-abu paling
+minimal yang lolos 4.5:1 pada background spesifiknya masing-masing
+(`#838383` di panel gelap, `#6b6b6b` di panel terang).
+
+**Sengaja dilewati (butuh perubahan markup, bukan cuma warna):**
+`.org-card p, .org-grid p` memakai satu selector gabungan untuk dua
+background berbeda (`.org-card` gelap `#111`, `.org-grid` terang `#fff`).
+Tidak ada satu warna abu-abu yang lolos AA di keduanya sekaligus — perlu
+dipecah jadi dua class terpisah di JSX (`components/*` yang merender
+struktur ini) baru bisa diberi warna kontras yang tepat masing-masing.
+
+## Belum diaudit (di luar cakupan "aman tanpa preview visual")
 
 - Konsistensi skala tipografi/spacing antar section
-- Kontras warna teks abu-abu (`#777`, `#888`, dst.) terhadap WCAG AA di
-  berbagai background
 - Kemungkinan duplikasi class antar halaman yang bisa disatukan jadi
   komponen React reusable
 - Optimasi gambar/asset
