@@ -59,3 +59,8 @@ body { background: #fff; color: #181818; }
 
 .brand-grid { background-image: linear-gradient(rgba(16,16,16,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(16,16,16,.055) 1px, transparent 1px); background-size: 28px 28px; }
 .stat-placeholder { min-height: 132px; border: 1px solid #e7e5e4; border-radius: 1rem; padding: 1.25rem; background: white; }
+
+body:has([data-admin-root]) > header,
+body:has([data-admin-root]) > footer,
+body:has([data-admin-root]) > .skip-link { display: none; }
+body:has([data-admin-root]) > main { min-height: 100vh; }
