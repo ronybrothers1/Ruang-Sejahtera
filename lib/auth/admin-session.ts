@@ -9,7 +9,6 @@ const roles: AdminRole[] = ['super_admin', 'content_admin', 'finance', 'editor']
 
 export type AdminSession = {
   id: string;
-  email: string;
   role: AdminRole;
   issuedAt: number;
   expiresAt: number;
@@ -17,7 +16,6 @@ export type AdminSession = {
 
 type SessionPayload = {
   sub: string;
-  email: string;
   role: AdminRole;
   iat: number;
   exp: number;
@@ -77,7 +75,6 @@ export function createBootstrapSessionToken() {
   const now = Math.floor(Date.now() / 1000);
   const payload: SessionPayload = {
     sub: createHash('sha256').update(email.toLowerCase(), 'utf8').digest('hex').slice(0, 24),
-    email,
     role,
     iat: now,
     exp: now + SESSION_TTL_SECONDS,
@@ -103,12 +100,11 @@ function verifyToken(token: string): AdminSession | null {
   try {
     const payload = JSON.parse(Buffer.from(encoded, 'base64url').toString('utf8')) as Partial<SessionPayload>;
     const now = Math.floor(Date.now() / 1000);
-    if (!payload.sub || !payload.email || !payload.role || !isRole(payload.role)) return null;
+    if (!payload.sub || !payload.role || !isRole(payload.role)) return null;
     if (!Number.isInteger(payload.iat) || !Number.isInteger(payload.exp)) return null;
     if ((payload.exp as number) <= now || (payload.iat as number) > now + 60) return null;
     return {
       id: payload.sub,
-      email: payload.email,
       role: payload.role,
       issuedAt: payload.iat as number,
       expiresAt: payload.exp as number,
