@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { EmptyState } from '@/components/EmptyState';
 import { PageHero } from '@/components/PageHero';
+import { SectionNavigation } from '@/components/SectionNavigation';
+import { activityNavItems } from '@/lib/navigation';
 import { publishedGalleries } from '@/lib/published-content';
 
 export function generateStaticParams() {
@@ -23,7 +25,8 @@ export default async function GalleryDetailPage({ params }: { params: Promise<{ 
   return (
     <>
       <PageHero eyebrow="Galeri" title={gallery.title} description={gallery.summary} />
-      <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: 'Galeri', href: '/galeri' }, { label: gallery.title }]} />
+      <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: 'Kegiatan', href: '/kegiatan' }, { label: 'Galeri', href: '/galeri' }, { label: gallery.title }]} />
+      <SectionNavigation label="Jelajahi Kegiatan" items={activityNavItems} currentHref="/galeri" />
       <section className="pb-20 pt-8 md:pb-28">
         <div className="shell">
           <p className="mb-8 text-sm font-semibold text-neutral-500">Dipublikasikan {gallery.publishedAt}</p>

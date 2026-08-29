@@ -18,7 +18,6 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   applicationName: siteConfig.name,
   category: 'nonprofit',
-  alternates: hasOfficialUrl ? { canonical: '/' } : undefined,
   robots: { index: hasOfficialUrl, follow: hasOfficialUrl },
   openGraph: { title: siteConfig.name, description: siteConfig.description, type: 'website', locale: 'id_ID', siteName: siteConfig.name },
   twitter: { card: 'summary_large_image', title: siteConfig.name, description: siteConfig.description },

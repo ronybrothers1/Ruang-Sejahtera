@@ -3,7 +3,9 @@ import Image from 'next/image';
 import { MapPin } from 'lucide-react';
 import { PageHero } from '@/components/PageHero';
 import { PreviewNotice } from '@/components/PreviewNotice';
+import { SectionNavigation } from '@/components/SectionNavigation';
 import { sampleActivities } from '@/lib/content';
+import { activityNavItems } from '@/lib/navigation';
 
 export const metadata: Metadata = { title: 'Kegiatan', description: 'Arsip kegiatan sosial Yayasan Ruang Sejahtera.' };
 
@@ -12,11 +14,12 @@ export default function ActivitiesPage() {
   return (
     <>
       <PageHero eyebrow="Kegiatan" title="Jejak aksi yang dekat dengan masyarakat." description="Arsip preview ini mempertahankan foto, tanggal, lokasi, dan narasi contoh agar pengalaman membaca dapat dievaluasi secara utuh." />
+      <SectionNavigation label="Jelajahi Kegiatan" items={activityNavItems} currentHref="/kegiatan" />
       <PreviewNotice label="Kegiatan contoh">Tanggal, lokasi, foto, dan uraian di bawah akan diganti dengan arsip resmi tanpa mengubah struktur desain.</PreviewNotice>
       <section className="trust-page-section trust-archive-section">
         <div className="shell trust-archive-grid trust-activity-archive">
           {items.map((activity, index) => (
-            <article className={index === 0 ? 'trust-archive-card trust-archive-card-wide' : 'trust-archive-card'} key={`${activity.slug}-${index}`}>
+            <article id={index < sampleActivities.length ? activity.slug : undefined} className={index === 0 ? 'trust-archive-card trust-archive-card-wide' : 'trust-archive-card'} key={`${activity.slug}-${index}`}>
               <div className="trust-archive-image"><Image src={activity.image} alt={`Foto contoh ${activity.title}`} fill sizes={index === 0 ? '(max-width: 900px) 100vw, 66vw' : '(max-width: 900px) 100vw, 33vw'} /><span className="preview-chip">CONTOH</span></div>
               <div className="trust-archive-copy"><div><time>{activity.date}</time><span><MapPin size={13} aria-hidden="true" /> {activity.location}</span></div><h2>{activity.title}</h2><p>{activity.summary} Dokumentasi, indikator hasil, dan kaitan program akan ditambahkan saat data final tersedia.</p></div>
             </article>

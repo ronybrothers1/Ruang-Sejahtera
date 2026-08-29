@@ -154,15 +154,35 @@ export const trustPrinciples = [
   ['Berintegritas', 'Keputusan program harus ditempatkan di atas kepentingan pribadi.'],
 ] as const;
 
-export const publicSearchIndex = [
-  { title: 'Tentang Kami', description: 'Profil, nilai, fokus kegiatan, dan komitmen yayasan.', href: '/tentang-kami' },
-  { title: 'Program', description: 'Seluruh fokus program sosial Yayasan Ruang Sejahtera.', href: '/program' },
-  { title: 'Kegiatan', description: 'Arsip kegiatan sosial dan dokumentasi lapangan.', href: '/kegiatan' },
-  { title: 'Dampak', description: 'Ringkasan dampak dan indikator program.', href: '/dampak' },
-  { title: 'Transparansi', description: 'Laporan keuangan, program, dan dokumen publik.', href: '/transparansi' },
-  { title: 'Berita', description: 'Berita kegiatan, cerita dampak, dan pengumuman.', href: '/berita' },
-  { title: 'Galeri', description: 'Dokumentasi foto dan video kegiatan.', href: '/galeri' },
-  { title: 'Organisasi', description: 'Struktur organisasi dan pengurus.', href: '/organisasi' },
-  { title: 'Kontak', description: 'Kanal komunikasi Yayasan Ruang Sejahtera.', href: '/kontak' },
-  ...programs.map((program) => ({ title: program.name, description: program.summary, href: `/program/${program.slug}` })),
+export type PublicSearchItem = {
+  title: string;
+  description: string;
+  href: string;
+  category: string;
+};
+
+export const publicSearchIndex: PublicSearchItem[] = [
+  { title: 'Tentang Kami', description: 'Profil, ruang kerja, dan komitmen informasi publik yayasan.', href: '/tentang-kami', category: 'Tentang Kami' },
+  { title: 'Visi & Misi', description: 'Arah dan misi yang menjadi dasar gerakan Yayasan Ruang Sejahtera.', href: '/tentang-kami/visi-misi', category: 'Tentang Kami' },
+  { title: 'Nilai Kami', description: 'Prinsip kemanusiaan, transparansi, akuntabilitas, dampak, dan aksesibilitas.', href: '/tentang-kami/nilai', category: 'Tentang Kami' },
+  { title: 'Sejarah', description: 'Perjalanan dan tonggak perkembangan Yayasan Ruang Sejahtera.', href: '/tentang-kami/sejarah', category: 'Tentang Kami' },
+  { title: 'Organisasi', description: 'Struktur organisasi, peran, dan tanggung jawab pengurus.', href: '/organisasi', category: 'Tentang Kami' },
+  { title: 'Legalitas', description: 'Identitas hukum dan ruang pemeriksaan dokumen legalitas yayasan.', href: '/tentang-kami/legalitas', category: 'Tentang Kami' },
+  { title: 'Program', description: 'Lima fokus program sosial Yayasan Ruang Sejahtera.', href: '/program', category: 'Program' },
+  ...programs.map((program) => ({ title: program.name, description: program.summary, href: `/program/${program.slug}`, category: 'Program' })),
+  { title: 'Kegiatan', description: 'Arsip kegiatan sosial dan dokumentasi lapangan.', href: '/kegiatan', category: 'Kegiatan' },
+  ...sampleActivities.map((activity) => ({ title: activity.title, description: `${activity.summary} ${activity.location}.`, href: `/kegiatan#${activity.slug}`, category: 'Kegiatan contoh' })),
+  { title: 'Berita & Cerita', description: 'Berita kegiatan, cerita dampak, program, dan relawan.', href: '/berita', category: 'Kegiatan' },
+  ...sampleNews.map((item) => ({ title: item.title, description: `${item.category} contoh yang memperlihatkan struktur artikel dan dokumentasi program.`, href: `/berita#${item.slug}`, category: 'Berita contoh' })),
+  { title: 'Galeri Foto & Video', description: 'Dokumentasi visual kegiatan dan program sosial.', href: '/galeri', category: 'Kegiatan' },
+  { title: 'Dampak', description: 'Ringkasan dampak, indikator program, dan kerangka pengukuran.', href: '/dampak', category: 'Akuntabilitas' },
+  { title: 'Transparansi', description: 'Ringkasan keuangan, penyaluran, laporan, dan dokumen publik.', href: '/transparansi', category: 'Akuntabilitas' },
+  { title: 'Dokumen Publik', description: 'Ruang laporan penyaluran, program, kebijakan, dan tata kelola.', href: '/transparansi#dokumen', category: 'Akuntabilitas' },
+  { title: 'Kebijakan Donasi', description: 'Prinsip pencatatan, privasi donatur, dan keamanan transaksi.', href: '/kebijakan-donasi', category: 'Akuntabilitas' },
+  { title: 'Cara Mendukung', description: 'Pilihan dukungan, simulasi donasi, dan standar keamanan.', href: '/donasi', category: 'Terlibat' },
+  { title: 'Kontak & Kolaborasi', description: 'Kanal untuk pertanyaan program, kemitraan, relawan, media, dan dukungan.', href: '/kontak', category: 'Terlibat' },
+  { title: 'Kebijakan Privasi', description: 'Prinsip pengelolaan data pribadi, penerima manfaat, analytics, dan formulir.', href: '/privasi', category: 'Kebijakan' },
+  { title: 'Ketentuan Penggunaan', description: 'Ketentuan penggunaan informasi dan layanan website.', href: '/ketentuan', category: 'Kebijakan' },
+  { title: 'Aksesibilitas', description: 'Komitmen aksesibilitas dan perbaikan berkelanjutan website.', href: '/aksesibilitas', category: 'Kebijakan' },
+  { title: 'Disclaimer', description: 'Batas penggunaan informasi publik pada website yayasan.', href: '/disclaimer', category: 'Kebijakan' },
 ];

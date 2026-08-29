@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { PageHero } from '@/components/PageHero';
+import { SectionNavigation } from '@/components/SectionNavigation';
+import { activityNavItems } from '@/lib/navigation';
 import { publishedActivities } from '@/lib/published-content';
 
 export function generateStaticParams() {
@@ -24,6 +26,7 @@ export default async function ActivityDetailPage({ params }: { params: Promise<{
     <>
       <PageHero eyebrow="Kegiatan" title={activity.title} description={activity.summary} />
       <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: 'Kegiatan', href: '/kegiatan' }, { label: activity.title }]} />
+      <SectionNavigation label="Jelajahi Kegiatan" items={activityNavItems} currentHref="/kegiatan" />
       <article className="pb-20 pt-8 md:pb-28">
         <div className="shell grid gap-10 lg:grid-cols-[.72fr_1.28fr]">
           <aside className="space-y-5 border-t-2 border-brand-red pt-5 text-sm leading-7 text-neutral-600">

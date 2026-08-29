@@ -337,6 +337,7 @@
 .trust-contact-preview-layout,
 .trust-donation-preview-layout { display: grid; grid-template-columns: minmax(0,.8fr) minmax(390px,.7fr); gap: clamp(3rem,8vw,8rem); align-items: start; }
 .trust-contact-preview-items { display: grid; gap: .65rem; margin-top: 1.5rem; }
+.trust-contact-preview-items + .trust-actions { margin-top: 1.25rem; }
 .trust-contact-preview-items > div { display: grid; grid-template-columns: auto minmax(0,1fr); gap: .7rem; align-items: center; padding: .85rem 1rem; border: 1px solid var(--trust-line); border-radius: 14px; background: #fff; }
 .trust-contact-preview-items svg { color: var(--trust-red); }
 .trust-contact-preview-items small,
@@ -373,6 +374,12 @@
 .trust-donation-safeguards > div { display: grid; grid-template-columns: auto minmax(0,1fr); gap: .65rem; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,.1); color: #d4d0cd; font-size: .67rem; }
 .trust-donation-safeguards > div svg { color: #ff7479; }
 .trust-donation-safeguards .trust-text-link { margin-top: 1.2rem; color: #ff858a; }
+.trust-donation-safeguards > .trust-support-links { display: flex; grid-template-columns: none; flex-wrap: wrap; align-items: center; gap: .8rem 1rem; }
+.trust-donation-safeguards > .trust-support-links .trust-text-link { margin-top: 0; }
+.trust-donation-safeguards > .trust-support-links .trust-button svg { color: currentColor; }
+.trust-archive-card[id],
+.trust-news-archive-card[id],
+#dokumen { scroll-margin-top: 110px; }
 
 .trust-program-archive-image { min-height: 220px; }
 .trust-program-detail-photo { position: relative; overflow: hidden; min-height: 340px; border-radius: 22px; background: #d8d3cb; }
