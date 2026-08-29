@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { ArrowRight, SearchCheck } from 'lucide-react';
 import { PageHero } from '@/components/PageHero';
 import { ProgramMark } from '@/components/ProgramMark';
+import { SectionNavigation } from '@/components/SectionNavigation';
 import { programs } from '@/lib/content';
+import { programNavItems } from '@/lib/navigation';
 
 export const metadata: Metadata = {
   title: 'Program',
@@ -19,6 +21,7 @@ export default function ProgramsPage() {
         title="Lima jalur bantuan untuk kebutuhan yang berbeda."
         description="Setiap program memiliki fokus yang jelas. Rincian pelaksanaan, jangkauan, dan hasil hanya ditambahkan dari data yang telah diperiksa."
       />
+      <SectionNavigation label="Jelajahi Program" items={programNavItems} currentHref="/program" />
       <section className="trust-page-section">
         <div className="shell">
           <div className="trust-page-intro">

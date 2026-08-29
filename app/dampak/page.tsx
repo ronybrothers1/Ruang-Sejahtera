@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import { ArrowUpRight, BarChart3, FileSearch, MapPin, Users } from 'lucide-react';
 import { PageHero } from '@/components/PageHero';
 import { PreviewNotice } from '@/components/PreviewNotice';
+import { SectionNavigation } from '@/components/SectionNavigation';
 import { sampleStats } from '@/lib/content';
+import { accountabilityNavItems } from '@/lib/navigation';
 
 export const metadata: Metadata = { title: 'Dampak', description: 'Data dampak dan metodologi pelaporan Yayasan Ruang Sejahtera.' };
 
@@ -18,6 +20,7 @@ export default function ImpactPage() {
   return (
     <>
       <PageHero eyebrow="Dampak" title="Dampak bukan sekadar angka. Ia harus menunjukkan perubahan." description="Dashboard mempertahankan indikator dan angka contoh agar sistem visualnya dapat dinilai sebelum dataset resmi menggantikannya." />
+      <SectionNavigation label="Ruang Akuntabilitas" items={accountabilityNavItems} currentHref="/dampak" />
       <PreviewNotice label="Metrik contoh">Nilai berikut bukan data resmi. Struktur, definisi, periode, sumber, dan metodologi telah disiapkan untuk data final.</PreviewNotice>
       <section className="trust-page-section trust-impact-preview">
         <div className="shell">

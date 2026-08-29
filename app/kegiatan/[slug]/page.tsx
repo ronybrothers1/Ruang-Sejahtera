@@ -2,7 +2,10 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { ContentContinuation } from '@/components/ContentContinuation';
 import { PageHero } from '@/components/PageHero';
+import { SectionNavigation } from '@/components/SectionNavigation';
+import { activityNavItems } from '@/lib/navigation';
 import { publishedActivities } from '@/lib/published-content';
 
 export function generateStaticParams() {
@@ -24,6 +27,7 @@ export default async function ActivityDetailPage({ params }: { params: Promise<{
     <>
       <PageHero eyebrow="Kegiatan" title={activity.title} description={activity.summary} />
       <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: 'Kegiatan', href: '/kegiatan' }, { label: activity.title }]} />
+      <SectionNavigation label="Jelajahi Kegiatan" items={activityNavItems} currentHref="/kegiatan" currentType="location" />
       <article className="pb-20 pt-8 md:pb-28">
         <div className="shell grid gap-10 lg:grid-cols-[.72fr_1.28fr]">
           <aside className="space-y-5 border-t-2 border-brand-red pt-5 text-sm leading-7 text-neutral-600">
@@ -34,6 +38,11 @@ export default async function ActivityDetailPage({ params }: { params: Promise<{
           <div className="prose prose-neutral max-w-none leading-8"><p>{activity.body}</p></div>
         </div>
       </article>
+      <ContentContinuation links={[
+        { href: '/kegiatan', label: 'Arsip', title: 'Kegiatan lainnya' },
+        { href: `/program/${activity.programSlug}`, label: 'Program terkait', title: 'Pelajari konteks program' },
+        { href: '/galeri', label: 'Dokumentasi', title: 'Jelajahi galeri' },
+      ]} />
     </>
   );
 }

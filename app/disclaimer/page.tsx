@@ -1,4 +1,20 @@
 import type { Metadata } from 'next';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { DocumentLayout } from '@/components/DocumentLayout';
 import { PageHero } from '@/components/PageHero';
 export const metadata: Metadata = { title: 'Disclaimer' };
-export default function DisclaimerPage() { return <><PageHero eyebrow="Informasi Publik" title="Disclaimer" description="Batas penggunaan informasi pada platform Yayasan Ruang Sejahtera." /><section className="py-18 md:py-24"><article className="shell max-w-4xl space-y-6 leading-8 text-neutral-700"><p>Informasi kegiatan, program, dampak, organisasi, dan laporan hanya dianggap resmi setelah dipublikasikan melalui kanal yang dikelola yayasan.</p><p>Angka dampak dan keuangan harus dibaca sesuai periode, definisi, dan sumber yang menyertainya. Ketiadaan data tidak digantikan dengan estimasi dekoratif.</p><p>Informasi pembayaran hanya berlaku melalui kanal resmi yang dikonfigurasi yayasan. Halaman donasi V2 tidak menerima pembayaran sebelum sistem pembayaran resmi diaktifkan.</p></article></section></>; }
+export default function DisclaimerPage() {
+  const sections = [
+    { id: 'kanal-resmi', title: 'Kanal resmi', content: 'Informasi kegiatan, program, dampak, organisasi, dan laporan hanya dianggap resmi setelah dipublikasikan melalui kanal yang dikelola yayasan.' },
+    { id: 'konteks-data', title: 'Konteks data', content: 'Angka dampak dan keuangan harus dibaca sesuai periode, definisi, dan sumber yang menyertainya. Ketiadaan data tidak digantikan dengan estimasi dekoratif.' },
+    { id: 'informasi-pembayaran', title: 'Informasi pembayaran', content: 'Informasi pembayaran hanya berlaku melalui kanal resmi yang dikonfigurasi yayasan. Halaman donasi V2 tidak menerima pembayaran sebelum sistem pembayaran resmi diaktifkan.' },
+  ];
+
+  return (
+    <>
+      <PageHero eyebrow="Informasi Publik" title="Disclaimer" description="Batas penggunaan informasi pada platform Yayasan Ruang Sejahtera." />
+      <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: 'Disclaimer' }]} />
+      <DocumentLayout sections={sections} />
+    </>
+  );
+}

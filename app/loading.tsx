@@ -1,1 +1,13 @@
-export default function Loading() { return <div className="shell min-h-[70vh] pt-32" aria-busy="true" aria-live="polite"><span className="sr-only">Memuat halaman</span><div className="h-4 w-28 animate-pulse rounded bg-neutral-200" /><div className="mt-5 h-12 max-w-2xl animate-pulse rounded bg-neutral-200" /><div className="mt-4 h-5 max-w-xl animate-pulse rounded bg-neutral-100" /><div className="mt-14 grid gap-4 md:grid-cols-3">{[1,2,3].map((item) => <div key={item} className="h-44 animate-pulse rounded-xl bg-neutral-100" />)}</div></div>; }
+export default function Loading() {
+  return (
+    <section className="trust-loading-state" aria-busy="true" aria-live="polite">
+      <span className="sr-only">Memuat halaman</span>
+      <div className="shell">
+        <div className="trust-loading-kicker" />
+        <div className="trust-loading-title" />
+        <div className="trust-loading-copy" />
+        <div className="trust-loading-grid">{[1, 2, 3].map((item) => <div key={item} />)}</div>
+      </div>
+    </section>
+  );
+}

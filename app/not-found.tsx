@@ -1,2 +1,7 @@
 import Link from 'next/link';
-export default function NotFound() { return <div className="shell flex min-h-[70vh] flex-col items-start justify-center pt-20"><p className="eyebrow">404</p><h1 className="font-heading text-5xl font-extrabold tracking-tight">Halaman tidak ditemukan.</h1><p className="mt-5 max-w-xl leading-7 text-neutral-600">Tautan mungkin berubah atau informasi belum dipublikasikan. Gunakan pencarian atau kembali ke beranda.</p><div className="mt-7 flex gap-3"><Link href="/" className="button-primary">Ke Beranda</Link><Link href="/cari" className="button-secondary">Cari Informasi</Link></div></div>; }
+import { Compass } from 'lucide-react';
+import { PageState } from '@/components/PageState';
+
+export default function NotFound() {
+  return <PageState eyebrow="404 · Halaman tidak ditemukan" title="Informasi yang Anda cari belum tersedia." description="Tautan mungkin berubah atau informasi belum dipublikasikan. Gunakan pencarian atau kembali ke beranda." icon={<Compass size={26} />} actions={<><Link href="/" className="trust-button trust-button-primary">Ke Beranda</Link><Link href="/cari" className="trust-button trust-button-secondary">Cari Informasi</Link></>} />;
+}

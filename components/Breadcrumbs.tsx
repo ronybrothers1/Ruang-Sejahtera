@@ -19,14 +19,14 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
 
   return (
     <>
-      <nav aria-label="Breadcrumb" className="shell py-5">
+      <nav aria-label="Breadcrumb" className="breadcrumb-nav shell py-5">
         <ol className="flex flex-wrap items-center gap-1 text-xs font-semibold text-neutral-500">
           {items.map((item, index) => {
             const current = index === items.length - 1;
             return (
               <li key={`${item.label}-${index}`} className="flex items-center gap-1">
                 {index > 0 ? <ChevronRight size={14} aria-hidden="true" /> : null}
-                {item.href && !current ? <Link href={item.href} className="hover:text-brand-red">{item.label}</Link> : <span aria-current={current ? 'page' : undefined}>{item.label}</span>}
+                {item.href && !current ? <Link href={item.href} className="breadcrumb-link hover:text-brand-red">{item.label}</Link> : <span className="breadcrumb-current" aria-current={current ? 'page' : undefined}>{item.label}</span>}
               </li>
             );
           })}

@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { ArrowRight, FileCheck2, HeartHandshake, Scale, ShieldCheck, Sparkles } from 'lucide-react';
 import { PageHero } from '@/components/PageHero';
 import { PreviewNotice } from '@/components/PreviewNotice';
+import { SectionNavigation } from '@/components/SectionNavigation';
 import { programs } from '@/lib/content';
+import { aboutNavItems } from '@/lib/navigation';
 
 export const metadata: Metadata = {
   title: 'Tentang Kami',
@@ -26,6 +28,7 @@ export default function AboutPage() {
         title="Ruang untuk kepedulian. Sistem untuk menjaga kepercayaan."
         description="Website ini menyatukan informasi program, kegiatan, akuntabilitas, kebijakan, dan kanal komunikasi Yayasan Ruang Sejahtera."
       />
+      <SectionNavigation label="Jelajahi Tentang Kami" items={aboutNavItems} currentHref="/tentang-kami" />
       <PreviewNotice label="Profil draft">Narasi profil, kutipan, dan foto adalah contoh sementara yang mempertahankan komposisi halaman hingga materi resmi tersedia.</PreviewNotice>
       <section className="trust-page-section">
         <div className="shell trust-about-layout">

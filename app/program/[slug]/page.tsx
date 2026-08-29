@@ -6,7 +6,9 @@ import { notFound } from 'next/navigation';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { PageHero } from '@/components/PageHero';
 import { ProgramMark } from '@/components/ProgramMark';
+import { SectionNavigation } from '@/components/SectionNavigation';
 import { programs } from '@/lib/content';
+import { programNavItems } from '@/lib/navigation';
 
 export function generateStaticParams() {
   return programs.map(({ slug }) => ({ slug }));
@@ -27,6 +29,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
     <>
       <PageHero eyebrow={program.focus} title={program.name} description={program.summary} />
       <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: 'Program', href: '/program' }, { label: program.name }]} />
+      <SectionNavigation label="Program lainnya" items={programNavItems} currentHref={`/program/${program.slug}`} />
       <section className="trust-page-section">
         <div className="shell trust-program-detail">
           <div className="trust-program-detail-mark">
