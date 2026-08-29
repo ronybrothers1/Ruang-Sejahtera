@@ -1,0 +1,6 @@
+{
+  "name": "Yayasan Ruang Sejahtera",
+  "description": "Website resmi Yayasan Ruang Sejahtera. Pusat informasi, donasi, kegiatan sosial, dan transparansi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
