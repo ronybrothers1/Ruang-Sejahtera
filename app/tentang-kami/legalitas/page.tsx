@@ -1,38 +1,11 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { ArrowRight, FileCheck2 } from 'lucide-react';
-import { EmptyState } from '@/components/EmptyState';
+import { FileCheck2, ShieldCheck } from 'lucide-react';
 import { PageHero } from '@/components/PageHero';
+import { PreviewNotice } from '@/components/PreviewNotice';
+import { sampleLegalDocuments } from '@/lib/content';
 
-export const metadata: Metadata = {
-  title: 'Legalitas',
-  description: 'Ruang publikasi legalitas Yayasan Ruang Sejahtera.',
-};
+export const metadata: Metadata = { title: 'Legalitas', description: 'Dokumen legalitas Yayasan Ruang Sejahtera.' };
 
 export default function LegalityPage() {
-  return (
-    <>
-      <PageHero
-        eyebrow="Tentang Kami"
-        title="Legalitas harus jelas tanpa membuka data yang dilindungi."
-        description="Nomor, penerbit, tanggal, status, dan salinan dokumen hanya ditampilkan setelah diverifikasi serta dinilai aman untuk akses publik."
-      />
-      <section className="trust-page-section">
-        <div className="shell trust-single-column">
-          <div className="trust-icon-intro">
-            <FileCheck2 size={30} aria-hidden="true" />
-            <span>Identitas hukum</span>
-            <h2>Placeholder legalitas telah dihapus dari halaman publik.</h2>
-            <p>Nomor akta, pengesahan, perpajakan, dan dokumen administratif contoh dapat disalahpahami sebagai identitas resmi. Versi final dapat menggunakan metadata atau salinan yang telah direduksi bila diperlukan.</p>
-          </div>
-          <EmptyState
-            eyebrow="Dokumen legal"
-            title="Informasi legalitas resmi belum dipublikasikan."
-            description="Setelah tersedia, setiap entri akan memuat jenis dokumen, nomor atau metadata yang layak ditampilkan, penerbit, tanggal, status, dan keterangan mengenai akses salinannya."
-            action={<Link href="/kontak" className="trust-button trust-button-ink">Ajukan klarifikasi <ArrowRight size={17} aria-hidden="true" /></Link>}
-          />
-        </div>
-      </section>
-    </>
-  );
+  return <><PageHero eyebrow="Tentang Kami" title="Identitas hukum harus jelas dan tetap aman." description="Rancangan presentasi legalitas dipertahankan secara lengkap. Nomor dan detail contoh akan diganti dengan metadata dokumen resmi yang layak dipublikasikan." /><PreviewNotice label="Dokumen contoh">Nomor akta, pengesahan, perpajakan, dan metadata berikut bukan data resmi.</PreviewNotice><section className="trust-page-section trust-legal-section"><div className="shell trust-legal-layout"><div className="trust-legal-intro"><ShieldCheck size={32} aria-hidden="true" /><span>Akuntabilitas institusi</span><h2>Legalitas perlu mudah diperiksa tanpa mengorbankan keamanan.</h2><p>Versi final hanya menampilkan data yang telah diverifikasi dan layak untuk akses publik. Dokumen sensitif dapat disajikan sebagai metadata atau salinan yang telah direduksi.</p></div><div className="trust-legal-grid">{sampleLegalDocuments.map((item) => <article key={item.title}><div><FileCheck2 size={22} aria-hidden="true" /><span>CONTOH</span></div><h2>{item.title}</h2><strong>{item.number}</strong><p>{item.issuer}</p><small>Belum dapat diunduh</small></article>)}</div></div></section></>;
 }

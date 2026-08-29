@@ -1,38 +1,11 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { ArrowRight, Compass } from 'lucide-react';
-import { EmptyState } from '@/components/EmptyState';
+import { Compass, Flag, HeartHandshake, ShieldCheck } from 'lucide-react';
 import { PageHero } from '@/components/PageHero';
+import { PreviewNotice } from '@/components/PreviewNotice';
+import { sampleMissions, sampleVision } from '@/lib/content';
 
-export const metadata: Metadata = {
-  title: 'Visi & Misi',
-  description: 'Ruang publikasi visi dan misi Yayasan Ruang Sejahtera.',
-};
+export const metadata: Metadata = { title: 'Visi & Misi', description: 'Visi dan misi Yayasan Ruang Sejahtera.' };
 
 export default function VisionMissionPage() {
-  return (
-    <>
-      <PageHero
-        eyebrow="Tentang Kami"
-        title="Visi dan misi harus mengikuti rumusan yang disahkan."
-        description="Halaman ini disiapkan untuk menampilkan arah kelembagaan tanpa mengganti dokumen resmi dengan narasi contoh."
-      />
-      <section className="trust-page-section">
-        <div className="shell trust-single-column">
-          <div className="trust-icon-intro">
-            <Compass size={30} aria-hidden="true" />
-            <span>Arah kelembagaan</span>
-            <h2>Rumusan resmi lebih penting daripada kalimat yang sekadar terdengar baik.</h2>
-            <p>Visi dan misi contoh telah dihapus. Konten akan dipublikasikan setelah diselaraskan dengan dokumen dan keputusan internal yayasan.</p>
-          </div>
-          <EmptyState
-            eyebrow="Visi & misi"
-            title="Rumusan resmi belum dipublikasikan."
-            description="Setelah tersedia, halaman ini akan membedakan visi sebagai arah jangka panjang dan misi sebagai pilihan tindakan kelembagaan yang dapat diterjemahkan ke dalam program."
-            action={<Link href="/program" className="trust-button trust-button-ink">Lihat program yang tersedia <ArrowRight size={17} aria-hidden="true" /></Link>}
-          />
-        </div>
-      </section>
-    </>
-  );
+  return <><PageHero eyebrow="Tentang Kami" title="Arah yang jelas membuat gerakan tetap selaras." description="Rumusan contoh dipertahankan untuk menilai struktur dan identitas visual halaman sebelum visi dan misi yang telah disahkan menggantikannya." /><PreviewNotice label="Narasi contoh">Visi dan misi berikut belum merupakan rumusan resmi yayasan.</PreviewNotice><section className="trust-page-section trust-vision-section"><div className="shell trust-vision-layout"><article className="trust-vision-card"><Compass size={29} aria-hidden="true" /><span>VISI · CONTOH</span><h2>{sampleVision}</h2><p>Rumusan ini digunakan sementara untuk menilai hierarki konten dan desain halaman.</p></article><div className="trust-mission-stack"><span>Misi</span>{sampleMissions.map((item, index) => <article key={item.title}><span>{String(index + 1).padStart(2, '0')}</span><div><h2>{item.title}</h2><p>{item.description}</p></div></article>)}</div></div></section><section className="trust-values-band"><div className="shell"><article><Flag size={23} /><strong>Arah yang jelas</strong><span>Program tumbuh dari fokus yang dipahami bersama.</span></article><article><HeartHandshake size={23} /><strong>Manusia sebagai pusat</strong><span>Martabat penerima manfaat dijaga dalam setiap proses.</span></article><article><ShieldCheck size={23} /><strong>Kepercayaan dijaga</strong><span>Informasi dan pertanggungjawaban menjadi bagian dari program.</span></article></div></section></>;
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, SearchCheck } from 'lucide-react';
 import { PageHero } from '@/components/PageHero';
@@ -27,7 +28,11 @@ export default function ProgramsPage() {
           <div className="trust-program-archive">
             {programs.map((program) => (
               <Link href={`/program/${program.slug}`} key={program.slug}>
-                <ProgramMark slug={program.slug} accent={program.accent} />
+                <div className="trust-card-image trust-program-archive-image">
+                  <Image src={program.image} alt={`Foto contoh ${program.name}`} fill sizes="(max-width: 680px) 38vw, (max-width: 1024px) 50vw, 33vw" />
+                  <ProgramMark slug={program.slug} accent={program.accent} compact />
+                  <span className="preview-chip">CONTOH</span>
+                </div>
                 <div><span>{program.focus}</span><h2>{program.name}</h2><p>{program.summary}</p></div>
                 <strong>Jelajahi program <ArrowRight size={16} aria-hidden="true" /></strong>
               </Link>
@@ -35,7 +40,7 @@ export default function ProgramsPage() {
           </div>
           <div className="trust-integrity-note">
             <SearchCheck size={22} aria-hidden="true" />
-            <p><strong>Prinsip publikasi program</strong> Target, wilayah, penerima manfaat, mitra, dokumentasi, serta capaian hanya ditampilkan setelah sumber dan konteksnya tersedia.</p>
+            <p><strong>Preview program lengkap</strong> Foto bertanda contoh mempertahankan struktur desain dan akan diganti dokumentasi resmi tanpa mengubah susunan halaman.</p>
           </div>
         </div>
       </section>

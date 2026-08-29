@@ -3,16 +3,19 @@ import path from 'node:path';
 
 const roots = ['app', 'components', 'lib'];
 const extensions = new Set(['.ts', '.tsx', '.js', '.jsx']);
+const stagingPreviewFile = path.normalize('lib/content.ts');
 const checks = [
   ['random image placeholder', /picsum\.photos/i],
-  ['external stock image', /images\.unsplash\.com/i],
   ['legacy AI Studio reference', /@google\/genai|GEMINI_API_KEY|ai-studio-applet/i],
   ['dead placeholder link', /href=["']#["']/i],
   ['fabricated location from prototype', /Jakarta,\s*Indonesia/i],
-  ['hardcoded public rupiah amount', /Rp\s*[0-9][0-9.,]*/i],
   ['known fabricated impact statistic', /12\.450\+|1\.200\+|450\+/i],
   ['known fabricated report label', /Laporan\s+Q2\s+Tersedia/i],
-  ['known fabricated public identity', /Nama Ketua|Nama Pembina|Jl\. Kebaikan|AHU-XXXX|Siti Aisyah|Maria L\. Kolo|Slamet Riyadi/i],
+];
+const stagingOnlyChecks = [
+  ['external stock image outside staging preview', /images\.unsplash\.com/i],
+  ['hardcoded public rupiah amount outside staging preview', /Rp\s*[0-9][0-9.,]*/i],
+  ['known sample identity outside staging preview', /Siti Aisyah|Maria L\. Kolo|Slamet Riyadi/i],
 ];
 const cmsFiles = [
   ['articles', 'content/cms/articles.json'],
@@ -39,6 +42,13 @@ for (const root of roots) {
     const text = await fs.readFile(file, 'utf8');
     for (const [label, pattern] of checks) {
       if (pattern.test(text)) violations.push(`${file}: ${label}`);
+    }
+    if (path.normalize(file) !== stagingPreviewFile) {
+      for (const [label, pattern] of stagingOnlyChecks) {
+        if (pattern.test(text)) violations.push(`${file}: ${label}`);
+      }
+    } else if (!/export const sampleMode = true/.test(text)) {
+      violations.push(`${file}: staging preview must export sampleMode = true`);
     }
   }
 }
@@ -79,4 +89,4 @@ if (violations.length) {
   process.exit(1);
 }
 
-console.log('Public-content integrity guard passed. Stock imagery, fabricated identities, and unverified public amounts were not found.');
+console.log('Public-content integrity guard passed. Preview data is isolated and explicitly marked; production content checks passed.');
