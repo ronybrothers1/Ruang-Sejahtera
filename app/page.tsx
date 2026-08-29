@@ -2,225 +2,238 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowRight,
+  Camera,
   Droplets,
   FileText,
   GraduationCap,
   HandHeart,
-  HardHat,
   Heart,
   Home as HomeIcon,
-  MapPin,
-  Quote,
+  Newspaper,
   ShieldCheck,
   Sparkles,
-  Users,
-  WalletCards,
+  Store,
+  Target,
 } from 'lucide-react';
-import {
-  programs,
-  sampleActivities,
-  sampleFinance,
-  sampleNews,
-  sampleStats,
-  sampleTestimonials,
-  trustPrinciples,
-} from '@/lib/content';
+import { programs, sampleMode, trustPrinciples } from '@/lib/content';
 
-const programIcons = [HandHeart, Users, HomeIcon, Droplets, GraduationCap, HardHat];
-const statIcons = [Users, Heart, MapPin, WalletCards];
+const programIcons = [HandHeart, Store, HomeIcon, Droplets, GraduationCap];
+
+const trustSignals = [
+  {
+    label: '5 program utama',
+    description: 'Fokus bantuan disusun jelas agar publik mudah memahami ruang kerja yayasan.',
+    icon: Target,
+  },
+  {
+    label: 'Transparansi publik',
+    description: 'Kebijakan, struktur, dan informasi akuntabilitas ditempatkan dalam ruang yang mudah dijangkau.',
+    icon: ShieldCheck,
+  },
+  {
+    label: 'Dokumentasi kegiatan',
+    description: 'Kegiatan, berita, dan galeri disiapkan sebagai jejak publik atas kerja di lapangan.',
+    icon: Camera,
+  },
+] as const;
+
+const exploreCards = [
+  {
+    href: '/kegiatan',
+    eyebrow: 'Kegiatan',
+    title: 'Lihat jejak aksi di lapangan.',
+    description: 'Ruang untuk menampilkan kegiatan sosial, lokasi, waktu, dan dokumentasi pelaksanaan.',
+    image: programs[3].image,
+    icon: HandHeart,
+  },
+  {
+    href: '/galeri',
+    eyebrow: 'Galeri',
+    title: 'Dokumentasi yang bicara apa adanya.',
+    description: 'Foto dan video membantu publik melihat proses, bukan hanya membaca klaim.',
+    image: programs[0].image,
+    icon: Camera,
+  },
+  {
+    href: '/berita',
+    eyebrow: 'Berita & cerita',
+    title: 'Kabar yang memberi konteks.',
+    description: 'Catatan kegiatan, cerita dampak, dan informasi yayasan dalam format editorial.',
+    image: programs[4].image,
+    icon: Newspaper,
+  },
+] as const;
 
 export default function Home() {
   return (
-    <div className="home-v4 bg-[#f7f7f5]">
-      <section className="hero-stage hero-stage-v4">
-        <div className="hero-noise" aria-hidden="true" />
-        <div className="hero-red-plane" aria-hidden="true" />
-        <div className="hero-orbit" aria-hidden="true" />
-
-        <div className="shell hero-grid hero-grid-v4">
-          <div className="hero-copy hero-copy-v4">
-            <span className="hero-kicker"><Sparkles size={15} /> Gerakan sosial & kemanusiaan</span>
-            <h1 className="hero-title-v43" aria-label="Bersama kita hadirkan harapan, wujudkan kesejahteraan.">
-              <span className="hero-title-line hero-title-line-light">Bersama kita</span>
-              <span className="hero-title-line hero-title-line-accent">Hadirkan</span>
-              <span className="hero-title-line hero-title-line-accent">Harapan,</span>
-              <span className="hero-title-line hero-title-line-light">Wujudkan</span>
-              <span className="hero-title-line hero-title-line-light">Kesejahteraan.</span>
+    <div className="home-v6">
+      <section className="v6-hero" aria-labelledby="home-title">
+        <div className="v6-hero-glow" aria-hidden="true" />
+        <div className="v6-hero-grid shell">
+          <div className="v6-hero-copy">
+            <span className="v6-kicker"><Sparkles size={15} aria-hidden="true" /> Gerakan sosial & kemanusiaan</span>
+            <h1 id="home-title" className="v6-hero-title">
+              <span>Bersama kita</span>
+              <span className="v6-hero-accent">hadirkan harapan,</span>
+              <span>wujudkan</span>
+              <span>kesejahteraan.</span>
             </h1>
-            <p>Ruang Sejahtera menghubungkan kepedulian dengan aksi nyata—dari air bersih dan kebutuhan dasar hingga pendidikan, hunian layak, dan tanggap kemanusiaan.</p>
-
-            <div className="hero-actions">
-              <Link href="/donasi" className="cta-red"><Heart size={18} fill="currentColor" /> Donasi Sekarang</Link>
-              <Link href="/kegiatan" className="cta-ghost">Lihat Kegiatan <ArrowRight size={18} /></Link>
+            <p className="v6-hero-lead">
+              Ruang Sejahtera menghubungkan kepedulian dengan aksi yang terarah—dari kebutuhan dasar dan air bersih hingga pendidikan, usaha rakyat, dan hunian layak.
+            </p>
+            <div className="v6-hero-actions">
+              <Link href="/donasi" className="v6-button v6-button-primary"><Heart size={18} fill="currentColor" aria-hidden="true" /> Donasi Sekarang</Link>
+              <Link href="/program" className="v6-button v6-button-secondary">Jelajahi Program <ArrowRight size={18} aria-hidden="true" /></Link>
             </div>
-
-            <div className="hero-proof hero-proof-v4">
-              <div className="avatar-stack" aria-hidden="true"><span>RS</span><span>01</span><span>02</span><span>03</span></div>
-              <div><strong>Gerakan yang tumbuh bersama publik</strong><small>Profil relawan & donatur · contoh sementara</small></div>
-            </div>
-
-            <div className="hero-trustline" aria-label="Prinsip pengalaman publik">
-              <span>Transparansi publik</span>
-              <span>Dokumentasi kegiatan</span>
-              <span>Berorientasi kebutuhan</span>
+            <div className="v6-hero-links" aria-label="Jalur kepercayaan publik">
+              <Link href="/transparansi"><ShieldCheck size={16} aria-hidden="true" /> Transparansi</Link>
+              <Link href="/tentang-kami/legalitas"><FileText size={16} aria-hidden="true" /> Legalitas</Link>
+              <Link href="/kegiatan"><Camera size={16} aria-hidden="true" /> Dokumentasi</Link>
             </div>
           </div>
 
-          <div className="hero-media hero-media-v4" aria-label="Kolase dokumentasi contoh sementara">
-            <div className="hero-main-image">
-              <Image src={programs[3].image} alt="Dokumentasi contoh program air bersih" fill priority sizes="(max-width: 820px) 100vw, (max-width: 1180px) 54vw, 48vw" />
-              <div className="image-shade" />
-              <div className="media-label">FOTO CONTOH · AKAN DIGANTI DOKUMENTASI ASLI</div>
+          <div className="v6-hero-visual" aria-label="Kolase visual program Ruang Sejahtera">
+            <div className="v6-hero-main-photo">
+              <Image
+                src={programs[3].image}
+                alt="Visual sementara untuk program berbagi air bersih"
+                fill
+                priority
+                sizes="(max-width: 960px) 100vw, 49vw"
+              />
+              <div className="v6-photo-shade" />
             </div>
-            <div className="hero-side-stack">
-              <div className="mini-image"><Image src={programs[0].image} alt="Dokumentasi contoh bantuan sosial" fill sizes="(max-width: 820px) 48vw, 22vw" /></div>
-              <div className="mini-image"><Image src={programs[4].image} alt="Dokumentasi contoh pendidikan" fill sizes="(max-width: 820px) 48vw, 22vw" /></div>
+            <div className="v6-hero-side-photos">
+              <div><Image src={programs[0].image} alt="Visual sementara untuk program bantuan sosial" fill sizes="(max-width: 680px) 48vw, 20vw" /></div>
+              <div><Image src={programs[4].image} alt="Visual sementara untuk program pendidikan" fill sizes="(max-width: 680px) 48vw, 20vw" /></div>
             </div>
-          </div>
-        </div>
-
-        <div className="shell hero-stats-wrap hero-stats-wrap-v4">
-          <div className="hero-stats hero-stats-v4">
-            {sampleStats.map((item, index) => {
-              const Icon = statIcons[index];
-              return (
-                <div className="hero-stat" key={item.label}>
-                  <Icon size={26} />
-                  <div><strong>{item.value}</strong><span>{item.label}</span><small>{item.note}</small></div>
-                </div>
-              );
-            })}
+            <div className="v6-hero-trust-card">
+              <ShieldCheck size={22} aria-hidden="true" />
+              <div>
+                <strong>Kepercayaan dibangun lewat keterbukaan.</strong>
+                <span>Program, kegiatan, struktur, dan kebijakan ditempatkan dalam satu ekosistem publik.</span>
+              </div>
+            </div>
+            {sampleMode ? <span className="v6-visual-disclosure">Visual sementara · dokumentasi asli akan menggantikan foto contoh</span> : null}
           </div>
         </div>
       </section>
 
-      <section className="section-white section-pad section-pad-v4">
+      <section className="v6-trust-band" aria-label="Prinsip kepercayaan Ruang Sejahtera">
+        <div className="shell v6-trust-grid">
+          {trustSignals.map(({ label, description, icon: Icon }) => (
+            <article key={label}>
+              <span className="v6-trust-icon"><Icon size={20} aria-hidden="true" /></span>
+              <div><strong>{label}</strong><p>{description}</p></div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="v6-section v6-program-section" aria-labelledby="program-heading">
         <div className="shell">
-          <div className="center-heading center-heading-v4">
-            <span>Program Kami</span>
-            <h2>Solusi nyata untuk perubahan yang terasa.</h2>
-            <p>Lima program resmi Ruang Sejahtera untuk bantuan sosial, usaha rakyat, hunian layak, air bersih, dan pendidikan.</p>
+          <div className="v6-section-head">
+            <div>
+              <span className="v6-eyebrow">Program utama</span>
+              <h2 id="program-heading">Bantuan yang punya fokus, bukan sekadar nama.</h2>
+            </div>
+            <p>Lima program resmi Ruang Sejahtera dirancang agar kebutuhan masyarakat dapat dibaca dengan lebih jelas dan ditangani melalui jalur yang tepat.</p>
           </div>
 
-          <div className="program-grid-premium program-grid-v4">
+          <div className="v6-program-grid">
             {programs.map((program, index) => {
               const Icon = programIcons[index];
               return (
-                <Link href={`/program/${program.slug}`} className="program-card-premium program-card-v4" key={program.slug}>
-                  <div className="program-image">
-                    <Image src={program.image} alt={`Foto contoh ${program.name}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
-                    <span className="program-number">{program.accent}</span>
-                    <span className="program-icon"><Icon size={19} /></span>
+                <Link href={`/program/${program.slug}`} className="v6-program-card" key={program.slug}>
+                  <div className="v6-program-media">
+                    <Image src={program.image} alt={`Visual sementara program ${program.name}`} fill sizes="(max-width: 720px) 100vw, (max-width: 1100px) 50vw, 33vw" />
+                    <div className="v6-program-overlay" />
+                    <span className="v6-program-index">{program.accent}</span>
+                    <span className="v6-program-icon"><Icon size={20} aria-hidden="true" /></span>
                   </div>
-                  <div className="program-body">
+                  <div className="v6-program-copy">
                     <span>{program.focus}</span>
                     <h3>{program.name}</h3>
                     <p>{program.summary}</p>
-                    <strong>Lihat Program <ArrowRight size={15} /></strong>
+                    <strong>Pelajari program <ArrowRight size={15} aria-hidden="true" /></strong>
                   </div>
                 </Link>
               );
             })}
           </div>
+          {sampleMode ? <p className="v6-inline-note">Foto pada kartu program masih berupa visual sementara; nama dan fokus program mengikuti struktur resmi yang tersedia pada website.</p> : null}
         </div>
       </section>
 
-      <section className="section-pad section-pad-v4 bg-[#f4f4f2]">
-        <div className="shell">
-          <div className="split-heading split-heading-v4">
-            <div><span className="eyebrow-v3">Kegiatan terbaru</span><h2 className="display-h2">Aksi yang bisa dilihat, bukan hanya diceritakan.</h2></div>
-            <Link href="/kegiatan" className="text-link">Lihat semua kegiatan <ArrowRight size={16} /></Link>
+      <section className="v6-section v6-method-section" aria-labelledby="method-heading">
+        <div className="shell v6-method-layout">
+          <div className="v6-method-copy">
+            <span className="v6-eyebrow">Cara kami bekerja</span>
+            <h2 id="method-heading">Kepercayaan tidak diminta. Ia dibangun.</h2>
+            <p>Pengalaman digital Ruang Sejahtera dirancang agar publik dapat memahami apa yang dikerjakan, bagaimana prinsipnya, dan ke mana mencari informasi pendukung.</p>
+            <Link href="/tentang-kami/nilai" className="v6-text-link">Pelajari nilai yayasan <ArrowRight size={16} aria-hidden="true" /></Link>
           </div>
 
-          <div className="activity-grid activity-grid-v4">
-            {sampleActivities.map((activity) => (
-              <article className="activity-card activity-card-v4" key={activity.slug}>
-                <div className="activity-photo">
-                  <Image src={activity.image} alt={`Foto contoh ${activity.title}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" />
-                  <span className="date-chip">{activity.date}</span>
-                  <span className="draft-chip">CONTOH</span>
-                </div>
-                <div className="activity-body">
-                  <span className="location-line"><MapPin size={14} /> {activity.location}</span>
-                  <h3>{activity.title}</h3>
-                  <p>{activity.summary}</p>
-                  <Link href="/kegiatan">Baca detail <ArrowRight size={14} /></Link>
-                </div>
+          <div className="v6-principles">
+            {trustPrinciples.map(([title, description], index) => (
+              <article key={title}>
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <div><h3>{title}</h3><p>{description}</p></div>
               </article>
             ))}
           </div>
-        </div>
-      </section>
 
-      <section className="impact-stage section-pad section-pad-v4 impact-stage-v4">
-        <div className="shell impact-layout impact-layout-v4">
-          <div className="impact-copy impact-copy-v4">
-            <span className="eyebrow-v3 light">Transparansi & kepercayaan</span>
-            <h2>Amanah Anda,<br />tanggung jawab kami.</h2>
-            <p>Contoh visual laporan penyaluran, dokumen publik, dan prinsip tata kelola. Seluruh nominal pada bagian ini masih bersifat demonstrasi.</p>
-            <div className="impact-links">
-              <Link href="/transparansi"><FileText size={20} /> Lihat laporan</Link>
-              <Link href="/kebijakan-donasi"><ShieldCheck size={20} /> Kebijakan donasi</Link>
+          <aside className="v6-accountability-card" aria-label="Akses akuntabilitas">
+            <span className="v6-card-kicker"><ShieldCheck size={17} aria-hidden="true" /> Ruang akuntabilitas</span>
+            <h3>Informasi penting harus mudah ditemukan.</h3>
+            <p>Akses halaman transparansi, legalitas, dan struktur organisasi tanpa harus menelusuri website terlalu jauh.</p>
+            <div className="v6-accountability-links">
+              <Link href="/transparansi">Transparansi <ArrowRight size={15} aria-hidden="true" /></Link>
+              <Link href="/tentang-kami/legalitas">Legalitas <ArrowRight size={15} aria-hidden="true" /></Link>
+              <Link href="/organisasi">Organisasi <ArrowRight size={15} aria-hidden="true" /></Link>
             </div>
-          </div>
+          </aside>
+        </div>
+      </section>
 
-          <div className="finance-panel finance-panel-v4">
-            <div className="finance-head"><div><span>Ringkasan Penyaluran Dana</span><small>contoh sementara</small></div><strong>Rp186,5 Juta</strong></div>
-            <div className="finance-content">
-              <div className="donut" aria-label="Visual komposisi dana contoh"><div><b>100%</b><span>tersalurkan*</span></div></div>
-              <div className="finance-list">{sampleFinance.map((item) => <div key={item.label}><span className="finance-dot" /><strong>{item.label}</strong><em>{item.value}%</em><small>{item.amount}</small></div>)}</div>
+      <section className="v6-section v6-explore-section" aria-labelledby="explore-heading">
+        <div className="shell">
+          <div className="v6-section-head v6-section-head-compact">
+            <div>
+              <span className="v6-eyebrow">Lihat lebih dekat</span>
+              <h2 id="explore-heading">Bukan hanya cerita. Ada ruang untuk memeriksa.</h2>
             </div>
-            <p className="finance-disclaimer">*Seluruh angka merupakan data desain contoh dan bukan laporan resmi yayasan.</p>
+            <Link href="/kegiatan" className="v6-text-link">Lihat semua kegiatan <ArrowRight size={16} aria-hidden="true" /></Link>
           </div>
 
-          <div className="principle-panel principle-panel-v4">
-            <h3>Prinsip Kami</h3>
-            {trustPrinciples.map(([title, description], i) => (
-              <div className="principle-item" key={title}>
-                <span>{String(i + 1).padStart(2, '0')}</span>
-                <div><strong>{title}</strong><p>{description}</p></div>
-              </div>
+          <div className="v6-explore-grid">
+            {exploreCards.map(({ href, eyebrow, title, description, image, icon: Icon }) => (
+              <Link href={href} className="v6-explore-card" key={href}>
+                <div className="v6-explore-media">
+                  <Image src={image} alt={`Visual sementara untuk ${eyebrow}`} fill sizes="(max-width: 720px) 100vw, 33vw" />
+                  <div className="v6-explore-overlay" />
+                  <span><Icon size={18} aria-hidden="true" /> {eyebrow}</span>
+                </div>
+                <div className="v6-explore-copy"><h3>{title}</h3><p>{description}</p><strong>Buka halaman <ArrowRight size={15} aria-hidden="true" /></strong></div>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="section-white section-pad section-pad-v4">
-        <div className="shell">
-          <div className="center-heading center-heading-v4"><span>Cerita dampak</span><h2>Mereka yang merasakan manfaat.</h2><p>Testimoni berikut merupakan contoh struktur konten dan akan diganti dengan cerita penerima manfaat yang telah mendapat persetujuan publikasi.</p></div>
-          <div className="testimonial-grid testimonial-grid-v4">
-            {sampleTestimonials.map((item) => (
-              <article className="testimonial-card testimonial-card-v4" key={item.name}>
-                <Quote size={32} />
-                <p>“{item.quote}”</p>
-                <div><div className="testimonial-avatar">{item.name.split(' ').map((x) => x[0]).join('').slice(0, 2)}</div><div><strong>{item.name}</strong><span>{item.role}</span></div></div>
-                <small>TESTIMONI CONTOH</small>
-              </article>
-            ))}
+      <section className="v6-closing-cta" aria-labelledby="closing-heading">
+        <div className="v6-closing-photo"><Image src={programs[1].image} alt="Visual sementara kegiatan sosial Ruang Sejahtera" fill sizes="100vw" /></div>
+        <div className="v6-closing-overlay" />
+        <div className="shell v6-closing-content">
+          <div>
+            <span className="v6-card-kicker">Bergerak bersama</span>
+            <h2 id="closing-heading">Kebaikan menjadi berarti ketika sampai pada kebutuhan yang tepat.</h2>
+            <p>Kenali programnya, lihat ruang transparansinya, lalu tentukan bentuk dukungan yang paling sesuai.</p>
           </div>
-        </div>
-      </section>
-
-      <section className="section-pad section-pad-v4 bg-[#f4f4f2]">
-        <div className="shell">
-          <div className="split-heading split-heading-v4"><div><span className="eyebrow-v3">Berita & cerita</span><h2 className="display-h2">Kabar dari lapangan.</h2></div><Link href="/berita" className="text-link">Lihat semua berita <ArrowRight size={16} /></Link></div>
-          <div className="news-grid-v3 news-grid-v4">
-            {sampleNews.map((item) => (
-              <article className="news-card-v3 news-card-v4" key={item.slug}>
-                <div className="news-image"><Image src={item.image} alt={`Foto contoh ${item.title}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" /><span>{item.category}</span></div>
-                <div><small>{item.date} · DATA CONTOH</small><h3>{item.title}</h3><Link href="/berita">Baca cerita <ArrowRight size={14} /></Link></div>
-              </article>
-            ))}
+          <div className="v6-closing-actions">
+            <Link href="/donasi" className="v6-button v6-button-light"><Heart size={18} aria-hidden="true" /> Donasi Sekarang</Link>
+            <Link href="/transparansi" className="v6-button v6-button-dark">Lihat Transparansi <ArrowRight size={18} aria-hidden="true" /></Link>
           </div>
-        </div>
-      </section>
-
-      <section className="closing-cta closing-cta-v4">
-        <div className="closing-image"><Image src={programs[1].image} alt="Foto contoh relawan dan kegiatan sosial" fill sizes="100vw" /></div>
-        <div className="closing-overlay" />
-        <div className="shell closing-content closing-content-v4">
-          <div><span>Bergerak bersama</span><h2>Hadirkan kebaikan.<br />Ubah kehidupan.</h2><p>Setiap dukungan adalah ruang baru bagi harapan untuk tumbuh.</p></div>
-          <Link href="/donasi" className="cta-white"><Heart size={18} /> Donasi Sekarang</Link>
         </div>
       </section>
     </div>
