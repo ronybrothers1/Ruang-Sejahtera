@@ -4,6 +4,7 @@ import './globals.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { OrganizationJsonLd } from '@/components/OrganizationJsonLd';
+import { RouteShell } from '@/components/RouteShell';
 import { siteConfig } from '@/lib/site';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
@@ -27,10 +28,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="id">
       <body className={`${inter.variable} ${plusJakarta.variable} font-sans antialiased`}>
         <OrganizationJsonLd />
-        <a className="skip-link" href="#main-content">Lewati ke konten utama</a>
-        <Navbar />
-        <main id="main-content" className="min-h-screen">{children}</main>
-        <Footer />
+        <RouteShell publicHeader={<Navbar />} publicFooter={<Footer />}>
+          {children}
+        </RouteShell>
       </body>
     </html>
   );
