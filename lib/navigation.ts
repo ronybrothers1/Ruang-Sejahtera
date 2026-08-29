@@ -11,14 +11,24 @@ export const navItems: NavItem[] = [
     href: '/tentang-kami',
     children: [
       { name: 'Profil Yayasan', href: '/tentang-kami' },
+      { name: 'Visi & Misi', href: '/tentang-kami/visi-misi' },
+      { name: 'Nilai Kami', href: '/tentang-kami/nilai' },
+      { name: 'Sejarah', href: '/tentang-kami/sejarah' },
+      { name: 'Legalitas', href: '/tentang-kami/legalitas' },
       { name: 'Organisasi', href: '/organisasi' },
-      { name: 'Kontak', href: '/kontak' },
     ],
   },
   { name: 'Program', href: '/program' },
-  { name: 'Kegiatan', href: '/kegiatan' },
-  { name: 'Dampak', href: '/dampak' },
+  {
+    name: 'Kegiatan',
+    href: '/kegiatan',
+    children: [
+      { name: 'Semua Kegiatan', href: '/kegiatan' },
+      { name: 'Galeri Foto & Video', href: '/galeri' },
+    ],
+  },
   { name: 'Berita', href: '/berita' },
+  { name: 'Dampak', href: '/dampak' },
   {
     name: 'Transparansi',
     href: '/transparansi',
