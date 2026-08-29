@@ -12,6 +12,12 @@ const checks = [
   ['known fabricated impact statistic', /12\.450\+|1\.200\+|450\+/i],
   ['known fabricated report label', /Laporan\s+Q2\s+Tersedia/i],
 ];
+const cmsFiles = [
+  ['articles', 'content/cms/articles.json'],
+  ['activities', 'content/cms/activities.json'],
+  ['galleries', 'content/cms/galleries.json'],
+];
+const validStatuses = new Set(['draft', 'review', 'published', 'archived']);
 
 async function walk(dir) {
   const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -32,6 +38,32 @@ for (const root of roots) {
     for (const [label, pattern] of checks) {
       if (pattern.test(text)) violations.push(`${file}: ${label}`);
     }
+  }
+}
+
+for (const [collection, file] of cmsFiles) {
+  let records;
+  try {
+    records = JSON.parse(await fs.readFile(file, 'utf8'));
+  } catch {
+    violations.push(`${file}: invalid JSON`);
+    continue;
+  }
+  if (!Array.isArray(records)) {
+    violations.push(`${file}: root must be an array`);
+    continue;
+  }
+  const ids = new Set();
+  const slugs = new Set();
+  for (const record of records) {
+    if (!record || typeof record !== 'object') { violations.push(`${file}: record must be an object`); continue; }
+    if (typeof record.id !== 'string' || !record.id) violations.push(`${file}: record id required`);
+    if (ids.has(record.id)) violations.push(`${file}: duplicate id ${record.id}`); else ids.add(record.id);
+    if (typeof record.slug !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(record.slug)) violations.push(`${file}: invalid slug`);
+    if (slugs.has(record.slug)) violations.push(`${file}: duplicate slug ${record.slug}`); else slugs.add(record.slug);
+    if (!validStatuses.has(record.status)) violations.push(`${file}: invalid publication status`);
+    if (typeof record.title !== 'string' || !record.title.trim()) violations.push(`${file}: title required`);
+    if (record.status === 'published' && (collection === 'articles' || collection === 'galleries') && !record.publishedAt) violations.push(`${file}: publishedAt required for published ${collection}`);
   }
 }
 
