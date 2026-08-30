@@ -1,0 +1,158 @@
+/* ========================================================================== 
+   AUDIT 08 — authentic media, art direction and responsive TikTok embeds
+   ========================================================================== */
+
+/* Keep documentary subjects inside the most useful crop on every image surface. */
+.trust-hero-main-image img[src*="penyaluran-air-bersih"],
+.trust-card-image img[src*="penyaluran-air-bersih"],
+.trust-activity-image img[src*="penyaluran-air-bersih"],
+.trust-archive-image img[src*="penyaluran-air-bersih"],
+.trust-program-detail-photo img[src*="penyaluran-air-bersih"] {
+  object-position: center 54%;
+}
+
+.trust-card-image img[src*="bantuan-sembako"],
+.trust-activity-image img[src*="bantuan-sembako"],
+.trust-archive-image img[src*="bantuan-sembako"],
+.trust-program-detail-photo img[src*="bantuan-sembako"] {
+  object-position: center 48%;
+}
+
+.trust-gallery-tile img,
+.trust-card-image img,
+.trust-activity-image img,
+.trust-news-image img,
+.trust-archive-image img,
+.trust-program-detail-photo img {
+  background: var(--color-media-placeholder);
+}
+
+.trust-tiktok-section {
+  overflow: clip;
+  background:
+    radial-gradient(circle at 92% 6%, rgba(215, 25, 32, .13), transparent 28rem),
+    #111114;
+  color: #fff;
+}
+
+.trust-tiktok-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: end;
+  margin-bottom: clamp(2rem, 4vw, 3.5rem);
+}
+
+.trust-tiktok-heading > div > span,
+.trust-tiktok-copy > span {
+  color: #ff858a;
+  font-size: .62rem;
+  font-weight: 850;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.trust-tiktok-heading h2 {
+  max-width: 18ch;
+  margin-top: .65rem;
+  font: 900 clamp(2rem, 4vw, 4.25rem)/1.02 var(--font-plus-jakarta);
+  letter-spacing: -.052em;
+  text-wrap: balance;
+}
+
+.trust-tiktok-heading p {
+  max-width: 720px;
+  margin-top: 1rem;
+  color: #aaa6a4;
+  font-size: .88rem;
+  line-height: 1.72;
+}
+
+.trust-tiktok-profile {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  gap: .75rem;
+  padding: .8rem 1rem;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 16px;
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  transition: border-color .2s ease, background-color .2s ease, transform .2s ease;
+}
+
+.trust-tiktok-profile:hover {
+  border-color: rgba(255,133,138,.62);
+  background: rgba(255,255,255,.1);
+  transform: translateY(-2px);
+}
+
+.trust-tiktok-profile > svg { flex: none; color: #ff858a; }
+.trust-tiktok-profile small,
+.trust-tiktok-profile strong { display: block; }
+.trust-tiktok-profile small { color: #aaa6a4; font-size: .55rem; text-transform: uppercase; letter-spacing: .08em; }
+.trust-tiktok-profile strong { margin-top: .2rem; font-size: .72rem; }
+
+.trust-tiktok-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.trust-tiktok-card {
+  min-width: 0;
+  overflow: clip;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 22px;
+  background: #1a191d;
+  content-visibility: auto;
+  contain-intrinsic-size: 320px 690px;
+}
+
+.trust-tiktok-frame {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  margin-inline: auto;
+  overflow: hidden;
+  aspect-ratio: 9 / 16;
+  background: #050506;
+}
+
+.trust-tiktok-frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.trust-tiktok-copy { padding: 1.1rem 1.1rem 1.25rem; }
+.trust-tiktok-copy h3 { margin-top: .45rem; font: 900 1.05rem/1.25 var(--font-plus-jakarta); letter-spacing: -.025em; }
+.trust-tiktok-copy p { margin-top: .55rem; color: #aaa6a4; font-size: .7rem; line-height: 1.62; }
+.trust-tiktok-copy a { display: inline-flex; align-items: center; gap: .35rem; margin-top: .85rem; color: #ff858a; font-size: .65rem; font-weight: 850; }
+
+@media (max-width: 1120px) {
+  .trust-tiktok-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+  .trust-tiktok-card { max-width: 430px; width: 100%; justify-self: center; }
+}
+
+@media (max-width: 680px) {
+  .trust-tiktok-heading { grid-template-columns: 1fr; align-items: start; }
+  .trust-tiktok-heading h2 { max-width: 14ch; font-size: clamp(2rem, 9.4vw, 2.8rem); }
+  .trust-tiktok-heading p { font-size: .84rem; }
+  .trust-tiktok-profile { width: 100%; justify-content: center; }
+  .trust-tiktok-grid { grid-template-columns: minmax(0, 1fr); }
+  .trust-tiktok-card { max-width: 390px; }
+  .trust-tiktok-copy { padding: 1.1rem 1.15rem 1.3rem; }
+}
+
+@media (max-width: 420px) {
+  .trust-tiktok-card { border-radius: 18px; }
+  .trust-tiktok-frame { max-width: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trust-tiktok-profile { transition: none; }
+  .trust-tiktok-profile:hover { transform: none; }
+}

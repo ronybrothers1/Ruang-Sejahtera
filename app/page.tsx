@@ -52,13 +52,13 @@ export default function Home() {
 
           <div className="trust-hero-media" aria-label="Kolase foto program contoh">
             <div className="trust-hero-main-image">
-              <Image src={programs[3].image} alt="Foto contoh program air bersih" fill priority sizes="(max-width: 900px) 100vw, 42vw" />
-              <span className="preview-chip">FOTO CONTOH</span>
+              <Image src={programs[3].image} alt={programs[3].imageAlt} fill priority sizes="(max-width: 900px) 100vw, 42vw" />
+              <span className="preview-chip">{programs[3].imageLabel}</span>
               <div className="trust-hero-image-caption"><small>Fokus program</small><strong>Air bersih untuk kebutuhan mendesak</strong></div>
             </div>
             <div className="trust-hero-mini-grid">
-              <div><Image src={programs[0].image} alt="Foto contoh bantuan kebutuhan dasar" fill sizes="(max-width: 900px) 50vw, 20vw" /></div>
-              <div><Image src={programs[4].image} alt="Foto contoh program pendidikan" fill sizes="(max-width: 900px) 50vw, 20vw" /></div>
+              <div><Image src={programs[0].image} alt={programs[0].imageAlt} fill sizes="(max-width: 900px) 50vw, 20vw" /></div>
+              <div><Image src={programs[4].image} alt={programs[4].imageAlt} fill sizes="(max-width: 900px) 50vw, 20vw" /></div>
             </div>
             <Link href="/galeri" className="trust-hero-gallery-link">Lihat galeri preview <ArrowRight size={15} aria-hidden="true" /></Link>
           </div>
@@ -83,9 +83,9 @@ export default function Home() {
             {programs.map((program) => (
               <Link href={`/program/${program.slug}`} key={program.slug} className="trust-program-card trust-program-card-photo">
                 <div className="trust-card-image">
-                  <Image src={program.image} alt={`Foto contoh ${program.name}`} fill sizes="(max-width: 680px) 38vw, (max-width: 1024px) 50vw, 33vw" />
+                  <Image src={program.image} alt={program.imageAlt} fill sizes="(max-width: 680px) 38vw, (max-width: 1024px) 50vw, 33vw" />
                   <ProgramMark slug={program.slug} accent={program.accent} compact />
-                  <span className="preview-chip">CONTOH</span>
+                  <span className="preview-chip">{program.imageLabel}</span>
                 </div>
                 <span>{program.focus}</span><h3>{program.name}</h3><p>{program.summary}</p>
                 <strong>Pelajari program <ArrowRight size={15} aria-hidden="true" /></strong>
@@ -104,7 +104,7 @@ export default function Home() {
           <div className="trust-activity-grid">
             {sampleActivities.map((activity, index) => (
               <article key={activity.slug} className={index === 0 ? 'trust-activity-card trust-activity-card-featured' : 'trust-activity-card'}>
-                <div className="trust-activity-image"><Image src={activity.image} alt={`Foto contoh ${activity.title}`} fill sizes={index === 0 ? '(max-width: 900px) 100vw, 55vw' : '(max-width: 680px) 100vw, (max-width: 1120px) 50vw, 33vw'} /><span className="preview-chip">CONTOH</span></div>
+                <div className="trust-activity-image"><Image src={activity.image} alt={activity.imageAlt} fill sizes={index === 0 ? '(max-width: 900px) 100vw, 55vw' : '(max-width: 680px) 100vw, (max-width: 1120px) 50vw, 33vw'} /><span className="preview-chip">{activity.imageLabel}</span></div>
                 <div className="trust-activity-copy">
                   <div><time>{activity.date}</time><span><MapPin size={13} aria-hidden="true" /> {activity.location}</span></div>
                   <h3>{activity.title}</h3><p>{activity.summary}</p><Link href={`/kegiatan#${activity.slug}`}>Lihat kegiatan <ArrowRight size={14} aria-hidden="true" /></Link>
@@ -165,7 +165,7 @@ export default function Home() {
           <div className="trust-section-heading trust-section-heading-compact"><div><span>Berita & cerita</span><h2 id="news-heading">Kabar dari lapangan.</h2></div><Link href="/berita" className="trust-text-link">Lihat semua berita <ArrowRight size={16} aria-hidden="true" /></Link></div>
           <div className="trust-news-grid">
             {sampleNews.map((item) => (
-              <article key={item.slug}><div className="trust-news-image"><Image src={item.image} alt={`Foto contoh ${item.title}`} fill sizes="(max-width: 680px) 100vw, (max-width: 1024px) 50vw, 25vw" /><span>{item.category}</span></div><div><small>{item.date} · CONTOH</small><h3>{item.title}</h3><Link href={`/berita#${item.slug}`}>Baca cerita <ArrowRight size={14} aria-hidden="true" /></Link></div></article>
+              <article key={item.slug}><div className="trust-news-image"><Image src={item.image} alt={item.imageAlt} fill sizes="(max-width: 680px) 100vw, (max-width: 1024px) 50vw, 25vw" /><span>{item.category}</span></div><div><small>{item.date} · CONTOH</small><h3>{item.title}</h3><Link href={`/berita#${item.slug}`}>Baca cerita <ArrowRight size={14} aria-hidden="true" /></Link></div></article>
             ))}
           </div>
         </div>
@@ -183,7 +183,7 @@ export default function Home() {
       </section>
 
       <section className="trust-closing trust-closing-photo" aria-labelledby="closing-heading">
-        <Image src={programs[1].image} alt="Foto contoh kegiatan sosial bersama warga" fill sizes="100vw" />
+        <Image src={programs[1].image} alt={programs[1].imageAlt} fill sizes="100vw" />
         <div className="trust-closing-photo-overlay" />
         <div className="shell trust-closing-content">
           <div><span>Bergerak bersama</span><h2 id="closing-heading">Dukungan yang baik dimulai dari informasi yang benar.</h2><p>Pelajari program, periksa ruang transparansi, lalu pilih cara terlibat yang paling sesuai.</p></div>

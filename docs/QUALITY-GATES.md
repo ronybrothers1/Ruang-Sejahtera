@@ -12,6 +12,12 @@ Pipeline CI menjalankan:
 4. `npm run typecheck`;
 5. `npm run build` production.
 
+Audit desain tambahan dijalankan sebelum branch media dapat diajukan:
+- `npm run responsive:audit` untuk kontrak 33 viewport;
+- `npm run color:audit` dan `npm run typography:audit` untuk menjaga sistem visual;
+- `npm run components:audit` untuk state dan semantik komponen;
+- `npm run media:audit` untuk aset lokal, transparansi label, iframe resmi TikTok, lazy loading, CSP, rasio, dan containment responsif.
+
 Integrity guard juga memvalidasi tiga registry editorial pada `content/cms/`:
 - root harus array;
 - id dan slug harus unik;

@@ -29,12 +29,12 @@ export default function AboutPage() {
         description="Website ini menyatukan informasi program, kegiatan, akuntabilitas, kebijakan, dan kanal komunikasi Yayasan Ruang Sejahtera."
       />
       <SectionNavigation label="Jelajahi Tentang Kami" items={aboutNavItems} currentHref="/tentang-kami" />
-      <PreviewNotice label="Profil draft">Narasi profil, kutipan, dan foto adalah contoh sementara yang mempertahankan komposisi halaman hingga materi resmi tersedia.</PreviewNotice>
+      <PreviewNotice label="Profil draft">Narasi profil, kutipan, dan visual pendukung adalah contoh sementara yang mempertahankan komposisi halaman hingga materi resmi tersedia.</PreviewNotice>
       <section className="trust-page-section">
         <div className="shell trust-about-layout">
           <div className="trust-about-brand">
-            <Image src={programs[1].image} alt="Foto contoh kegiatan sosial" fill priority sizes="(max-width: 900px) 100vw, 44vw" />
-            <span className="preview-chip">FOTO CONTOH</span>
+            <Image src={programs[1].image} alt={programs[1].imageAlt} fill priority sizes="(max-width: 900px) 100vw, 44vw" />
+            <span className="preview-chip">{programs[1].imageLabel}</span>
           </div>
           <div className="trust-about-copy">
             <span>Profil publik</span>
