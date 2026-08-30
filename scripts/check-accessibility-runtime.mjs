@@ -100,9 +100,11 @@ try {
   assert.match(notFound, /aria-describedby="page-state-description"/, '404 state exposes its description relationship');
 
   const gallery = await (await fetch(`${baseUrl}/galeri`)).text();
-  assert.equal((gallery.match(/<iframe\b/g) ?? []).length, 4, 'Gallery renders all four TikTok players');
+  assert.equal((gallery.match(/trust-tiktok-card/g) ?? []).length, 4, 'Gallery renders all four TikTok video regions');
+  assert.equal((gallery.match(/trust-tiktok-placeholder/g) ?? []).length, 4, 'Deferred players expose stable placeholders before entering the viewport');
+  assert.equal((gallery.match(/<iframe\b/g) ?? []).length, 0, 'Off-screen TikTok players do not create third-party iframes during initial rendering');
   assert.equal((gallery.match(/aria-labelledby="tiktok-title-/g) ?? []).length, 4, 'Every video article exposes its heading relationship');
-  assert.equal((gallery.match(/aria-describedby="tiktok-description-/g) ?? []).length, 4, 'Every video player exposes its text summary');
+  assert.equal((gallery.match(/id="tiktok-description-/g) ?? []).length, 4, 'Every deferred video region retains its text summary');
 
   const home = await (await fetch(baseUrl)).text();
   assert.equal((home.match(/aria-label="Lihat kegiatan:/g) ?? []).length, 4, 'Repeated activity links have unique accessible names');

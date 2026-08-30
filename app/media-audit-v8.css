@@ -127,6 +127,20 @@
   border: 0;
 }
 
+.trust-tiktok-placeholder {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(115deg, transparent 30%, rgba(255,255,255,.055) 45%, transparent 60%),
+    #050506;
+  background-size: 220% 100%;
+  animation: trust-tiktok-placeholder 1.6s ease-in-out infinite;
+}
+
+@keyframes trust-tiktok-placeholder {
+  to { background-position: -220% 0; }
+}
+
 .trust-tiktok-copy { padding: 1.1rem 1.1rem 1.25rem; }
 .trust-tiktok-copy h3 { margin-top: .45rem; font: 900 1.05rem/1.25 var(--font-plus-jakarta); letter-spacing: -.025em; }
 .trust-tiktok-copy p { margin-top: .55rem; color: #aaa6a4; font-size: .7rem; line-height: 1.62; }
@@ -155,4 +169,5 @@
 @media (prefers-reduced-motion: reduce) {
   .trust-tiktok-profile { transition: none; }
   .trust-tiktok-profile:hover { transform: none; }
+  .trust-tiktok-placeholder { animation: none; }
 }

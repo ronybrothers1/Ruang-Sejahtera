@@ -21,7 +21,8 @@
     "ux:audit": "node scripts/check-ux-flow.mjs",
     "accessibility:audit": "node scripts/check-accessibility.mjs",
     "accessibility:runtime": "node scripts/check-accessibility-runtime.mjs",
-    "components:runtime": "node scripts/check-component-runtime.mjs"
+    "components:runtime": "node scripts/check-component-runtime.mjs",
+    "performance:audit": "node scripts/check-performance.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.553.0",
