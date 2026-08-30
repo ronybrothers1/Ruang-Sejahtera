@@ -10,8 +10,6 @@ const productionIdentityMiddleware = clerkMiddleware(async (auth, request) => {
   if (isAccountRoute(request) || (isAdminRoute(request) && !isPublicAdminAuthRoute(request))) {
     await auth.protect();
   }
-}, {
-  frontendApiProxy: { enabled: (url) => url.hostname === 'ruang-sejahtera-iota.vercel.app' },
 });
 
 export default function proxy(request: NextRequest, event: NextFetchEvent) {
