@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getAdminSession, hasControlPlaneAccess } from '@/lib/auth/admin-session';
 import { can, canAccessControlPlane } from '@/lib/auth/permissions';
 import { findUserByEmail, seedInitialSuperAdmin } from '@/lib/db/users';
+import { hasPassedExam } from '@/lib/membership';
 import { getCmsWriteStatus, persistCmsMutation } from '@/lib/cms/store';
 import { CmsValidationError, isCmsCollection, parseCreateContent } from '@/lib/cms/validation';
 import type { AdminSession } from '@/lib/auth/admin-session';
@@ -53,7 +54,11 @@ export async function POST(request: Request) {
 
   const session = await getAdminSession();
   if (!session) return NextResponse.json({ error: 'Autentikasi diperlukan.' }, { status: 401 });
-  if (!canAccessControlPlane(session.role) || !(await hasControlPlaneAccess(session))) {
+  if (session.role === 'member') {
+    if (!session.identityProviderId || !(await hasPassedExam(session.id))) {
+      return NextResponse.json({ error: 'Anggota harus lulus tes sebelum mengirim berita.' }, { status: 403 });
+    }
+  } else if (!canAccessControlPlane(session.role) || !(await hasControlPlaneAccess(session))) {
     return NextResponse.json({ error: 'Akses control plane belum disetujui.' }, { status: 403 });
   }
   if (!can(session.role, 'content.create')) return NextResponse.json({ error: 'Tidak memiliki izin.' }, { status: 403 });
