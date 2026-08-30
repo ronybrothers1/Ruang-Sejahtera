@@ -12,9 +12,10 @@ function normalize(value: string) {
   return value.toLocaleLowerCase('id-ID').normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
 }
 
-export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string | string[] }> }) {
   const { q = '' } = await searchParams;
-  const safeQuery = q.slice(0, 120);
+  const rawQuery = Array.isArray(q) ? (q[0] ?? '') : q;
+  const safeQuery = rawQuery.slice(0, 120);
   const query = normalize(safeQuery.trim());
   const dynamicIndex: PublicSearchItem[] = [
     ...publishedActivities.map((item) => ({ title: item.title, description: item.summary, href: `/kegiatan/${item.slug}`, category: 'Kegiatan' })),

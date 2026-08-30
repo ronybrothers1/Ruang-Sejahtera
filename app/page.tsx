@@ -165,7 +165,7 @@ export default function Home() {
           <div className="trust-section-heading trust-section-heading-compact"><div><span>Berita & cerita</span><h2 id="news-heading">Kabar dari lapangan.</h2></div><Link href="/berita" className="trust-text-link">Lihat semua berita <ArrowRight size={16} aria-hidden="true" /></Link></div>
           <div className="trust-news-grid">
             {sampleNews.map((item) => (
-              <article key={item.slug}><div className="trust-news-image"><Image src={item.image} alt={item.imageAlt} fill sizes="(max-width: 680px) 100vw, (max-width: 1024px) 50vw, 25vw" /><span>{item.category}</span></div><div><small>{item.date} · CONTOH</small><h3>{item.title}</h3><Link href={`/berita#${item.slug}`}>Baca cerita <ArrowRight size={14} aria-hidden="true" /></Link></div></article>
+              <article key={item.slug}><div className="trust-news-image"><Image src={item.image} alt={item.imageAlt} fill sizes="(max-width: 680px) 100vw, (max-width: 1024px) 50vw, 25vw" /><span>{item.category}</span></div><div><small>{item.date} · CONTOH</small><h3>{item.title}</h3><Link href={`/berita#${item.slug}`}>Lihat preview berita <ArrowRight size={14} aria-hidden="true" /></Link></div></article>
             ))}
           </div>
         </div>
