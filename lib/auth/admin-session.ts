@@ -173,7 +173,12 @@ async function getClerkSession(): Promise<AdminSession | null> {
 }
 
 export async function getCurrentUserSession() {
-  const clerkSession = await getClerkSession();
+  let clerkSession: AdminSession | null = null;
+  try {
+    clerkSession = await getClerkSession();
+  } catch (error) {
+    if (!getBootstrapAuthStatus().configured) throw error;
+  }
   if (clerkSession) return clerkSession;
   if (process.env.VERCEL_ENV === 'production' && !getBootstrapAuthStatus().configured) return null;
   return getBootstrapSession();
