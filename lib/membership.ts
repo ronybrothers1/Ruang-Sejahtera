@@ -84,6 +84,7 @@ export async function getActiveExam(createdBy: string): Promise<ActiveExam> {
       createdBy,
     }).returning())[0];
   }
+  if (!settings) throw new Error('EXAM_SETTINGS_CREATE_FAILED');
 
   let questions = await db.select().from(examQuestions)
     .where(and(eq(examQuestions.settingsId, settings.id), eq(examQuestions.isActive, true)))
