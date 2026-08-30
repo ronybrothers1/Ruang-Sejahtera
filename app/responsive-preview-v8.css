@@ -1285,6 +1285,11 @@
 
 :root { --public-navigation-height: 98px; }
 
+.nav-inner {
+  min-height: var(--public-navigation-height);
+  height: var(--public-navigation-height);
+}
+
 .mobile-panel {
   position: fixed;
   z-index: 59;

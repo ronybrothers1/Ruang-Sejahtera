@@ -45,6 +45,10 @@ requireSource(
   'Mobile navigation must own a full viewport scrollport below the header.',
 );
 requireSource(
+  /\.nav-inner \{[\s\S]*?min-height: var\(--public-navigation-height\);[\s\S]*?height: var\(--public-navigation-height\);/.test(responsive),
+  'Header and mobile navigation must consume the same height token.',
+);
+requireSource(
   /@media \(max-width: 680px\)[\s\S]*?:root \{ --public-navigation-height: 86px; \}/.test(responsive),
   'Mobile navigation offset must stay synchronized with the 86px mobile header.',
 );
