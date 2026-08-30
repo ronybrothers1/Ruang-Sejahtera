@@ -29,6 +29,9 @@ export type CmsArticle = CmsBaseRecord & {
   excerpt: string;
   category: string;
   body: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  imageCaption?: string;
 };
 
 export type CmsActivity = CmsBaseRecord & {
@@ -46,6 +49,14 @@ export type CmsGallery = CmsBaseRecord & {
 };
 
 export type CmsRecord = CmsArticle | CmsActivity | CmsGallery;
+
+export type CmsMediaInput = {
+  externalUrl: string;
+  mimeType: string;
+  byteSize: number;
+  altText: string;
+  caption?: string;
+};
 
 export const cmsCollectionPaths: Record<CmsCollection, string> = {
   articles: 'content/cms/articles.json',
