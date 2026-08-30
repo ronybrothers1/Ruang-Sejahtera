@@ -3,7 +3,8 @@ import { FilePlus2 } from 'lucide-react';
 import { can } from '@/lib/auth/permissions';
 import { requireAdminSession } from '@/lib/auth/admin-session';
 import { cmsActivities, cmsArticles, cmsGalleries } from '@/lib/cms/content';
-import { getCmsWriteStatus } from '@/lib/cms/store';
+import { getCmsWriteStatus, listCmsRecords } from '@/lib/cms/store';
+import type { CmsRecord } from '@/lib/cms/types';
 import type { PublicationStatus } from '@/lib/models';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 
@@ -16,6 +17,15 @@ export default async function AdminContentPage({ searchParams }: { searchParams:
   const cms = getCmsWriteStatus();
   const { queued } = await searchParams;
   const canCreate = can(session.role, 'content.create');
+  const databaseRecords = cms.configured ? await listCmsRecords() : [];
+  const mergeRecords = <T extends CmsRecord>(seed: T[], persisted: CmsRecord[]) => {
+    const merged = new Map(seed.map((item) => [item.slug, item]));
+    persisted.filter((item): item is T => (item as CmsRecord).slug.length > 0).forEach((item) => merged.set(item.slug, item));
+    return Array.from(merged.values());
+  };
+  const articles = mergeRecords(cmsArticles, databaseRecords.filter((item) => 'category' in item));
+  const activities = mergeRecords(cmsActivities, databaseRecords.filter((item) => 'programSlug' in item));
+  const galleries = mergeRecords(cmsGalleries, databaseRecords.filter((item) => !('category' in item) && !('programSlug' in item)));
 
   return (
     <div>
@@ -25,9 +35,9 @@ export default async function AdminContentPage({ searchParams }: { searchParams:
       {!cms.configured ? <div role="status" className="status-message-warning mt-7 rounded-xl border p-5"><p className="font-bold">Backend tulis CMS masih fail-closed.</p><p className="mt-2 text-sm leading-6">Form dan workflow UI sudah tersedia, tetapi penyimpanan dinonaktifkan sampai persistence adapter resmi dikonfigurasi. Tidak ada data yang disimpan diam-diam di browser atau filesystem sementara.</p></div> : null}
 
       <div className="mt-8 grid gap-5 xl:grid-cols-3">
-        <Collection title="Berita" items={cmsArticles} />
-        <Collection title="Kegiatan" items={cmsActivities} />
-        <Collection title="Galeri" items={cmsGalleries} />
+        <Collection title="Berita" items={articles} />
+        <Collection title="Kegiatan" items={activities} />
+        <Collection title="Galeri" items={galleries} />
       </div>
     </div>
   );
