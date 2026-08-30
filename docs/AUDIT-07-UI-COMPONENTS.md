@@ -1,7 +1,9 @@
 # Audit 07 — UI Components
 
-Tanggal audit: 30 Agustus 2026  
-Branch: `codex/fix-mobile-menu-viewport`  
+Tanggal audit: 30 Agustus 2026
+
+Branch: `codex/fix-mobile-menu-viewport`
+
 Status integrasi: branch audit / Draft PR — **tidak di-merge ke `main` dan tidak dipromosikan ke production**
 
 ## Ruang lingkup dan batas perubahan
