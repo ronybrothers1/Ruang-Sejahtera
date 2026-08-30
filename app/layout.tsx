@@ -5,6 +5,7 @@ import './responsive-preview-v8.css';
 import './typography-audit-v6.css';
 import './components-audit-v7.css';
 import './media-audit-v8.css';
+import './footer-audit-v9.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { OrganizationJsonLd } from '@/components/OrganizationJsonLd';
