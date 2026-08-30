@@ -87,7 +87,7 @@ Unused JavaScript 29 KiB dan legacy JavaScript 14 KiB terutama berasal dari runt
 | CLS galeri | 0 | Placeholder mempertahankan rasio 9:16 | Tetap baik |
 | INP | Tidak ada field data | Tetap memerlukan RUM/CrUX setelah traffic mencukupi | Belum dapat dinilai |
 
-Catatan pengukuran sesudah: Vercel menandai preview commit `5bbb036` sukses, tetapi preview dilindungi oleh Vercel Authentication pada workspace yang berbeda dari konektor audit. Karena user meminta tidak merge/deploy production, PageSpeed publik sesudah tidak dipaksakan dan angka CWV baru tidak direkayasa. Gate numeric harus dijalankan ulang pada artefak yang akhirnya dipromosikan.
+Catatan pengukuran sesudah: Vercel menandai preview commit `55e6397` sukses, tetapi preview dilindungi oleh Vercel Authentication sehingga browser publik dan PageSpeed dialihkan ke halaman login. Karena user meminta tidak merge/deploy production, proteksi tidak diubah, PageSpeed publik sesudah tidak dipaksakan, dan angka CWV baru tidak direkayasa. Gate numeric harus dijalankan ulang pada artefak yang akhirnya dipromosikan.
 
 ## D. Resource optimization
 
