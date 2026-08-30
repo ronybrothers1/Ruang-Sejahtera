@@ -5,6 +5,8 @@ import { SessionLogout } from '@/components/auth/SessionLogout';
 import { getControlPlaneSecurityStatus } from '@/lib/auth/control-plane-gate';
 import { canAccessControlPlane } from '@/lib/auth/permissions';
 import { requireUserSession } from '@/lib/auth/admin-session';
+import { findUserByIdentityProviderId } from '@/lib/db/users';
+import { hasPassedExam } from '@/lib/membership';
 
 const roleLabels = {
   super_admin: 'Super Admin',
@@ -30,6 +32,10 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
   const session = await requireUserSession();
   const query = await searchParams;
   const security = getControlPlaneSecurityStatus();
+  const profile = session.role === 'member' && session.identityProviderId
+    ? await findUserByIdentityProviderId(session.identityProviderId)
+    : null;
+  const passedExam = session.role !== 'member' || Boolean(profile && await hasPassedExam(profile.id));
 
   return (
     <div className="min-h-screen bg-neutral-100 text-brand-ink">
@@ -51,9 +57,9 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
 
         <section className="mt-9 grid gap-5 md:grid-cols-2 xl:grid-cols-4" aria-label="Fitur akun">
           <Link href="/akun/profil" className="rounded-2xl border border-neutral-200 bg-white p-6 transition hover:-translate-y-1 hover:border-red-200"><UserRound className="text-brand-red" size={22} /><h2 className="mt-5 font-heading text-xl font-extrabold">Profil & keamanan</h2><p className="mt-3 text-sm leading-6 text-neutral-600">Kelola identitas akun, password, dan autentikasi dua langkah.</p></Link>
-          <div className="rounded-2xl border border-neutral-200 bg-white p-6"><ClipboardCheck className="text-brand-red" size={22} /><h2 className="mt-5 font-heading text-xl font-extrabold">Keanggotaan & ujian</h2><p className="mt-3 text-sm leading-6 text-neutral-600">Form data, ujian dasar, dan penilaian akan diaktifkan pada fase berikutnya.</p></div>
-          <div className="rounded-2xl border border-neutral-200 bg-white p-6"><FileText className="text-brand-red" size={22} /><h2 className="mt-5 font-heading text-xl font-extrabold">Konten saya</h2><p className="mt-3 text-sm leading-6 text-neutral-600">Buat draft dan kirim berita atau kegiatan untuk dikurasi Super Admin.</p></div>
-          {canAccessControlPlane(session.role) ? <Link href="/admin" className="rounded-2xl border border-neutral-200 bg-white p-6 transition hover:-translate-y-1 hover:border-red-200"><ShieldCheck className="text-brand-red" size={22} /><h2 className="mt-5 font-heading text-xl font-extrabold">Control plane</h2><p className="mt-3 text-sm leading-6 text-neutral-600">Masuk ke panel pengelolaan sesuai kewenangan role Anda.</p></Link> : <div className="rounded-2xl border border-neutral-200 bg-white p-6"><BadgeCheck className="text-brand-red" size={22} /><h2 className="mt-5 font-heading text-xl font-extrabold">Kartu anggota</h2><p className="mt-3 text-sm leading-6 text-neutral-600">Kartu digital tersedia otomatis setelah seluruh proses dinyatakan lulus dan sah.</p></div>}
+          <Link href="/akun/keanggotaan" className="rounded-2xl border border-neutral-200 bg-white p-6 transition hover:-translate-y-1 hover:border-red-200"><ClipboardCheck className="text-brand-red" size={22} /><h2 className="mt-5 font-heading text-xl font-extrabold">Keanggotaan & ujian</h2><p className="mt-3 text-sm leading-6 text-neutral-600">{passedExam ? 'Tes sudah lulus. Kartu anggota dan kirim berita tersedia.' : 'Ikuti tes dasar untuk membuka kartu anggota dan fitur kirim berita.'}</p></Link>
+          {session.role === 'member' ? <Link href={passedExam ? '/akun/konten/baru/berita' : '/akun/keanggotaan'} className="rounded-2xl border border-neutral-200 bg-white p-6 transition hover:-translate-y-1 hover:border-red-200"><FileText className="text-brand-red" size={22} /><h2 className="mt-5 font-heading text-xl font-extrabold">Konten saya</h2><p className="mt-3 text-sm leading-6 text-neutral-600">{passedExam ? 'Buat draft berita dengan foto untuk dikurasi Super Admin.' : 'Fitur kirim berita terbuka setelah lulus tes.'}</p></Link> : <div className="rounded-2xl border border-neutral-200 bg-white p-6"><FileText className="text-brand-red" size={22} /><h2 className="mt-5 font-heading text-xl font-extrabold">Konten saya</h2><p className="mt-3 text-sm leading-6 text-neutral-600">Buat draft dan kirim berita sesuai kewenangan role Anda.</p></div>}
+          {canAccessControlPlane(session.role) ? <Link href="/admin" className="rounded-2xl border border-neutral-200 bg-white p-6 transition hover:-translate-y-1 hover:border-red-200"><ShieldCheck className="text-brand-red" size={22} /><h2 className="mt-5 font-heading text-xl font-extrabold">Control plane</h2><p className="mt-3 text-sm leading-6 text-neutral-600">Masuk ke panel pengelolaan sesuai kewenangan role Anda.</p></Link> : passedExam ? <Link href="/akun/kartu" className="rounded-2xl border border-green-200 bg-green-50 p-6 transition hover:-translate-y-1"><BadgeCheck className="text-brand-red" size={22} /><h2 className="mt-5 font-heading text-xl font-extrabold">Kartu anggota</h2><p className="mt-3 text-sm leading-6 text-neutral-600">Lihat dan unduh kartu anggota ukuran KTP.</p></Link> : <div className="rounded-2xl border border-neutral-200 bg-white p-6"><BadgeCheck className="text-brand-red" size={22} /><h2 className="mt-5 font-heading text-xl font-extrabold">Kartu anggota</h2><p className="mt-3 text-sm leading-6 text-neutral-600">Kartu tersedia otomatis setelah Anda lulus tes.</p></div>}
         </section>
       </main>
     </div>
