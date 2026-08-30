@@ -27,23 +27,20 @@ export async function POST(request: Request) {
   const session = await requireSuperAdminSession();
   if (!isDatabaseConfigured()) return redirectToSystem(request, 'database');
 
-  const form = await request.formData();
-  const fullName = String(form.get('fullName') || '');
-  const email = String(form.get('email') || '');
-
-  let actorUserId: string | null = session.authMethod === 'clerk' ? session.id : null;
-  if (session.authMethod === 'bootstrap') {
-    const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim() || '';
-    const bootstrapUser = bootstrapEmail ? await findUserByEmail(bootstrapEmail) : null;
-    actorUserId = bootstrapUser?.role === 'super_admin' ? bootstrapUser.id : null;
-  }
-
   try {
+    const form = await request.formData();
+    const fullName = String(form.get('fullName') || '');
+    const email = String(form.get('email') || '');
+
+    let actorUserId: string | null = session.authMethod === 'clerk' ? session.id : null;
+    if (session.authMethod === 'bootstrap') {
+      const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim() || '';
+      const bootstrapUser = bootstrapEmail ? await findUserByEmail(bootstrapEmail) : null;
+      actorUserId = bootstrapUser?.role === 'super_admin' ? bootstrapUser.id : null;
+    }
+
     const manager = await createCoreManager({ fullName, email, actorUserId });
-    const url = new URL('/admin/sistem', request.url);
-    url.searchParams.set('manager', 'created');
-    url.searchParams.set('email', manager.email);
-    return NextResponse.redirect(url, 303);
+    return redirectToSystem(request, 'created');
   } catch (error) {
     const reason = error instanceof Error ? error.message : '';
     const status = reason === 'CORE_MANAGER_INPUT_INVALID'
