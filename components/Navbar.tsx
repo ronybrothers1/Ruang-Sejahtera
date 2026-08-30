@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown, Heart, Menu, MessageCircle, Search, X } from 'lucide-react';
@@ -74,9 +75,12 @@ export function Navbar() {
 
   useEffect(() => {
     if (!mobileMenuOpen) return;
+    const root = document.documentElement;
+    const previousRootOverflow = root.style.overflow;
     const previousOverflow = document.body.style.overflow;
     const previousPaddingRight = document.body.style.paddingRight;
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    root.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
     if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
 
@@ -107,6 +111,7 @@ export function Navbar() {
 
     document.addEventListener('keydown', onKeyDown);
     return () => {
+      root.style.overflow = previousRootOverflow;
       document.body.style.overflow = previousOverflow;
       document.body.style.paddingRight = previousPaddingRight;
       document.removeEventListener('keydown', onKeyDown);
@@ -158,9 +163,39 @@ export function Navbar() {
     else links[(currentIndex - 1 + links.length) % links.length].focus();
   };
 
+  const mobileNavigation = mobileMenuOpen ? createPortal(
+    <div ref={mobilePanelRef} id="mobile-navigation" role="dialog" aria-modal="true" aria-label="Menu navigasi" className="mobile-panel">
+      <nav className="shell py-6" aria-label="Navigasi seluler">
+        {navItems.map((item) => item.children ? (
+          <details name="mobile-primary-navigation" className="mobile-nav-group" key={item.name} open={openMobileGroup === item.name}>
+            <summary
+              className={isItemActive(item) ? 'is-active' : undefined}
+              onClick={(event) => {
+                event.preventDefault();
+                setOpenMobileGroup((current) => current === item.name ? null : item.name);
+              }}
+            >
+              {item.name}<ChevronDown size={17} aria-hidden="true" />
+            </summary>
+            <div>{item.children.map((child) => <Link onClick={closeMenu} aria-current={isCurrent(child.href) ? 'page' : undefined} key={`${child.href}-${child.name}`} href={child.href} className={`mobile-subnav-link ${isCurrent(child.href) ? 'is-active' : ''}`}>{child.name}</Link>)}</div>
+          </details>
+        ) : (
+          <Link onClick={closeMenu} aria-current={isCurrent(item.href) ? 'page' : undefined} key={item.name} href={item.href} className={`mobile-nav-link ${isWithin(item.href) ? 'is-active' : ''}`}>{item.name}</Link>
+        ))}
+        <div className="mobile-nav-utilities">
+          <Link onClick={closeMenu} href="/cari" aria-current={isCurrent('/cari') ? 'page' : undefined} className={`cta-ghost ${isCurrent('/cari') ? 'is-current' : ''}`}><Search size={18}/> Cari Informasi</Link>
+          <Link onClick={closeMenu} href="/kontak" aria-current={isCurrent('/kontak') ? 'page' : undefined} className={`cta-ghost ${isCurrent('/kontak') ? 'is-current' : ''}`}><MessageCircle size={18}/> Kontak Yayasan</Link>
+          <Link onClick={closeMenu} href="/donasi" aria-current={isCurrent('/donasi') ? 'page' : undefined} className={`cta-red ${isCurrent('/donasi') ? 'is-current' : ''}`}><Heart size={18}/> Cara Mendukung</Link>
+        </div>
+      </nav>
+    </div>,
+    document.body,
+  ) : null;
+
   return (
-    <header className={`nav-shell ${scrolled ? 'scrolled' : ''}`}>
-      <div className="shell nav-inner">
+    <>
+      <header className={`nav-shell ${scrolled ? 'scrolled' : ''}`}>
+        <div className="shell nav-inner">
         <BrandLogo compact priority />
         <nav className="desktop-navigation" aria-label="Navigasi utama">
           {navItems.map((item) => item.children ? (
@@ -226,34 +261,9 @@ export function Navbar() {
         >
           {mobileMenuOpen ? <X size={22}/> : <Menu size={22}/>}
         </button>
-      </div>
-      {mobileMenuOpen ? (
-        <div ref={mobilePanelRef} id="mobile-navigation" role="dialog" aria-modal="true" aria-label="Menu navigasi" className="mobile-panel">
-          <nav className="shell py-6" aria-label="Navigasi seluler">
-            {navItems.map((item) => item.children ? (
-              <details name="mobile-primary-navigation" className="mobile-nav-group" key={item.name} open={openMobileGroup === item.name}>
-                <summary
-                  className={isItemActive(item) ? 'is-active' : undefined}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    setOpenMobileGroup((current) => current === item.name ? null : item.name);
-                  }}
-                >
-                  {item.name}<ChevronDown size={17} aria-hidden="true" />
-                </summary>
-                <div>{item.children.map((child) => <Link onClick={closeMenu} aria-current={isCurrent(child.href) ? 'page' : undefined} key={`${child.href}-${child.name}`} href={child.href} className={`mobile-subnav-link ${isCurrent(child.href) ? 'is-active' : ''}`}>{child.name}</Link>)}</div>
-              </details>
-            ) : (
-              <Link onClick={closeMenu} aria-current={isCurrent(item.href) ? 'page' : undefined} key={item.name} href={item.href} className={`mobile-nav-link ${isWithin(item.href) ? 'is-active' : ''}`}>{item.name}</Link>
-            ))}
-            <div className="mobile-nav-utilities">
-              <Link onClick={closeMenu} href="/cari" aria-current={isCurrent('/cari') ? 'page' : undefined} className={`cta-ghost ${isCurrent('/cari') ? 'is-current' : ''}`}><Search size={18}/> Cari Informasi</Link>
-              <Link onClick={closeMenu} href="/kontak" aria-current={isCurrent('/kontak') ? 'page' : undefined} className={`cta-ghost ${isCurrent('/kontak') ? 'is-current' : ''}`}><MessageCircle size={18}/> Kontak Yayasan</Link>
-              <Link onClick={closeMenu} href="/donasi" aria-current={isCurrent('/donasi') ? 'page' : undefined} className={`cta-red ${isCurrent('/donasi') ? 'is-current' : ''}`}><Heart size={18}/> Cara Mendukung</Link>
-            </div>
-          </nav>
         </div>
-      ) : null}
-    </header>
+      </header>
+      {mobileNavigation}
+    </>
   );
 }

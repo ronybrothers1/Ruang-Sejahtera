@@ -1274,6 +1274,61 @@
   .trust-page-state-inner { padding-block: 3rem; }
 }
 
+/* ==========================================================================
+   MOBILE NAVIGATION VIEWPORT REPAIR
+
+   The drawer is portalled to <body>, so it is not composited or clipped as a
+   descendant of the fixed, translucent header on Android browsers. Keep the
+   header offset in one variable and let top + bottom define the scrollport;
+   mixing a fixed height with inset values caused competing cascade contracts.
+   ========================================================================== */
+
+:root { --public-navigation-height: 98px; }
+
+.mobile-panel {
+  position: fixed;
+  z-index: 59;
+  top: var(--public-navigation-height);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  background: #0b0b0d;
+  color: #fff;
+  border-top: 1px solid rgba(255,255,255,.08);
+  box-sizing: border-box;
+}
+
+.mobile-panel > nav {
+  min-height: 100%;
+  padding-top: 1rem;
+  padding-bottom: max(2rem, env(safe-area-inset-bottom));
+}
+
+@media (min-width: 1121px) {
+  .mobile-panel { display: none !important; }
+}
+
+@media (max-width: 1120px) {
+  :root { --public-navigation-height: 88px; }
+}
+
+@media (max-width: 680px) {
+  :root { --public-navigation-height: 86px; }
+}
+
+@media (max-width: 1120px) and (max-height: 560px) and (orientation: landscape) {
+  :root { --public-navigation-height: 76px; }
+}
+
 /* The specified mobile landscape widths have enough inline room for the hero
    to remain two-column, avoiding an unnecessarily long image stack. */
 @media (min-width: 720px) and (max-width: 900px) and (max-height: 560px) and (orientation: landscape) {

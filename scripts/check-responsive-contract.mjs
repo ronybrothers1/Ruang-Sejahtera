@@ -5,6 +5,7 @@ const root = process.cwd();
 const globals = fs.readFileSync(path.join(root, 'app/globals.css'), 'utf8');
 const responsive = fs.readFileSync(path.join(root, 'app/responsive-preview-v8.css'), 'utf8');
 const home = fs.readFileSync(path.join(root, 'app/page.tsx'), 'utf8');
+const navbar = fs.readFileSync(path.join(root, 'components/Navbar.tsx'), 'utf8');
 
 const failures = [];
 const requireSource = (condition, message) => {
@@ -34,6 +35,18 @@ requireSource(
 requireSource(
   home.includes("(max-width: 680px) 100vw, (max-width: 1120px) 50vw, 33vw"),
   'Supporting activity images must advertise tablet and desktop source sizes.',
+);
+requireSource(
+  navbar.includes('createPortal(') && navbar.includes('document.body'),
+  'Mobile navigation must be portalled outside the composited fixed header.',
+);
+requireSource(
+  /\.mobile-panel \{[\s\S]*?top: var\(--public-navigation-height\);[\s\S]*?bottom: 0;[\s\S]*?height: auto;[\s\S]*?overflow-y: auto;/.test(responsive),
+  'Mobile navigation must own a full viewport scrollport below the header.',
+);
+requireSource(
+  /@media \(max-width: 680px\)[\s\S]*?:root \{ --public-navigation-height: 86px; \}/.test(responsive),
+  'Mobile navigation offset must stay synchronized with the 86px mobile header.',
 );
 
 const shellGutter = (width) => Math.min(64, Math.max(32, width * 0.05));
