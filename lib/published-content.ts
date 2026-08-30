@@ -1,4 +1,4 @@
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, isNull } from 'drizzle-orm';
 import { isDatabaseConfigured } from '@/lib/auth/config';
 import { cmsActivities, cmsArticles, cmsGalleries } from '@/lib/cms/content';
 import { getDb } from '@/lib/db';
@@ -98,5 +98,46 @@ export async function getPublishedArticleBySlug(slug: string): Promise<Published
     };
   } catch {
     return null;
+  }
+}
+
+
+export async function getPublishedArticles(): Promise<PublishedArticle[]> {
+  if (!isDatabaseConfigured()) return publishedArticles;
+  try {
+    const rows = await getDb()
+      .select({ content: contentItems, media: mediaAssets })
+      .from(contentItems)
+      .leftJoin(mediaAssets, eq(mediaAssets.contentId, contentItems.id))
+      .where(and(
+        eq(contentItems.type, 'article'),
+        eq(contentItems.status, 'published'),
+        isNull(contentItems.deletedAt),
+      ))
+      .orderBy(desc(contentItems.publishedAt));
+
+    const articles = new Map<string, PublishedArticle>();
+    for (const row of rows) {
+      const media = row.media?.type === 'image' && !row.media.deletedAt ? row.media : null;
+      const current = articles.get(row.content.slug);
+      if (current && current.imageUrl) continue;
+      articles.set(row.content.slug, {
+        slug: row.content.slug,
+        title: row.content.title,
+        excerpt: row.content.excerpt || '',
+        publishedAt: row.content.publishedAt?.toISOString() || '',
+        category: row.content.category || '',
+        body: row.content.body,
+        imageUrl: media?.externalUrl || current?.imageUrl,
+        imageAlt: media?.altText || current?.imageAlt,
+        imageCaption: media?.caption || current?.imageCaption,
+      });
+    }
+
+    const dynamicArticles = Array.from(articles.values());
+    const dynamicSlugs = new Set(dynamicArticles.map((item) => item.slug));
+    return [...dynamicArticles, ...publishedArticles.filter((item) => !dynamicSlugs.has(item.slug))];
+  } catch {
+    return publishedArticles;
   }
 }
