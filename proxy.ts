@@ -1,6 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse, type NextFetchEvent, type NextRequest } from 'next/server';
-import { isClerkConfigured } from '@/lib/auth/config';
+import { isBootstrapEnabledForEnvironment, isClerkConfigured } from '@/lib/auth/config';
 
 const isAccountRoute = createRouteMatcher(['/akun(.*)']);
 const isAdminRoute = createRouteMatcher(['/admin(.*)', '/api/admin(.*)']);
@@ -16,6 +16,7 @@ const productionIdentityMiddleware = clerkMiddleware(async (auth, request) => {
 
 export default function proxy(request: NextRequest, event: NextFetchEvent) {
   if (!isClerkConfigured()) return NextResponse.next();
+  if (isBootstrapEnabledForEnvironment() && isAdminRoute(request)) return NextResponse.next();
   return productionIdentityMiddleware(request, event);
 }
 
