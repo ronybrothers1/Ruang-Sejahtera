@@ -47,6 +47,7 @@ export default function Home() {
               <Link href="/program" className="trust-button trust-button-primary">Kenali Program <ArrowRight size={18} aria-hidden="true" /></Link>
               <Link href="/donasi" className="trust-button trust-button-secondary"><Heart size={18} aria-hidden="true" /> Cara Mendukung</Link>
             </div>
+            <Link href="#akses-portal" className="trust-text-link mt-4 inline-flex">Masuk atau daftar ke portal <ArrowRight size={16} aria-hidden="true" /></Link>
             <div className="trust-hero-assurance">
               <ShieldCheck size={20} aria-hidden="true" />
               <p><strong>Preview lengkap untuk evaluasi desain.</strong> Foto dan angka bertanda “contoh” akan diganti dengan dokumentasi serta data resmi saat materi final tersedia.</p>
