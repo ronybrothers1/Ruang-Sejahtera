@@ -13,7 +13,14 @@ export type IdentityProfileInput = {
   lastSignInAt?: Date | null;
 };
 
+type ManagedCoreManagerInput = {
+  email: string;
+  fullName: string;
+  actorUserId?: string | null;
+};
+
 const FALLBACK_IDENTITY_NAME = 'Calon Anggota';
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function normalizeEmail(value: string) {
   return value.trim().toLowerCase();
@@ -163,4 +170,56 @@ export async function seedInitialSuperAdmin(input: { email: string; fullName: st
     metadata: { source: 'controlled_seed' },
   });
   return superAdmin;
+}
+
+export async function listCoreManagers() {
+  return getDb().select().from(users).where(and(eq(users.role, 'core_manager'), isNull(users.deletedAt)));
+}
+
+export async function createCoreManager(input: ManagedCoreManagerInput) {
+  const db = getDb();
+  const email = normalizeEmail(input.email);
+  const fullName = input.fullName.trim();
+
+  if (!EMAIL_PATTERN.test(email) || fullName.length < 2 || fullName.length > 120) {
+    throw new Error('CORE_MANAGER_INPUT_INVALID');
+  }
+
+  const existing = await findUserByEmail(email);
+  if (existing?.role === 'super_admin') throw new Error('CORE_MANAGER_EMAIL_RESERVED');
+  if (existing?.membershipStatus === 'suspended' || existing?.membershipStatus === 'revoked') {
+    throw new Error('CORE_MANAGER_MEMBERSHIP_BLOCKED');
+  }
+
+  let manager: UserRow;
+  if (existing) {
+    const updated = await db.update(users).set({
+      fullName,
+      role: 'core_manager',
+      isActive: true,
+      deletedAt: null,
+      updatedAt: new Date(),
+    }).where(eq(users.id, existing.id)).returning();
+    manager = updated[0];
+  } else {
+    const inserted = await db.insert(users).values({
+      email,
+      fullName,
+      role: 'core_manager',
+      membershipStatus: 'registered',
+      isActive: true,
+    }).returning();
+    manager = inserted[0];
+  }
+
+  await db.insert(auditLogs).values({
+    actorUserId: input.actorUserId || null,
+    actorRole: 'super_admin',
+    action: 'identity.core_manager_added',
+    resourceType: 'user',
+    resourceId: manager.id,
+    metadata: { source: 'manual_admin', existingUser: Boolean(existing) },
+  });
+
+  return manager;
 }
