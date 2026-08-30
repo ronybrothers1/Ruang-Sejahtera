@@ -46,7 +46,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
             <p>{program.summary}</p>
             <p>Struktur ini menyiapkan ruang untuk kriteria penerima, wilayah pelaksanaan, metode asesmen, sumber pendanaan, mitra, dokumentasi, dan hasil program ketika data final tersedia.</p>
             <div className="trust-actions">
-              <Link href="/kegiatan" className="trust-button trust-button-ink">Lihat kegiatan terbit <ArrowRight size={17} aria-hidden="true" /></Link>
+              <Link href="/kegiatan" className="trust-button trust-button-ink">Lihat arsip kegiatan <ArrowRight size={17} aria-hidden="true" /></Link>
               <Link href="/transparansi" className="trust-button trust-button-outline">Ruang transparansi <ArrowRight size={17} aria-hidden="true" /></Link>
             </div>
           </div>

@@ -18,6 +18,9 @@
     "components:audit": "node scripts/check-ui-components.mjs",
     "media:audit": "node scripts/check-media-system.mjs",
     "footer:audit": "node scripts/check-footer-system.mjs",
+    "ux:audit": "node scripts/check-ux-flow.mjs",
+    "accessibility:audit": "node scripts/check-accessibility.mjs",
+    "accessibility:runtime": "node scripts/check-accessibility-runtime.mjs",
     "components:runtime": "node scripts/check-component-runtime.mjs"
   },
   "dependencies": {

@@ -5,14 +5,17 @@ import { DonationPreviewForm } from '@/components/DonationPreviewForm';
 import { PageHero } from '@/components/PageHero';
 import { PreviewNotice } from '@/components/PreviewNotice';
 import { sampleDonationAmounts } from '@/lib/content';
+import { whatsappUrl } from '@/lib/site';
 
 export const metadata: Metadata = { title: 'Cara Mendukung', description: 'Informasi donasi dan standar keamanan Yayasan Ruang Sejahtera.' };
 const safeguards = [[LockKeyhole, 'Data pembayaran sensitif tidak disimpan langsung.'], [CreditCard, 'Metode pembayaran harus berasal dari kanal resmi.'], [ReceiptText, 'Setiap transaksi memiliki referensi dan bukti.']] as const;
 
 export default function DonationPage() {
+  const supportWhatsApp = whatsappUrl('Halo Yayasan Ruang Sejahtera, saya ingin mengetahui cara mendukung program.');
+
   return (
     <>
-      <PageHero eyebrow="Cara Mendukung" title="Satu tindakan baik, dibuat sederhana dan bertanggung jawab." description="Simulasi donasi dipertahankan agar alurnya dapat dievaluasi secara lengkap. Tidak ada transaksi nyata yang diproses." />
+      <PageHero eyebrow="Cara Mendukung" title="Satu tindakan baik, dibuat sederhana dan bertanggung jawab." description="Untuk dukungan saat ini, hubungi yayasan melalui WhatsApp resmi. Simulasi donasi tetap dipertahankan untuk evaluasi dan tidak memproses transaksi nyata." />
       <PreviewNotice label="Simulasi donasi">Nominal, rekening, QRIS, dan proses pembayaran belum aktif. Tombol transaksi sengaja dinonaktifkan.</PreviewNotice>
       <section className="trust-page-section trust-donation-preview">
         <div className="shell trust-donation-preview-layout">
@@ -24,7 +27,7 @@ export default function DonationPage() {
             <ShieldCheck size={34} aria-hidden="true" /><h2>Dirancang aman sejak awal.</h2><p>Ketika pembayaran resmi diaktifkan, transaksi harus melalui gateway tepercaya, memiliki referensi unik, bukti donasi, rekonsiliasi, dan pelaporan.</p>
             {safeguards.map(([Icon, text]) => <div key={text}><Icon size={19} aria-hidden="true" /><span>{text}</span></div>)}
             <div className="trust-support-links">
-              <Link href="/kontak" className="trust-button trust-button-ink"><MessageCircle size={16} aria-hidden="true" /> Hubungi Yayasan</Link>
+              {supportWhatsApp ? <a href={supportWhatsApp} target="_blank" rel="noreferrer" className="trust-button trust-button-ink" aria-label="Tanyakan cara mendukung melalui WhatsApp resmi, dibuka di tab baru"><MessageCircle size={16} aria-hidden="true" /> Tanya via WhatsApp Resmi</a> : null}
               <Link href="/kebijakan-donasi" className="trust-text-link">Baca kebijakan donasi <ArrowRight size={16} aria-hidden="true" /></Link>
             </div>
           </aside>

@@ -49,7 +49,7 @@ check(componentCss.includes('label:has(input:checked)'), 'Checked donation progr
 
 check(searchPage.includes('type="search"'), 'Search uses the native search control role');
 check(searchPage.includes('enterKeyHint="search"'), 'Search communicates the mobile keyboard action');
-check(searchPage.includes('q.slice(0, 120)'), 'Search query rendering is bounded');
+check(searchPage.includes('rawQuery.slice(0, 120)'), 'Search query rendering is bounded after resolving repeated parameters');
 check(searchPage.includes('maxLength={120}'), 'Search input and server rendering share a length contract');
 
 check(navbar.includes('role="dialog"') && navbar.includes('aria-modal="true"'), 'Mobile drawer retains dialog semantics');

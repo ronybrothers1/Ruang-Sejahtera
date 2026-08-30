@@ -23,3 +23,10 @@ export function absoluteUrl(path = '/') {
   if (!siteConfig.url) return null;
   return new URL(path, siteConfig.url).toString();
 }
+
+export function whatsappUrl(message?: string) {
+  const number = siteConfig.contact.whatsapp?.replace(/\D/g, '');
+  if (!number) return null;
+  const baseUrl = `https://wa.me/${number}`;
+  return message ? `${baseUrl}?text=${encodeURIComponent(message)}` : baseUrl;
+}

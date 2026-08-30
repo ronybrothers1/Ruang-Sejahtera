@@ -80,7 +80,18 @@ try {
   const renderedQuery = search.match(/<input[^>]+id="search"[^>]+value="([^"]*)"/)?.[1];
   assert.equal(renderedQuery?.length, 120, 'Search bounds the visible query before rendering it');
 
-  console.log(`Production component smoke passed (${publicRoutes.length} routes + donation/contact/search contracts).`);
+  const repeatedSearchResponse = await fetch(`${baseUrl}/cari?q=air&q=program`);
+  const repeatedSearch = await repeatedSearchResponse.text();
+  assert.equal(repeatedSearchResponse.status, 200, 'Repeated search parameters render with HTTP 200');
+  assert.match(repeatedSearch, /value="air"/, 'Repeated search parameters deterministically keep the first value');
+  assert.doesNotMatch(repeatedSearch, /Halaman belum dapat dimuat/, 'Repeated search parameters do not enter the runtime error boundary');
+
+  assert.match(contact, /Chat WhatsApp Resmi/, 'Contact page renders an active official channel');
+  assert.match(contact, /wa\.me\/6282334030628/, 'Contact page uses the normalized official WhatsApp number');
+  assert.match(donation, /Tanya via WhatsApp Resmi/, 'Donation page renders a direct support handoff');
+  assert.match(donation, /wa\.me\/6282334030628/, 'Donation support handoff uses the official WhatsApp number');
+
+  console.log(`Production component smoke passed (${publicRoutes.length} routes + donation/contact/search/recovery contracts).`);
 } finally {
   server.kill('SIGTERM');
 }
