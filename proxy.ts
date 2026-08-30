@@ -11,7 +11,7 @@ const productionIdentityMiddleware = clerkMiddleware(async (auth, request) => {
     await auth.protect();
   }
 }, {
-  frontendApiProxy: { enabled: true },
+  frontendApiProxy: { enabled: (url) => url.hostname === 'ruang-sejahtera-iota.vercel.app' },
 });
 
 export default function proxy(request: NextRequest, event: NextFetchEvent) {
