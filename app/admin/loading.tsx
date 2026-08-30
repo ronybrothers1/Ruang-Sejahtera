@@ -1,4 +1,4 @@
-export default function Loading() {
+export default function AdminLoading() {
   return (
     <section className="trust-loading-state" aria-busy="true" aria-live="polite">
       <span className="sr-only">Memuat halaman</span>
