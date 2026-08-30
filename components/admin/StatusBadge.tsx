@@ -2,9 +2,12 @@ import type { PublicationStatus } from '@/lib/models';
 
 const statusLabel: Record<PublicationStatus, string> = {
   draft: 'Draft',
-  review: 'Review',
-  published: 'Published',
-  archived: 'Archived',
+  pending_review: 'Menunggu Kurasi',
+  revision_required: 'Perlu Perbaikan',
+  approved: 'Disetujui',
+  rejected: 'Ditolak',
+  published: 'Terbit',
+  archived: 'Diarsipkan',
 };
 
 export function StatusBadge({ status }: { status: PublicationStatus }) {

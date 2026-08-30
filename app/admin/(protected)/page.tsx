@@ -1,5 +1,6 @@
 import { CheckCircle2, Database, FileText, ShieldAlert } from 'lucide-react';
 import { requireAdminSession, getBootstrapAuthStatus } from '@/lib/auth/admin-session';
+import { getIdentityStatus } from '@/lib/auth/config';
 import { cmsContentCounts } from '@/lib/cms/content';
 import { getCmsWriteStatus } from '@/lib/cms/store';
 
@@ -10,6 +11,7 @@ function StatusCard({ label, value, detail, ok }: { label: string; value: string
 export default async function AdminDashboardPage() {
   const session = await requireAdminSession();
   const auth = getBootstrapAuthStatus();
+  const identity = getIdentityStatus();
   const cms = getCmsWriteStatus();
   const totalContent = cmsContentCounts.activities + cmsContentCounts.articles + cmsContentCounts.galleries;
 
@@ -18,10 +20,10 @@ export default async function AdminDashboardPage() {
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"><div><p className="eyebrow">Dashboard Admin</p><h1 className="font-heading text-4xl font-extrabold tracking-tight">Kontrol konten tanpa mengorbankan integritas data.</h1><p className="mt-4 max-w-3xl leading-7 text-neutral-600">Panel ini memisahkan autentikasi, hak akses, registry publik, dan backend tulis. Fitur yang belum memiliki backend resmi tetap dinonaktifkan, bukan disimulasikan.</p></div><div className="rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm"><span className="font-bold">Role:</span> {session.role}</div></div>
 
       <div className="mt-9 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatusCard label="Autentikasi" value={auth.configured ? 'Aktif' : 'Belum aktif'} detail="Bootstrap auth hanya untuk local/preview dan diblokir pada production." ok={auth.configured} />
+        <StatusCard label="Autentikasi" value={identity.productionReady ? 'Production' : auth.configured ? 'Preview' : 'Belum aktif'} detail={identity.productionReady ? 'Clerk, database, dan webhook identity telah dikonfigurasi.' : 'Bootstrap auth hanya untuk local/preview dan diblokir pada production.'} ok={identity.productionReady || auth.configured} />
         <StatusCard label="CMS Write" value={cms.configured ? 'Aktif' : 'Fail-closed'} detail={cms.reason} ok={cms.configured} />
         <StatusCard label="Registry" value={`${totalContent} record`} detail="Record tersimpan pada content/cms/*.json dan hanya status published yang masuk website publik." ok />
-        <StatusCard label="Keamanan" value="RBAC aktif" detail="Navigasi dan operasi admin dibatasi berdasarkan matriks permission server-side." ok />
+        <StatusCard label="Keamanan" value="3 role aktif" detail="Super Admin, Pengurus Inti, dan Anggota memiliki permission server-side yang terpisah." ok />
       </div>
 
       <section className="mt-9 grid gap-5 lg:grid-cols-3">

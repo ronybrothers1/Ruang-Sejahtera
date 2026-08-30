@@ -11,6 +11,13 @@ export type CmsBaseRecord = {
   lastEditedBy: string;
   reviewRequestedAt?: string;
   reviewRequestedBy?: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  reviewNote?: string;
+  approvedAt?: string;
+  approvedBy?: string;
+  rejectedAt?: string;
+  rejectedBy?: string;
   publishedAt?: string;
   publishedBy?: string;
   archivedAt?: string;
@@ -46,4 +53,12 @@ export const cmsCollectionPaths: Record<CmsCollection, string> = {
   galleries: 'content/cms/galleries.json',
 };
 
-export const publicationStatuses: PublicationStatus[] = ['draft', 'review', 'published', 'archived'];
+export const publicationStatuses: PublicationStatus[] = [
+  'draft',
+  'pending_review',
+  'revision_required',
+  'approved',
+  'rejected',
+  'published',
+  'archived',
+];

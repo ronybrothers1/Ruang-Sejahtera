@@ -11,14 +11,14 @@ Rekonstruksi terbaru memindahkan proyek dari prototipe visual menjadi fondasi pl
 - Route publik mencakup Tentang, Program + detail, Kegiatan + detail, Berita + detail, Galeri + detail, Dampak, Transparansi, Organisasi, Donasi, Kontak, Pencarian, Privasi, Ketentuan, Kebijakan Donasi, Aksesibilitas, dan Disclaimer.
 - Dynamic content registry berasal dari `content/cms/*.json` dan hanya record berstatus `published` yang masuk ke website publik.
 - Control plane `/admin` dibangun terpisah dari chrome website publik dengan dashboard, CMS editorial, modul transparansi, dan observabilitas permission.
-- Preview admin authentication memakai signed HttpOnly session, hashed access key, TTL terbatas, same-origin mutation guard, request limits, dan otomatis diblokir pada `VERCEL_ENV=production`.
-- RBAC server-side menggunakan role `super_admin`, `content_admin`, `finance`, dan `editor`; role editor tidak memiliki authority publish.
-- Workflow editorial dibatasi pada `draft → review → published → archived` dengan jalur kembali yang terkontrol dan metadata provenance aktor/waktu.
+- Autentikasi production memakai Clerk, role/status aplikasi tersimpan di Neon PostgreSQL, dan bootstrap lama tetap terbatas pada local/preview.
+- RBAC server-side tepat tiga role: `super_admin`, `core_manager`, dan `member`. Hanya Super Admin memiliki authority kurasi akhir, publikasi, dan mutasi keuangan.
+- Workflow editorial memakai `draft → pending_review → revision_required/approved/rejected → published` dengan metadata provenance aktor/waktu.
 - Form Berita, Kegiatan, dan Galeri mempunyai server-side validation; backend tulis tetap **fail-closed** sampai persistence produksi tersedia.
 - Design system, skip link, focus state, reduced motion, semantic landmark, error/loading/empty states.
 - `robots`/`sitemap` bersifat aman: website tidak diindeks sampai `NEXT_PUBLIC_SITE_URL` resmi dikonfigurasi; control plane admin selalu noindex/no-store.
 - Security headers baseline, fail-closed API untuk donasi/kontak/CMS mutation, serta health endpoint non-sensitif.
-- Data model, PostgreSQL reference schema, CMS architecture, RBAC, payment contract, data governance, SEO, security, dan production-readiness terdokumentasi.
+- Data model Drizzle, migrasi PostgreSQL, CMS architecture, RBAC, payment contract, data governance, SEO, security, dan production-readiness terdokumentasi.
 
 ## Integritas data
 
@@ -44,15 +44,15 @@ Registry editorial versioned:
 - `content/cms/activities.json`
 - `content/cms/galleries.json`
 
-Status workflow: `draft → review → published → archived`. Public registry hanya membaca `published`. Record review/published/archived wajib membawa provenance yang sesuai dan CI akan menolak metadata workflow yang tidak lengkap.
+Status workflow: `draft → pending_review → revision_required/approved/rejected → published → archived`. Public registry hanya membaca `published`. Record kurasi/published/archived wajib membawa provenance yang sesuai dan CI akan menolak metadata workflow yang tidak lengkap.
 
 Form dan mutation endpoint sudah disiapkan, tetapi persistence write adapter sengaja dinonaktifkan sampai backend produksi dipilih dan diaudit. Tidak ada fallback ke localStorage atau filesystem serverless sementara.
 
-Bootstrap admin authentication hanya untuk local/preview dan bukan autentikasi production. Lihat `docs/ADMIN-CMS.md` untuk threat boundary, separation of duties, dan konfigurasi.
+Login/register production berada di `/masuk` dan `/daftar`; portal pengguna di `/akun`. Bootstrap admin hanya untuk local/preview. Lihat `docs/AUTH-RBAC-PHASE-1.md` dan `docs/ADMIN-CMS.md`.
 
 ## Quality gates
 
-CI menjalankan dependency install yang reproducible, public-content + CMS provenance integrity guard, lint, TypeScript typecheck, dan production build. Preview deployment tetap diuji karena keberhasilan CI tidak menggantikan verifikasi runtime/platform.
+CI menjalankan dependency install yang reproducible, integrity guard, audit RBAC, lint, TypeScript typecheck, dan production build. Preview deployment tetap diuji karena keberhasilan CI tidak menggantikan verifikasi runtime/platform.
 
 ## Environment
 
@@ -61,19 +61,21 @@ Salin `.env.example` ke environment deployment. Jangan commit secret.
 ## Dokumen arsitektur
 
 - `docs/ADMIN-CMS.md`
+- `docs/AUTH-RBAC-PHASE-1.md`
 - `docs/CMS-ARCHITECTURE.md`
 - `docs/DATA-GOVERNANCE.md`
 - `docs/SECURITY-ARCHITECTURE.md`
 - `docs/SEO-ARCHITECTURE.md`
 - `docs/QUALITY-GATES.md`
 - `docs/PRODUCTION-READINESS.md`
-- `db/schema.sql`
+- `lib/db/schema.ts`
+- `db/migrations/`
 
 ## Tahap produksi berikutnya
 
-1. Pilih dan deploy persistence CMS/database/storage produksi dengan backup, restore, concurrency control, dan audit trail.
-2. Ganti preview bootstrap authentication dengan identity provider production + MFA + account/session lifecycle; pertahankan RBAC server-side dan separation of duties.
-3. Hubungkan workflow draft/review/publish/archive ke persistence adapter dan immutable application audit log.
+1. Hubungkan Clerk dan Neon ke project Vercel, jalankan migrasi, seed Super Admin, konfigurasi webhook, lalu verifikasi MFA dan lifecycle session.
+2. Implementasikan formulir data anggota, ujian, penilaian manusia, approval, dan kartu anggota dari schema yang tersedia.
+3. Hubungkan workflow kurasi ke persistence adapter PostgreSQL dan audit log immutable.
 4. Migrasi data kegiatan, berita, galeri dan dokumentasi asli melalui workflow publikasi.
 5. Konfigurasi domain resmi, kontak, legalitas, organisasi, dan akun sosial.
 6. Implementasi payment gateway resmi, signature webhook, idempotency, reconciliation, dan finance approval flow.

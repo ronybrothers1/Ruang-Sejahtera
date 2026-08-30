@@ -10,6 +10,7 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { OrganizationJsonLd } from '@/components/OrganizationJsonLd';
 import { RouteShell } from '@/components/RouteShell';
+import { IdentityProvider } from '@/components/auth/IdentityProvider';
 import { siteConfig } from '@/lib/site';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
@@ -31,9 +32,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="id">
       <body className={`${inter.variable} ${plusJakarta.variable} font-sans antialiased`}>
-        <RouteShell publicHeader={<Navbar />} publicFooter={<Footer />} publicStructuredData={<OrganizationJsonLd />}>
-          {children}
-        </RouteShell>
+        <IdentityProvider>
+          <RouteShell publicHeader={<Navbar />} publicFooter={<Footer />} publicStructuredData={<OrganizationJsonLd />}>
+            {children}
+          </RouteShell>
+        </IdentityProvider>
       </body>
     </html>
   );

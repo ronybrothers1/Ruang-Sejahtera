@@ -22,9 +22,16 @@
     "accessibility:audit": "node scripts/check-accessibility.mjs",
     "accessibility:runtime": "node scripts/check-accessibility-runtime.mjs",
     "components:runtime": "node scripts/check-component-runtime.mjs",
-    "performance:audit": "node scripts/check-performance.mjs"
+    "performance:audit": "node scripts/check-performance.mjs",
+    "auth:audit": "node scripts/check-auth-rbac.mjs",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed-super-admin": "tsx scripts/seed-super-admin.ts"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.8.3",
+    "@neondatabase/serverless": "^1.1.0",
+    "drizzle-orm": "^0.45.2",
     "lucide-react": "^0.553.0",
     "next": "16.3.3",
     "react": "19.2.8",
@@ -35,10 +42,13 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv-cli": "^10.0.0",
+    "drizzle-kit": "^0.31.10",
     "eslint": "9.39.1",
     "eslint-config-next": "16.3.3",
     "postcss": "8.5.6",
     "tailwindcss": "4.1.11",
+    "tsx": "^4.23.13",
     "typescript": "5.9.3"
   }
 }

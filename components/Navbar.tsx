@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent }
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown, Heart, Menu, MessageCircle, Search, X } from 'lucide-react';
+import { ChevronDown, Heart, Menu, MessageCircle, Search, UserRound, X } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
 import { navItems, type NavItem } from '@/lib/navigation';
 
@@ -185,6 +185,7 @@ export function Navbar() {
         <div className="mobile-nav-utilities">
           <Link onClick={closeMenu} href="/cari" aria-current={isCurrent('/cari') ? 'page' : undefined} className={`cta-ghost ${isCurrent('/cari') ? 'is-current' : ''}`}><Search size={18} aria-hidden="true" /> Cari Informasi</Link>
           <Link onClick={closeMenu} href="/kontak" aria-current={isCurrent('/kontak') ? 'page' : undefined} className={`cta-ghost ${isCurrent('/kontak') ? 'is-current' : ''}`}><MessageCircle size={18} aria-hidden="true" /> Kontak Yayasan</Link>
+          <Link onClick={closeMenu} href="/masuk" className="cta-ghost"><UserRound size={18} aria-hidden="true" /> Masuk / Akun</Link>
           <Link onClick={closeMenu} href="/donasi" aria-current={isCurrent('/donasi') ? 'page' : undefined} className={`cta-red ${isCurrent('/donasi') ? 'is-current' : ''}`}><Heart size={18} aria-hidden="true" /> Cara Mendukung</Link>
         </div>
       </nav>
@@ -240,6 +241,7 @@ export function Navbar() {
         </nav>
         <div className="desktop-navigation-action">
           <Link href="/cari" aria-label="Cari informasi" aria-current={isCurrent('/cari') ? 'page' : undefined} className={`nav-search-link ${isCurrent('/cari') ? 'is-active' : ''}`}><Search size={18} aria-hidden="true" /></Link>
+          <Link href="/masuk" aria-label="Masuk atau buka akun" className="nav-search-link"><UserRound size={18} aria-hidden="true" /></Link>
           <Link href="/donasi" aria-current={isCurrent('/donasi') ? 'page' : undefined} className={`cta-red ${isCurrent('/donasi') ? 'is-current' : ''}`}><Heart size={16} fill="currentColor" aria-hidden="true" /> Cara Mendukung</Link>
         </div>
         <button

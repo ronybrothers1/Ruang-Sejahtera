@@ -1,13 +1,18 @@
 import { LockKeyhole, ShieldCheck } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { BrandLogo } from '@/components/BrandLogo';
-import { getAdminSession, getBootstrapAuthStatus } from '@/lib/auth/admin-session';
+import { getCurrentUserSession, getBootstrapAuthStatus } from '@/lib/auth/admin-session';
+import { getIdentityStatus } from '@/lib/auth/config';
+import { canAccessControlPlane } from '@/lib/auth/permissions';
 
 export default async function AdminLoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const session = await getAdminSession();
-  if (session) redirect('/admin');
+  const session = await getCurrentUserSession();
+  if (session) redirect(canAccessControlPlane(session.role) ? '/admin' : '/akun');
   const { error } = await searchParams;
   const auth = getBootstrapAuthStatus();
+  const identity = getIdentityStatus();
+
+  if (identity.clerk && identity.database) redirect('/masuk?redirect_url=%2Fadmin');
 
   return (
     <div className="grid min-h-screen place-items-center px-4 py-10">
