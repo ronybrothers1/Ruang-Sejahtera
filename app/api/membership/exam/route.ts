@@ -18,20 +18,34 @@ export async function POST(request: Request) {
   if (!isDatabaseConfigured()) return resultRedirect(request, 'error');
 
   const session = await getAdminSession();
-  if (!session || session.role !== 'member' || !session.identityProviderId) return NextResponse.json({ error: 'Akun anggota diperlukan.' }, { status: 403 });
+  if (!session || session.role !== 'member' || !session.identityProviderId) {
+    return NextResponse.json({ error: 'Akun anggota diperlukan.' }, { status: 403 });
+  }
 
   try {
     const form = await request.formData();
+    const attemptId = String(form.get('attemptId') || '');
+    if (!attemptId) return resultRedirect(request, 'error');
+
     const answers: Record<string, string> = {};
     for (const [key, value] of form.entries()) {
-      if (key.startsWith('question-') && typeof value === 'string') answers[key.slice('question-'.length)] = value;
+      if (key.startsWith('question-') && typeof value === 'string') {
+        answers[key.slice('question-'.length)] = value;
+      }
     }
-    const result = await submitMembershipExam({ userId: session.id, answers });
+
+    const result = await submitMembershipExam({
+      userId: session.id,
+      attemptId,
+      answers,
+    });
     return resultRedirect(request, result.passed ? 'passed' : 'failed');
   } catch (error) {
     const reason = error instanceof Error ? error.message : '';
-    if (reason === 'EXAM_INCOMPLETE') return resultRedirect(request, 'error');
+    if (reason === 'EXAM_TIME_EXPIRED') return resultRedirect(request, 'expired');
+    if (reason === 'EXAM_WEEKLY_LIMIT') return resultRedirect(request, 'limit');
     if (reason === 'EXAM_ALREADY_PASSED') return resultRedirect(request, 'passed');
+    if (reason === 'EXAM_INCOMPLETE') return resultRedirect(request, 'error');
     return resultRedirect(request, 'error');
   }
 }
