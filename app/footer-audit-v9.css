@@ -1,0 +1,195 @@
+/*
+ * AUDIT 09 — footer alignment, rhythm and official contact channel
+ *
+ * This final cascade layer intentionally owns only footer composition. It
+ * resolves legacy breakpoint collisions without changing any other component.
+ */
+
+.footer-v3 .footer-grid-v3 {
+  grid-template-columns: minmax(250px, 1.3fr) minmax(130px, .72fr) minmax(150px, .82fr) minmax(230px, 1fr);
+  column-gap: clamp(2rem, 4.25vw, 4.75rem);
+  row-gap: 2.75rem;
+  padding-block: clamp(3.75rem, 5.5vw, 5.5rem) clamp(3rem, 4vw, 4rem);
+}
+
+.footer-v3 .footer-title-v3 {
+  margin: 0 0 .75rem;
+  color: #f7f7f5;
+  font-size: var(--type-size-caption);
+  font-weight: var(--type-weight-bold);
+  line-height: 1.4;
+  letter-spacing: .08em;
+  overflow-wrap: normal;
+  text-wrap: nowrap;
+  word-break: normal;
+}
+
+.footer-v3 .footer-links-v3 {
+  display: grid;
+  gap: .125rem;
+}
+
+.footer-v3 .footer-links-v3 a {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 2.25rem;
+  color: #aaa6a4;
+  font-size: var(--type-size-ui);
+  font-weight: var(--type-weight-regular);
+  line-height: var(--type-leading-ui);
+}
+
+.footer-contact-list-v9 {
+  display: grid;
+  gap: .125rem;
+}
+
+.footer-v3 .footer-contact-link-v9 {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  align-items: center;
+  column-gap: .75rem;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 2.75rem;
+  margin: 0;
+  color: #aaa6a4;
+  font-size: var(--type-size-ui);
+  font-weight: var(--type-weight-regular);
+  line-height: var(--type-leading-ui);
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+
+.footer-contact-icon-v9 {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--color-brand-red);
+  line-height: 0;
+}
+
+.footer-v3 .footer-contact-icon-v9 svg {
+  display: block;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0;
+}
+
+.footer-contact-text-v9 {
+  cursor: default;
+}
+
+.footer-v3 :where(.footer-links-v3 a, .footer-contact-link-v9, .footer-meta-links-v9 a) {
+  transition: color .2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .footer-v3 :where(.footer-links-v3 a, .footer-contact-link-v9, .footer-meta-links-v9 a):hover {
+    color: #fff;
+  }
+}
+
+.footer-v3 .footer-bottom-v3 {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1.25rem 2rem;
+  padding-block: 1.25rem max(1.5rem, env(safe-area-inset-bottom));
+  font-size: var(--type-size-caption);
+  line-height: 1.5;
+}
+
+.footer-v3 .footer-bottom-v3 > p {
+  margin: 0;
+}
+
+.footer-meta-links-v9 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .25rem 1.25rem;
+}
+
+.footer-v3 .footer-meta-links-v9 a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  color: #7c7c77;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+@media (max-width: 1120px) {
+  .footer-v3 .footer-grid-v3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: clamp(1.5rem, 4vw, 2.75rem);
+  }
+
+  .footer-v3 .footer-brand {
+    grid-column: 1 / -1;
+  }
+
+  .footer-v3 .footer-contact-v3 {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .footer-v3 .footer-grid-v3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.25rem clamp(1.5rem, 7vw, 2.5rem);
+    padding-block: 3.5rem 3rem;
+  }
+
+  .footer-v3 .footer-brand,
+  .footer-v3 .footer-contact-v3 {
+    grid-column: 1 / -1;
+  }
+
+  .footer-v3 .footer-contact-v3 {
+    margin-top: .25rem;
+  }
+
+  .footer-v3 .footer-bottom-v3 {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 1rem;
+    padding-block: 1.25rem max(1.75rem, env(safe-area-inset-bottom));
+  }
+
+  .footer-meta-links-v9 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, max-content));
+    justify-content: start;
+    gap: .125rem 1.25rem;
+  }
+
+  .footer-v3 .footer-meta-links-v9 a {
+    min-height: 2.75rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .footer-v3 .footer-grid-v3 {
+    gap: 2rem 1.25rem;
+    padding-block: 3.25rem 2.75rem;
+  }
+
+  .footer-v3 .footer-title-v3 {
+    letter-spacing: .06em;
+  }
+
+  .footer-v3 .footer-contact-link-v9 {
+    column-gap: .625rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-v3 :where(.footer-links-v3 a, .footer-contact-link-v9, .footer-meta-links-v9 a) {
+    transition: none;
+  }
+}

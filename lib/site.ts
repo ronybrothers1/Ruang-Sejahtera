@@ -7,7 +7,7 @@ export const siteConfig = {
   locale: 'id_ID',
   contact: {
     address: process.env.NEXT_PUBLIC_OFFICIAL_ADDRESS || null,
-    whatsapp: process.env.NEXT_PUBLIC_OFFICIAL_WHATSAPP || null,
+    whatsapp: process.env.NEXT_PUBLIC_OFFICIAL_WHATSAPP || '+62 823-3403-0628',
     email: process.env.NEXT_PUBLIC_OFFICIAL_EMAIL || null,
     mapUrl: process.env.NEXT_PUBLIC_OFFICIAL_MAP_URL || null,
   },
