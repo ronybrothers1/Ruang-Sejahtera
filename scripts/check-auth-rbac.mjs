@@ -8,6 +8,8 @@ const proxy = readFileSync('proxy.ts', 'utf8');
 const session = readFileSync('lib/auth/admin-session.ts', 'utf8');
 const gate = readFileSync('lib/auth/control-plane-gate.ts', 'utf8');
 const contentRoute = readFileSync('app/api/admin/content/route.ts', 'utf8');
+const config = readFileSync('lib/auth/config.ts', 'utf8');
+const coreManagersRoute = readFileSync('app/api/admin/core-managers/route.ts', 'utf8');
 
 const failures = [];
 const requireSource = (condition, message) => { if (!condition) failures.push(message); };
@@ -26,8 +28,10 @@ requireSource(workflow.includes("to === 'published'") && workflow.includes("can(
 requireSource(schema.includes("verificationTokenHash") && !schema.includes('verificationToken:'), 'Member QR verification must store only a token hash.');
 requireSource(proxy.includes("'/akun(.*)'") && proxy.includes("'/admin(.*)'") && proxy.includes('isPublicAdminAuthRoute'), 'Account and control-plane routes must be protected at the routing boundary.');
 requireSource(session.includes('hasControlPlaneAccess') && session.includes('mfaRequired'), 'Control-plane access must be checked server-side with the MFA/compensating gate.');
+requireSource(config.includes('isBootstrapEnabledForEnvironment') && config.includes('ADMIN_BOOTSTRAP_ALLOW_PRODUCTION'), 'Simple admin login must be explicitly environment-gated.');
 requireSource(gate.includes('timingSafeEqual') && gate.includes('sessionId') && gate.includes('CONTROL_PLANE_APPROVAL_TTL_SECONDS'), 'Temporary approval must be HMAC-verified, session-bound, and short-lived.');
 requireSource(contentRoute.includes('hasControlPlaneAccess'), 'Admin content mutations must enforce the control-plane gate, not only role permissions.');
+requireSource(coreManagersRoute.includes('requireSuperAdminSession') && coreManagersRoute.includes('createCoreManager'), 'Core Manager provisioning must be Super Admin-only and use the server-side user service.');
 
 if (failures.length) {
   console.error(`Auth/RBAC audit failed (${failures.length}):\n${failures.map((item) => `- ${item}`).join('\n')}`);
