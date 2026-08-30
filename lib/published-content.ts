@@ -1,4 +1,8 @@
+import { and, eq, isNull } from 'drizzle-orm';
+import { isDatabaseConfigured } from '@/lib/auth/config';
 import { cmsActivities, cmsArticles, cmsGalleries } from '@/lib/cms/content';
+import { getDb } from '@/lib/db';
+import { contentItems, mediaAssets } from '@/lib/db/schema';
 
 export type PublishedActivity = {
   slug: string;
@@ -17,6 +21,9 @@ export type PublishedArticle = {
   publishedAt: string;
   category: string;
   body: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  imageCaption?: string;
 };
 
 export type PublishedGallery = {
@@ -40,13 +47,16 @@ export const publishedActivities: PublishedActivity[] = cmsActivities
 
 export const publishedArticles: PublishedArticle[] = cmsArticles
   .filter((item) => item.status === 'published' && Boolean(item.publishedAt))
-  .map(({ slug, title, excerpt, publishedAt, category, body }) => ({
+  .map(({ slug, title, excerpt, publishedAt, category, body, imageUrl, imageAlt, imageCaption }) => ({
     slug,
     title,
     excerpt,
     publishedAt: publishedAt as string,
     category,
     body,
+    imageUrl,
+    imageAlt,
+    imageCaption,
   }));
 
 export const publishedGalleries: PublishedGallery[] = cmsGalleries
@@ -57,3 +67,36 @@ export const publishedGalleries: PublishedGallery[] = cmsGalleries
     summary,
     publishedAt: publishedAt as string,
   }));
+
+
+export async function getPublishedArticleBySlug(slug: string): Promise<PublishedArticle | null> {
+  if (!isDatabaseConfigured()) return null;
+  try {
+    const rows = await getDb()
+      .select({ content: contentItems, media: mediaAssets })
+      .from(contentItems)
+      .leftJoin(mediaAssets, eq(mediaAssets.contentId, contentItems.id))
+      .where(and(
+        eq(contentItems.type, 'article'),
+        eq(contentItems.slug, slug),
+        eq(contentItems.status, 'published'),
+        isNull(contentItems.deletedAt),
+      ));
+
+    const row = rows.find((item) => item.media?.type === 'image' && !item.media.deletedAt) || rows[0];
+    if (!row) return null;
+    return {
+      slug: row.content.slug,
+      title: row.content.title,
+      excerpt: row.content.excerpt || '',
+      publishedAt: row.content.publishedAt?.toISOString() || '',
+      category: row.content.category || '',
+      body: row.content.body,
+      imageUrl: row.media?.type === 'image' ? row.media.externalUrl || undefined : undefined,
+      imageAlt: row.media?.type === 'image' ? row.media.altText : undefined,
+      imageCaption: row.media?.type === 'image' ? row.media.caption || undefined : undefined,
+    };
+  } catch {
+    return null;
+  }
+}
