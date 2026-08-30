@@ -120,7 +120,7 @@ function verifyToken(token: string): AdminSession | null {
     return {
       id: payload.sub,
       role: payload.role,
-      fullName: 'Preview administrator',
+      fullName: 'Bootstrap administrator',
       membershipStatus: 'active',
       authMethod: 'bootstrap',
       mfaRequired: false,
