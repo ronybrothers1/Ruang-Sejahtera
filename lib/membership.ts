@@ -1,5 +1,5 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import { getDb } from '@/lib/db';
 import {
   examAnswers,
@@ -588,6 +588,14 @@ async function getOrCreateVersionTwo(createdBy: string) {
   let questions = await db.select().from(examQuestions)
     .where(and(eq(examQuestions.settingsId, settings.id), eq(examQuestions.isActive, true)))
     .orderBy(examQuestions.displayOrder);
+
+  if (questions.length > defaultExamQuestions.length) {
+    const extras = questions.slice(defaultExamQuestions.length);
+    await db.update(examQuestions).set({ isActive: false }).where(
+      inArray(examQuestions.id, extras.map((question) => question.id)),
+    );
+    questions = questions.slice(0, defaultExamQuestions.length);
+  }
 
   if (questions.length < defaultExamQuestions.length) {
     const existingPrompts = new Set(questions.map((question) => question.prompt));
