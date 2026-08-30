@@ -80,7 +80,7 @@ profile. MFA must be enabled before `/admin` is accessible.
 
 1. Add Clerk and Neon through the Vercel Marketplace for the target project.
 2. Configure Clerk paths `/masuk`, `/daftar`, and `/akun`.
-3. Require email verification and enable MFA methods in Clerk.
+3. Require email verification in Clerk. Enable MFA methods before the final go-live gate.
 4. Add a Clerk webhook for `/api/webhooks/clerk` with `user.created`,
    `user.updated`, and `user.deleted`.
 5. Apply `npm run db:migrate` to the production database.
