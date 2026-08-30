@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import './responsive-preview-v8.css';
+import './typography-audit-v6.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { OrganizationJsonLd } from '@/components/OrganizationJsonLd';
