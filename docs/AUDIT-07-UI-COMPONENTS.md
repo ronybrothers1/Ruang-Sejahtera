@@ -124,6 +124,7 @@ Tidak ditemukan kegagalan komponen yang membuat seluruh situs tidak dapat diguna
 | TypeScript (`tsc --noEmit`) | PASS |
 | Production build, 36 static/dynamic route outputs | PASS |
 | Audit 07 component contracts | PASS — 39 checks |
+| Production SSR smoke | PASS — 22 public routes + donation/contact/search contracts |
 | Audit 01–03 content/integrity | PASS |
 | Audit 04 responsive, 33 viewport cases | PASS |
 | Audit 05 color, 27 contrast pairs + invariants | PASS |
@@ -133,4 +134,4 @@ Tidak ditemukan kegagalan komponen yang membuat seluruh situs tidak dapat diguna
 
 ## I. Verdict
 
-**UI COMPONENTS OPTIMAL** untuk scope komponen yang benar-benar tersedia, berdasarkan source review, semantic/keyboard contract, lint, typecheck, build produksi, serta seluruh audit otomatis. Verdict final tetap mensyaratkan branch preview lulus pemeriksaan browser tanpa error overlay/console sebelum PR dianggap siap untuk audit berikutnya.
+**UI COMPONENTS OPTIMAL** untuk scope komponen yang benar-benar tersedia, berdasarkan source review, semantic/keyboard contract, lint, typecheck, build produksi, production SSR smoke, serta seluruh audit otomatis. Verifikasi klik visual branch preview belum dapat dijadikan bukti karena deployment dilindungi Vercel SSO dan browser cloud tidak dapat mengakses loopback; keterbatasan tersebut tidak disamarkan sebagai hasil lulus.
