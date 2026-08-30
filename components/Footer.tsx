@@ -39,12 +39,12 @@ export function Footer() {
 
         <div className="footer-contact-v3">
           <h2 className="footer-title-v3">Terhubung</h2>
-          <p><Heart size={16} /><Link href="/donasi">Cara Mendukung</Link></p>
-          <p><MessageCircle size={16} /><Link href="/kontak">Kontak & Kolaborasi</Link></p>
-          {siteConfig.social.instagram ? <p><Instagram size={16} /><a href={siteConfig.social.instagram} target="_blank" rel="noreferrer">Instagram {socialHandle}</a></p> : null}
-          {siteConfig.social.tiktok ? <p><Music2 size={16} /><a href={siteConfig.social.tiktok} target="_blank" rel="noreferrer">TikTok {socialHandle}</a></p> : null}
-          {siteConfig.contact.email ? <p><Mail size={16} /><a href={`mailto:${siteConfig.contact.email}`}>{siteConfig.contact.email}</a></p> : null}
-          {siteConfig.contact.address ? <p><MapPin size={16} /><span>{siteConfig.contact.address}</span></p> : null}
+          <p><Heart size={16} aria-hidden="true" /><Link href="/donasi">Cara Mendukung</Link></p>
+          <p><MessageCircle size={16} aria-hidden="true" /><Link href="/kontak">Kontak & Kolaborasi</Link></p>
+          {siteConfig.social.instagram ? <p><Instagram size={16} aria-hidden="true" /><a href={siteConfig.social.instagram} target="_blank" rel="noreferrer">Instagram {socialHandle}</a></p> : null}
+          {siteConfig.social.tiktok ? <p><Music2 size={16} aria-hidden="true" /><a href={siteConfig.social.tiktok} target="_blank" rel="noreferrer">TikTok {socialHandle}</a></p> : null}
+          {siteConfig.contact.email ? <p><Mail size={16} aria-hidden="true" /><a href={`mailto:${siteConfig.contact.email}`}>{siteConfig.contact.email}</a></p> : null}
+          {siteConfig.contact.address ? <p><MapPin size={16} aria-hidden="true" /><span>{siteConfig.contact.address}</span></p> : null}
         </div>
       </div>
 

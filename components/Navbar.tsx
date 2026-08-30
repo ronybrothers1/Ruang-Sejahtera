@@ -183,9 +183,9 @@ export function Navbar() {
           <Link onClick={closeMenu} aria-current={isCurrent(item.href) ? 'page' : undefined} key={item.name} href={item.href} className={`mobile-nav-link ${isWithin(item.href) ? 'is-active' : ''}`}>{item.name}</Link>
         ))}
         <div className="mobile-nav-utilities">
-          <Link onClick={closeMenu} href="/cari" aria-current={isCurrent('/cari') ? 'page' : undefined} className={`cta-ghost ${isCurrent('/cari') ? 'is-current' : ''}`}><Search size={18}/> Cari Informasi</Link>
-          <Link onClick={closeMenu} href="/kontak" aria-current={isCurrent('/kontak') ? 'page' : undefined} className={`cta-ghost ${isCurrent('/kontak') ? 'is-current' : ''}`}><MessageCircle size={18}/> Kontak Yayasan</Link>
-          <Link onClick={closeMenu} href="/donasi" aria-current={isCurrent('/donasi') ? 'page' : undefined} className={`cta-red ${isCurrent('/donasi') ? 'is-current' : ''}`}><Heart size={18}/> Cara Mendukung</Link>
+          <Link onClick={closeMenu} href="/cari" aria-current={isCurrent('/cari') ? 'page' : undefined} className={`cta-ghost ${isCurrent('/cari') ? 'is-current' : ''}`}><Search size={18} aria-hidden="true" /> Cari Informasi</Link>
+          <Link onClick={closeMenu} href="/kontak" aria-current={isCurrent('/kontak') ? 'page' : undefined} className={`cta-ghost ${isCurrent('/kontak') ? 'is-current' : ''}`}><MessageCircle size={18} aria-hidden="true" /> Kontak Yayasan</Link>
+          <Link onClick={closeMenu} href="/donasi" aria-current={isCurrent('/donasi') ? 'page' : undefined} className={`cta-red ${isCurrent('/donasi') ? 'is-current' : ''}`}><Heart size={18} aria-hidden="true" /> Cara Mendukung</Link>
         </div>
       </nav>
     </div>,
@@ -238,8 +238,8 @@ export function Navbar() {
           ))}
         </nav>
         <div className="desktop-navigation-action">
-          <Link href="/cari" aria-label="Cari informasi" aria-current={isCurrent('/cari') ? 'page' : undefined} className={`nav-search-link ${isCurrent('/cari') ? 'is-active' : ''}`}><Search size={18}/></Link>
-          <Link href="/donasi" aria-current={isCurrent('/donasi') ? 'page' : undefined} className={`cta-red ${isCurrent('/donasi') ? 'is-current' : ''}`}><Heart size={16} fill="currentColor"/> Cara Mendukung</Link>
+          <Link href="/cari" aria-label="Cari informasi" aria-current={isCurrent('/cari') ? 'page' : undefined} className={`nav-search-link ${isCurrent('/cari') ? 'is-active' : ''}`}><Search size={18} aria-hidden="true" /></Link>
+          <Link href="/donasi" aria-current={isCurrent('/donasi') ? 'page' : undefined} className={`cta-red ${isCurrent('/donasi') ? 'is-current' : ''}`}><Heart size={16} fill="currentColor" aria-hidden="true" /> Cara Mendukung</Link>
         </div>
         <button
           ref={menuButtonRef}
@@ -259,7 +259,7 @@ export function Navbar() {
           aria-controls="mobile-navigation"
           aria-label={mobileMenuOpen ? 'Tutup menu' : 'Buka menu'}
         >
-          {mobileMenuOpen ? <X size={22}/> : <Menu size={22}/>}
+          {mobileMenuOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
         </button>
         </div>
       </header>

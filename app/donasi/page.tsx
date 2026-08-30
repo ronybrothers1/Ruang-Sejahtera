@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight, CreditCard, Heart, LockKeyhole, MessageCircle, ReceiptText, ShieldCheck } from 'lucide-react';
+import { ArrowRight, CreditCard, LockKeyhole, MessageCircle, ReceiptText, ShieldCheck } from 'lucide-react';
+import { DonationPreviewForm } from '@/components/DonationPreviewForm';
 import { PageHero } from '@/components/PageHero';
 import { PreviewNotice } from '@/components/PreviewNotice';
 import { sampleDonationAmounts } from '@/lib/content';
@@ -17,12 +18,7 @@ export default function DonationPage() {
         <div className="shell trust-donation-preview-layout">
           <div className="trust-donation-card">
             <span>Pilih dukungan</span><h2>Mulai dari niat baik.</h2><p>Gunakan formulir ini untuk menilai pengalaman donasi. Tidak ada data yang dikirim atau pembayaran yang dibuat.</p>
-            <form className="trust-preview-form">
-              <fieldset><legend>Pilih program</legend><div className="trust-option-grid"><label><input type="radio" name="program" defaultChecked /> Air Bersih</label><label><input type="radio" name="program" /> Sembako</label><label><input type="radio" name="program" /> Pendidikan</label><label><input type="radio" name="program" /> Kemanusiaan</label></div></fieldset>
-              <fieldset><legend>Nominal donasi</legend><div className="trust-amount-grid">{sampleDonationAmounts.map((amount, index) => <button type="button" className={index === 2 ? 'is-active' : ''} key={amount}>{amount}</button>)}</div><label>Nominal lainnya<input type="text" inputMode="numeric" placeholder="Masukkan nominal" /></label></fieldset>
-              <div className="trust-form-grid"><label>Nama<input type="text" placeholder="Nama donatur (contoh)" /></label><label>Email<input type="email" placeholder="nama@email.com" /></label></div>
-              <button type="button" disabled><Heart size={17} aria-hidden="true" /> Lanjutkan Pembayaran · SIMULASI</button>
-            </form>
+            <DonationPreviewForm amounts={sampleDonationAmounts} />
           </div>
           <aside className="trust-donation-safeguards">
             <ShieldCheck size={34} aria-hidden="true" /><h2>Dirancang aman sejak awal.</h2><p>Ketika pembayaran resmi diaktifkan, transaksi harus melalui gateway tepercaya, memiliki referensi unik, bukti donasi, rekonsiliasi, dan pelaporan.</p>

@@ -1,0 +1,152 @@
+/* Audit 07 — component-state contracts.
+   This layer intentionally leaves page layout, spacing, breakpoints,
+   typography, palette, and sample content owned by the preceding audits. */
+
+/* Buttons and button-like links share predictable pressed/disabled feedback. */
+:is(
+  .button-primary,
+  .button-secondary,
+  .cta-red,
+  .cta-ghost,
+  .cta-white,
+  .trust-button,
+  .icon-button
+):active:not(:disabled) {
+  transform: translateY(0);
+}
+
+:is(.button-primary, .button-secondary, .trust-button, .icon-button):disabled {
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Keyboard focus receives the same component emphasis as pointer hover,
+   in addition to the site-wide high-contrast focus ring. */
+.nav-link:focus-visible { color: #fff; }
+.nav-link:focus-visible::after { transform: scaleX(1); }
+
+:is(
+  .trust-program-card,
+  .published-content-card,
+  .trust-search-results-grid > a,
+  .content-continuation-grid a,
+  .trust-accountability-grid > a
+):focus-visible {
+  border-color: var(--color-action-primary);
+  box-shadow: var(--trust-shadow);
+}
+
+.trust-program-card:focus-visible { transform: translateY(-6px); }
+:is(.published-content-card, .trust-search-results-grid > a):focus-visible { transform: translateY(-3px); }
+.trust-accountability-grid > a:focus-visible {
+  background: rgba(255,255,255,.065);
+  transform: translateY(-5px);
+}
+
+:is(
+  .section-directory-links a,
+  .category-navigation a,
+  .trust-search-suggestions a
+):focus-visible {
+  background: var(--color-surface-muted);
+  color: var(--color-text-primary);
+}
+
+/* Donation controls expose selected and keyboard states independently of
+   color through native checked/pressed semantics. */
+.trust-option-grid label:has(input:checked),
+.trust-option-grid label:focus-within {
+  border-color: var(--color-action-primary);
+  background: var(--palette-red-050);
+}
+
+.trust-amount-grid button[aria-pressed="true"] {
+  border-color: var(--color-action-primary);
+  background: var(--palette-red-050);
+  color: var(--color-action-link);
+}
+
+.trust-amount-grid button:active { transform: scale(.98); }
+
+/* Validation feedback is reserved for controls the user has interacted with,
+   preventing required fields from appearing erroneous on first paint. */
+:is(
+  .trust-preview-form,
+  [data-admin-root]
+) :where(input:not([type="hidden"]), select, textarea):user-invalid {
+  border-color: var(--color-status-error-border);
+  background: var(--color-status-error-surface);
+}
+
+/* Admin navigation and compact controls now have explicit current/context
+   variants while preserving their original dimensions and route structure. */
+.admin-nav-link.is-active,
+.admin-nav-link[aria-current] {
+  border-color: var(--color-action-primary);
+  background: var(--palette-red-050);
+  color: var(--color-action-link);
+}
+
+[data-admin-root] .icon-button {
+  border-color: var(--color-border-control);
+  background: var(--color-surface-raised);
+  color: var(--color-text-primary);
+}
+
+[data-admin-root] .icon-button:hover {
+  border-color: var(--color-action-primary);
+  background: var(--palette-red-050);
+  color: var(--color-action-link);
+}
+
+.count-badge,
+.status-badge {
+  display: inline-flex;
+  min-height: 28px;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 999px;
+  padding: .25rem .75rem;
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+  font-size: .75rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.status-badge-published {
+  border-color: var(--color-status-success-border);
+  background: var(--color-status-success-surface);
+  color: var(--color-status-success);
+}
+
+.status-badge-review {
+  border-color: var(--color-status-info-border);
+  background: var(--color-status-info-surface);
+  color: var(--color-status-info);
+}
+
+.status-badge-draft {
+  border-color: var(--color-status-warning-border);
+  background: var(--color-status-warning-surface);
+  color: var(--color-status-warning);
+}
+
+.status-badge-archived {
+  border-color: var(--color-border-control);
+  background: var(--color-disabled-surface);
+  color: var(--color-disabled-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(
+    .trust-program-card,
+    .published-content-card,
+    .trust-search-results-grid > a,
+    .trust-accountability-grid > a
+  ):focus-visible {
+    transform: none;
+  }
+}
