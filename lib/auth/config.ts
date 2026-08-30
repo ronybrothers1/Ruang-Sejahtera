@@ -4,6 +4,13 @@ const clerkSecretKey = process.env.CLERK_SECRET_KEY?.trim() || '';
 export function isClerkConfigured() {
   return clerkPublishableKey.startsWith('pk_') && clerkSecretKey.startsWith('sk_');
 }
+
+export function isBootstrapEnabledForEnvironment() {
+  const production = process.env.VERCEL_ENV === 'production';
+  const allowProduction = process.env.ADMIN_BOOTSTRAP_ALLOW_PRODUCTION === 'true';
+  return process.env.ADMIN_BOOTSTRAP_ENABLED === 'true' && (!production || allowProduction);
+}
+
 export function isDatabaseConfigured() {
   const databaseUrl = process.env.DATABASE_URL?.trim() || '';
   return databaseUrl.startsWith('postgres://') || databaseUrl.startsWith('postgresql://');
