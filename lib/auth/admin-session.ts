@@ -2,7 +2,7 @@ import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { isClerkConfigured, isDatabaseConfigured } from '@/lib/auth/config';
+import { isBootstrapEnabledForEnvironment, isClerkConfigured, isDatabaseConfigured } from '@/lib/auth/config';
 import { canAccessControlPlane } from '@/lib/auth/permissions';
 import { syncClerkUser } from '@/lib/auth/identity-sync';
 import { findUserByIdentityProviderId } from '@/lib/db/users';
@@ -44,7 +44,8 @@ function isRole(value: string): value is AdminRole {
 
 export function getBootstrapAuthStatus() {
   const production = process.env.VERCEL_ENV === 'production';
-  const enabled = process.env.ADMIN_BOOTSTRAP_ENABLED === 'true' && !production;
+  const productionOverride = process.env.ADMIN_BOOTSTRAP_ALLOW_PRODUCTION === 'true';
+  const enabled = isBootstrapEnabledForEnvironment();
   const role = process.env.ADMIN_BOOTSTRAP_ROLE?.trim() || '';
   const configured = enabled
     && Boolean(process.env.ADMIN_BOOTSTRAP_EMAIL?.trim())
@@ -55,7 +56,7 @@ export function getBootstrapAuthStatus() {
   return {
     enabled,
     configured,
-    productionBlocked: production,
+    productionBlocked: production && !productionOverride,
   };
 }
 
@@ -154,6 +155,7 @@ async function getClerkSession(): Promise<AdminSession | null> {
   }
   if (!profile.isActive || profile.deletedAt || profile.membershipStatus === 'suspended' || profile.membershipStatus === 'revoked') return null;
 
+  const simpleAdminLogin = getBootstrapAuthStatus().configured;
   const now = Math.floor(Date.now() / 1000);
   return {
     id: profile.id,
@@ -164,7 +166,7 @@ async function getClerkSession(): Promise<AdminSession | null> {
     fullName: profile.fullName,
     membershipStatus: profile.membershipStatus,
     authMethod: 'clerk',
-    mfaRequired: profile.role === 'super_admin' && !profile.twoFactorEnabled,
+    mfaRequired: profile.role === 'super_admin' && !profile.twoFactorEnabled && !simpleAdminLogin,
     issuedAt: now,
     expiresAt: now + SESSION_TTL_SECONDS,
   };
@@ -173,7 +175,7 @@ async function getClerkSession(): Promise<AdminSession | null> {
 export async function getCurrentUserSession() {
   const clerkSession = await getClerkSession();
   if (clerkSession) return clerkSession;
-  if (process.env.VERCEL_ENV === 'production') return null;
+  if (process.env.VERCEL_ENV === 'production' && !getBootstrapAuthStatus().configured) return null;
   return getBootstrapSession();
 }
 
