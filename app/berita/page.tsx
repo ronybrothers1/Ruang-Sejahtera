@@ -7,7 +7,7 @@ import { PublishedContentIndex } from '@/components/PublishedContentIndex';
 import { SectionNavigation } from '@/components/SectionNavigation';
 import { sampleNews } from '@/lib/content';
 import { activityNavItems } from '@/lib/navigation';
-import { publishedArticles } from '@/lib/published-content';
+import { getPublishedArticles } from '@/lib/published-content';
 
 export const metadata: Metadata = { title: 'Berita & Cerita', description: 'Berita, cerita dampak, dan pengumuman Yayasan Ruang Sejahtera.' };
 
@@ -17,6 +17,7 @@ type NewsPageProps = {
 
 export default async function NewsPage({ searchParams }: NewsPageProps) {
   const { category: categoryParam } = await searchParams;
+  const publishedArticles = await getPublishedArticles();
   const items = [...sampleNews, ...sampleNews.slice(0, 2)];
   const categories = Array.from(new Set([
     ...sampleNews.map((item) => item.category),
