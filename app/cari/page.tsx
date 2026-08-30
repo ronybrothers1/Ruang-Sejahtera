@@ -14,7 +14,8 @@ function normalize(value: string) {
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { q = '' } = await searchParams;
-  const query = normalize(q.trim());
+  const safeQuery = q.slice(0, 120);
+  const query = normalize(safeQuery.trim());
   const dynamicIndex: PublicSearchItem[] = [
     ...publishedActivities.map((item) => ({ title: item.title, description: item.summary, href: `/kegiatan/${item.slug}`, category: 'Kegiatan' })),
     ...publishedArticles.map((item) => ({ title: item.title, description: item.excerpt, href: `/berita/${item.slug}`, category: 'Berita & Cerita' })),
@@ -36,7 +37,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
               <label htmlFor="search">Kata kunci</label>
               <div>
                 <Search size={20} aria-hidden="true" />
-                <input id="search" name="q" defaultValue={q} autoComplete="off" placeholder="Cari program atau informasi..." />
+                <input id="search" name="q" type="search" defaultValue={safeQuery} autoComplete="off" enterKeyHint="search" maxLength={120} placeholder="Cari program atau informasi..." />
                 <button className="trust-button trust-button-primary" type="submit">Cari <ArrowRight size={17} aria-hidden="true" /></button>
               </div>
             </form>
@@ -47,7 +48,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             <div className="trust-search-results" aria-live="polite">
               <div className="trust-search-results-heading">
                 <p>Hasil pencarian</p>
-                <strong>{results.length} hasil untuk “{q}”</strong>
+                <strong>{results.length} hasil untuk “{safeQuery}”</strong>
               </div>
               {results.length ? (
                 <div className="trust-search-results-grid">

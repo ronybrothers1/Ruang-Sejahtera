@@ -1,0 +1,786 @@
+/*
+ * Audit 06 — Typography
+ *
+ * This layer is intentionally typography-only. It follows the established
+ * responsive breakpoints and leaves layout, spacing, color, content, and
+ * navigation behavior owned by the previous audit layers.
+ */
+
+:root {
+  --type-font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --type-font-heading:
+    var(--font-plus-jakarta), var(--font-inter), ui-sans-serif, system-ui,
+    sans-serif;
+  --type-weight-regular: 400;
+  --type-weight-medium: 500;
+  --type-weight-semibold: 600;
+  --type-weight-bold: 700;
+  --type-weight-extrabold: 800;
+  --type-size-display: clamp(3.125rem, 5.2vw, 5.5rem);
+  --type-size-h1: clamp(2.75rem, 4.8vw, 4.75rem);
+  --type-size-h2: clamp(2rem, 3.4vw, 3.25rem);
+  --type-size-h3: clamp(1.125rem, 1.6vw, 1.375rem);
+  --type-size-h4: 1rem;
+  --type-size-lead: clamp(1rem, 1.1vw, 1.125rem);
+  --type-size-body: 1rem;
+  --type-size-body-small: 0.9375rem;
+  --type-size-ui: 0.875rem;
+  --type-size-caption: 0.75rem;
+  --type-leading-display: 1;
+  --type-leading-h1: 1.04;
+  --type-leading-h2: 1.1;
+  --type-leading-h3: 1.3;
+  --type-leading-body: 1.72;
+  --type-leading-longform: 1.8;
+  --type-leading-small: 1.6;
+  --type-leading-ui: 1.4;
+  --type-tracking-display: -0.045em;
+  --type-tracking-heading: -0.025em;
+  --type-tracking-label: 0.08em;
+}
+
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--type-font-body);
+  font-size: var(--type-size-body);
+  font-weight: var(--type-weight-regular);
+  line-height: var(--type-leading-body);
+  letter-spacing: 0;
+  font-synthesis: style;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--type-font-heading) !important;
+  font-weight: var(--type-weight-extrabold) !important;
+  font-synthesis: none;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+h1 {
+  font-size: var(--type-size-h1);
+  line-height: var(--type-leading-h1);
+  letter-spacing: var(--type-tracking-display);
+}
+
+h2 {
+  font-size: var(--type-size-h2);
+  line-height: var(--type-leading-h2);
+  letter-spacing: var(--type-tracking-heading);
+}
+
+h3 {
+  font-size: var(--type-size-h3);
+  line-height: var(--type-leading-h3);
+  letter-spacing: -0.015em;
+}
+
+h4,
+h5,
+h6 {
+  font-size: var(--type-size-h4);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+p,
+li,
+dd,
+blockquote {
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+}
+
+strong,
+b {
+  font-weight: var(--type-weight-bold);
+}
+
+small,
+figcaption {
+  font-size: var(--type-size-caption) !important;
+  line-height: 1.5;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+[role="button"],
+.cta,
+.cta-outline,
+.cta-primary-v3,
+.cta-secondary-v3,
+.nav-cta,
+.nav-cta-v3,
+.footer-cta-v3,
+.section-nav-link,
+.section-nav-menu-link,
+.section-nav-actions a,
+.trust-search-suggestion,
+.trust-search-submit,
+.trust-donation-amount,
+.trust-donation-submit {
+  font-family: var(--type-font-body);
+  font-size: var(--type-size-ui);
+  font-weight: var(--type-weight-bold);
+  line-height: var(--type-leading-ui);
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+.button-primary,
+.button-secondary,
+.cta-red,
+.cta-ghost,
+.cta-white,
+.text-link,
+.activity-body a,
+.news-card-v3 a,
+.impact-links a,
+.program-body > strong {
+  font-family: var(--type-font-body);
+  font-size: var(--type-size-ui);
+  font-weight: var(--type-weight-bold);
+  line-height: var(--type-leading-ui);
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+.trust-button,
+.trust-text-link,
+.trust-console-footer,
+.trust-hero-gallery-link,
+.trust-activity-copy > a,
+.trust-news-grid a,
+.trust-news-archive-copy strong,
+.trust-program-card > strong,
+.trust-program-archive > a > strong,
+.trust-publication-grid article > a,
+.trust-content-grid article > a,
+.trust-accountability-grid strong,
+.trust-gallery-grid strong,
+.trust-search-results-grid strong,
+.trust-search-suggestions a,
+.published-content-card strong,
+.footer-primary-link,
+.trust-preview-form > button,
+.trust-donation-card .trust-preview-form > button,
+.trust-amount-grid button {
+  font-family: var(--type-font-body);
+  font-size: var(--type-size-ui);
+  font-weight: var(--type-weight-bold);
+  line-height: var(--type-leading-ui);
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+label,
+legend,
+.trust-form-field > span,
+.trust-preview-form label,
+.trust-donation-card label,
+.trust-donation-card label > span,
+.trust-preview-form label > span,
+.trust-preview-form legend,
+.trust-search-panel label {
+  font-family: var(--type-font-body);
+  font-size: var(--type-size-ui);
+  font-weight: var(--type-weight-bold);
+  line-height: var(--type-leading-ui);
+  letter-spacing: 0;
+}
+
+input,
+select,
+textarea,
+.trust-preview-form input,
+.trust-preview-form select,
+.trust-preview-form textarea,
+.trust-donation-card input,
+.trust-donation-card select,
+.trust-donation-card textarea {
+  font-family: var(--type-font-body);
+  font-size: var(--type-size-body);
+  font-weight: var(--type-weight-regular);
+  line-height: 1.5;
+  letter-spacing: 0;
+  font-size: var(--type-size-body) !important;
+}
+
+.trust-search-panel input {
+  font-family: var(--type-font-body);
+  font-size: var(--type-size-body) !important;
+  font-weight: var(--type-weight-regular);
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+input::placeholder,
+textarea::placeholder {
+  font-size: var(--type-size-body-small);
+  font-weight: var(--type-weight-regular);
+}
+
+.nav-link,
+.nav-link-v3,
+.nav-popover-link,
+.nav-popover-link-v3 {
+  font-size: var(--type-size-ui);
+  font-weight: var(--type-weight-semibold);
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.section-directory > span,
+.category-navigation > span {
+  font-size: var(--type-size-caption);
+  font-weight: var(--type-weight-bold);
+  line-height: 1.45;
+  letter-spacing: var(--type-tracking-label);
+}
+
+.section-directory-links a,
+.category-navigation a {
+  font-size: var(--type-size-ui);
+  font-weight: var(--type-weight-semibold);
+  line-height: var(--type-leading-ui);
+  letter-spacing: 0;
+}
+
+.footer-links-v3 a,
+.footer-primary-links-v3 a,
+.footer-contact-v3 a,
+.footer-meta-v3,
+.trust-breadcrumb a,
+.trust-breadcrumb span,
+.section-nav-breadcrumbs a,
+.section-nav-breadcrumbs span {
+  font-size: var(--type-size-ui);
+  line-height: var(--type-leading-small);
+  letter-spacing: 0;
+}
+
+.hero-title-v3,
+.trust-hero-copy > h1 {
+  font-size: var(--type-size-display);
+  line-height: var(--type-leading-display);
+  letter-spacing: var(--type-tracking-display);
+}
+
+.page-hero h1,
+.trust-page-hero h1,
+.trust-news-hero h1,
+.trust-program-hero h1,
+.trust-donation-hero h1,
+.trust-search-hero h1 {
+  font-size: var(--type-size-h1);
+  line-height: var(--type-leading-h1);
+  letter-spacing: var(--type-tracking-display);
+}
+
+.section-heading-v3 h2,
+.trust-section-heading h2,
+.trust-news-section-heading h2,
+.trust-program-section-heading h2,
+.trust-donation-copy h2,
+.trust-impact-copy h2,
+.trust-contact-copy h2,
+.trust-vision-copy h2,
+.trust-closing-copy h2 {
+  font-size: var(--type-size-h2);
+  line-height: var(--type-leading-h2);
+  letter-spacing: var(--type-tracking-heading);
+}
+
+.trust-page-intro h2,
+.trust-principle-intro h2,
+.trust-finance-copy h2,
+.trust-closing-content h2,
+.trust-impact-method > div:first-child h2,
+.trust-history-layout > div:first-child h2,
+.trust-legal-intro h2,
+.trust-contact-preview-layout > div:first-child h2,
+.trust-donation-card > h2,
+.published-content-heading h2 {
+  font-size: var(--type-size-h2);
+  line-height: var(--type-leading-h2);
+  letter-spacing: var(--type-tracking-heading);
+}
+
+.hero-lead-v3,
+.trust-hero-copy > p,
+.page-hero p:last-child,
+.trust-page-hero p:last-child,
+.trust-news-hero p:last-child,
+.trust-program-hero p:last-child,
+.trust-donation-hero p:last-child,
+.trust-search-hero p:last-child {
+  font-size: var(--type-size-lead);
+  line-height: 1.7;
+  letter-spacing: -0.005em;
+}
+
+.section-heading-v3 > p,
+.trust-section-heading > p,
+.trust-news-section-heading > p,
+.trust-program-section-heading > p,
+.trust-donation-copy > p,
+.trust-impact-copy > p,
+.trust-contact-copy > p,
+.trust-vision-copy > p,
+.trust-closing-copy > p {
+  font-size: var(--type-size-body);
+  line-height: var(--type-leading-body);
+  letter-spacing: 0;
+}
+
+.trust-page-intro > p,
+.trust-principle-intro > p,
+.trust-finance-copy > p,
+.trust-closing-content p,
+.trust-impact-method > div:first-child p,
+.trust-history-layout > div:first-child p,
+.trust-legal-intro p,
+.trust-contact-preview-layout > div:first-child > p,
+.trust-donation-card > p {
+  font-size: var(--type-size-body);
+  line-height: var(--type-leading-body);
+  letter-spacing: 0;
+}
+
+.eyebrow,
+.eyebrow-v3,
+.footer-title-v3,
+.preview-notice strong,
+.published-content-heading > span,
+.category-navigation > span,
+.trust-document-index > p,
+.trust-page-state-eyebrow,
+.trust-search-panel > span,
+.trust-search-results-heading > p,
+.trust-donation-card > span,
+.trust-report-panel > span,
+.trust-vision-card > span,
+.trust-mission-stack > span,
+.trust-hero-copy > span,
+.trust-hero-copy > div > span,
+.trust-console-head span,
+.content-continuation-grid span {
+  font-size: var(--type-size-caption);
+  font-weight: var(--type-weight-bold);
+  line-height: 1.45;
+  letter-spacing: var(--type-tracking-label);
+}
+
+.trust-kicker,
+.trust-section-heading > div > span,
+.trust-page-intro > div > span,
+.trust-principle-intro > span,
+.trust-program-card > span:not(.program-mark),
+.trust-program-archive > a > div > span,
+.trust-program-detail-copy > span,
+.trust-program-detail-mark > span,
+.trust-transparency-intro > span,
+.trust-icon-intro > span,
+.trust-contact-copy > span,
+.trust-donation-status > span,
+.trust-safeguard-list > span,
+.trust-about-copy > span,
+.trust-closing-content > div > span,
+.trust-finance-copy > span,
+.trust-impact-method > div:first-child > span,
+.trust-history-layout > div:first-child > span,
+.trust-legal-intro > span,
+.trust-contact-preview-layout > div:first-child > span,
+.trust-report-panel > div:first-child > span,
+.trust-news-image > span,
+.trust-news-archive .trust-archive-image > span,
+.empty-state-eyebrow,
+.preview-chip {
+  font-size: var(--type-size-caption) !important;
+  font-weight: var(--type-weight-bold) !important;
+  line-height: 1.45 !important;
+  letter-spacing: var(--type-tracking-label) !important;
+}
+
+.hero-kicker,
+.media-label,
+.program-body > span,
+.date-chip,
+.draft-chip,
+.demo-ribbon,
+.about-photo > span,
+.program-detail-photo > span,
+.org-card small,
+.org-grid small {
+  font-size: var(--type-size-caption);
+  font-weight: var(--type-weight-bold);
+  line-height: 1.45;
+  letter-spacing: var(--type-tracking-label);
+}
+
+.program-card-v3 h3,
+.trust-program-card h3,
+.trust-news-grid h3,
+.trust-gallery-grid h3,
+.trust-evidence-grid h3,
+.trust-value-grid h3,
+.trust-values-grid h3,
+.trust-accountability-grid h3,
+.trust-safeguard-list h3,
+.trust-signal-grid h3,
+.trust-history-timeline h3,
+.trust-mission-stack h3,
+.trust-legal-grid h3,
+.trust-publication-grid h3,
+.published-content-card h3,
+.content-continuation-grid h3,
+.trust-program-archive h3,
+.trust-contact-grid h3 {
+  font-size: var(--type-size-h3);
+  line-height: var(--type-leading-h3);
+  letter-spacing: -0.015em;
+}
+
+.trust-activity-copy h3,
+.trust-archive-copy h2,
+.trust-program-archive h2,
+.trust-publication-grid h3,
+.trust-content-grid h2,
+.trust-accountability-grid h3,
+.trust-gallery-grid h2,
+.trust-evidence-grid h2,
+.trust-value-grid h2,
+.trust-check-list h2,
+.trust-safeguard-list h2,
+.trust-org-grid h2,
+.trust-history-timeline h2,
+.trust-mission-stack h2,
+.trust-values-grid h2,
+.trust-legal-grid h2,
+.trust-search-results-grid h2,
+.trust-signal-grid h2 {
+  font-size: var(--type-size-h3);
+  line-height: var(--type-leading-h3);
+  letter-spacing: -0.015em;
+}
+
+.trust-activity-card-featured h3,
+.trust-archive-card-wide h2,
+.trust-news-archive-card-featured h2 {
+  font-size: clamp(1.4rem, 2.1vw, 1.9rem);
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.trust-report-panel > div:first-child h2,
+.trust-org-leader h2,
+.content-continuation h2 {
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.trust-document-body h2,
+.trust-legal-copy h2,
+.trust-report-copy h2 {
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.trust-program-card p,
+.trust-principle-list p,
+.trust-publication-grid p,
+.trust-content-grid p,
+.trust-accountability-grid p,
+.trust-activity-copy p,
+.trust-news-grid p,
+.trust-archive-copy p,
+.trust-news-archive-copy p,
+.published-content-card p,
+.trust-program-archive p,
+.trust-gallery-grid p,
+.trust-evidence-grid p,
+.trust-value-grid p,
+.trust-values-grid p,
+.trust-check-list p,
+.trust-safeguard-list p,
+.trust-org-grid p,
+.trust-history-timeline p,
+.trust-mission-stack p,
+.trust-legal-grid p,
+.trust-search-results-grid p,
+.empty-state p,
+.trust-signal-grid p,
+.trust-hero-assurance p,
+.trust-finance-card > p,
+.trust-impact-stat-grid p,
+.content-continuation-grid p {
+  font-size: var(--type-size-body-small);
+  line-height: var(--type-leading-small);
+  letter-spacing: 0;
+}
+
+.preview-notice p,
+.trust-org-leader p,
+.trust-vision-card p,
+.trust-values-band span,
+.trust-search-panel > p,
+.trust-search-prompt,
+.trust-donation-safeguards > p,
+.trust-donation-safeguards > div,
+.trust-integrity-note p,
+.footer-brand p,
+.footer-contact-v3 p {
+  font-size: var(--type-size-body-small);
+  line-height: var(--type-leading-small);
+  letter-spacing: 0;
+}
+
+.program-body p,
+.activity-body p,
+.value-grid-v3 p,
+.org-card p,
+.org-grid p,
+.vision-card p,
+.mission-stack p,
+.legal-doc-grid p,
+.contact-form-v3 > small,
+.donation-trust > p {
+  font-size: var(--type-size-body-small);
+  line-height: var(--type-leading-small);
+  letter-spacing: 0;
+}
+
+.trust-activity-copy > div,
+.trust-archive-copy > div,
+.trust-news-archive-copy > div,
+.trust-finance-bars small,
+.published-content-card small,
+.preview-article-label,
+.trust-news-grid small,
+.trust-stat-grid small,
+.trust-testimonial-grid small,
+.trust-report-row small,
+.trust-history-timeline small,
+.trust-legal-grid small,
+.trust-document-index small,
+.trust-document-body > section > span,
+.trust-search-results-grid small,
+.footer-bottom-v3,
+.trust-preview-meta,
+.trust-donation-meta {
+  font-size: var(--type-size-caption);
+  font-weight: var(--type-weight-semibold);
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+.trust-stat-grid span,
+.trust-impact-stat-grid h2,
+.trust-transparency-metrics span,
+.trust-finance-bars > div > div:first-child,
+.trust-report-row strong,
+.trust-status-panel strong,
+.trust-status-panel span,
+.trust-org-grid article > span,
+.trust-mission-stack article > span,
+.trust-values-grid article > span,
+.trust-legal-grid article > div span,
+.trust-legal-grid > article > strong,
+.trust-contact-preview-items strong,
+.trust-social-links strong,
+.trust-contact-list strong,
+.trust-gallery-tile figcaption span,
+.trust-testimonial-grid p strong,
+.trust-finance-head strong,
+.published-content-card strong,
+.trust-values-band strong {
+  font-size: var(--type-size-ui);
+  font-weight: var(--type-weight-bold);
+  line-height: var(--type-leading-ui);
+  letter-spacing: 0;
+}
+
+.trust-hero-image-caption strong,
+.trust-testimonial-grid article > div > span,
+.trust-finance-head b,
+.content-continuation-grid strong,
+.contact-items-v3 strong,
+.program-mini-stats span,
+.donation-trust > div {
+  font-size: var(--type-size-ui);
+  font-weight: var(--type-weight-bold);
+  line-height: var(--type-leading-ui);
+  letter-spacing: 0;
+}
+
+.trust-console-head > small,
+.trust-console-list small,
+.trust-hero-image-caption small,
+.trust-finance-head small,
+.trust-gallery-tile figcaption small,
+.trust-org-leader small,
+.trust-org-grid small,
+.trust-contact-preview-items small,
+.trust-social-links small,
+.trust-contact-list small,
+.trust-about-quote small,
+.trust-publication-grid article > div,
+.trust-content-grid article > div {
+  font-size: var(--type-size-caption) !important;
+  font-weight: var(--type-weight-semibold);
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+.trust-document-body,
+.trust-document-body p,
+.trust-document-body li,
+.prose,
+.prose p,
+.prose li {
+  font-family: var(--type-font-body);
+  font-size: 1.0625rem;
+  font-weight: var(--type-weight-regular);
+  line-height: var(--type-leading-longform);
+  letter-spacing: 0;
+}
+
+.prose blockquote,
+.trust-about-quote {
+  font-family: var(--type-font-heading);
+  font-size: 1.125rem;
+  font-weight: var(--type-weight-semibold);
+  line-height: 1.7;
+  letter-spacing: -0.01em;
+}
+
+.trust-document-index a,
+.published-content-index a,
+.category-navigation a,
+.trust-search-results-grid a {
+  font-size: var(--type-size-ui);
+  font-weight: var(--type-weight-semibold);
+  line-height: var(--type-leading-small);
+  letter-spacing: 0;
+}
+
+.trust-document-index span {
+  font-family: var(--type-font-heading);
+  font-size: var(--type-size-ui);
+  font-weight: var(--type-weight-bold);
+  line-height: var(--type-leading-ui);
+  letter-spacing: 0;
+}
+
+.trust-stat-grid strong,
+.trust-finance-stat strong,
+.trust-impact-stat strong,
+.trust-history-stat strong,
+.trust-report-stat strong,
+.trust-console-list strong,
+.trust-document-index small,
+.trust-document-body > section > span,
+.trust-donation-amount,
+.trust-finance-bars strong {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.program-mark > strong,
+.trust-stat-grid strong,
+.trust-impact-stat-grid strong,
+.trust-transparency-metrics strong,
+.trust-history-timeline article > span,
+.trust-gallery-grid > a > span,
+.hero-stat strong,
+.program-mini-stats strong,
+.transparency-metrics strong {
+  font-family: var(--type-font-heading);
+  font-size: clamp(1.5rem, 2.5vw, 2.6rem);
+  font-weight: var(--type-weight-extrabold);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.trust-principle-list article > span,
+.trust-evidence-grid article > span,
+.trust-gallery-tile figcaption small {
+  font-weight: var(--type-weight-bold) !important;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.trust-principle-list article > span,
+.trust-evidence-grid article > span {
+  font-size: var(--type-size-caption);
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+}
+
+.trust-status-panel h3,
+.trust-status-panel > h2,
+.trust-finance-card h3,
+.trust-report-panel h3,
+.trust-search-panel h2,
+.trust-console-head strong,
+.trust-document-index strong,
+.footer-brand-v3 strong {
+  font-family: var(--type-font-heading);
+  font-size: var(--type-size-h4);
+  font-weight: var(--type-weight-extrabold);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 680px) {
+  :root {
+    --type-size-display: clamp(2.5rem, 10.8vw, 3.25rem);
+    --type-size-h1: clamp(2.25rem, 9.5vw, 3rem);
+    --type-size-h2: clamp(1.875rem, 8vw, 2.5rem);
+    --type-size-h3: clamp(1.125rem, 4.8vw, 1.3rem);
+  }
+
+  .nav-link,
+  .nav-link-v3,
+  .nav-popover-link,
+  .nav-popover-link-v3 {
+    font-size: var(--type-size-body);
+    font-weight: var(--type-weight-bold);
+    line-height: 1.4;
+  }
+
+  .trust-document-body,
+  .trust-document-body p,
+  .trust-document-body li,
+  .prose,
+  .prose p,
+  .prose li {
+    font-size: var(--type-size-body);
+    line-height: var(--type-leading-body);
+  }
+}
+
+@media (max-width: 1120px) and (max-height: 560px) {
+  :root {
+    --type-size-display: clamp(2.25rem, 5.7vw, 2.9rem);
+    --type-size-h1: clamp(2.2rem, 5.5vw, 2.85rem);
+    --type-size-h2: clamp(1.8rem, 4.5vw, 2.4rem);
+  }
+}

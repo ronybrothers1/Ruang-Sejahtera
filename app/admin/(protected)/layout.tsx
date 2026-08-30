@@ -18,7 +18,7 @@ export default async function ProtectedAdminLayout({ children }: Readonly<{ chil
           <AdminNav role={session.role} />
           <div className="flex items-center gap-3">
             <Link href="/" className="button-secondary">Lihat Website</Link>
-            <form action="/api/admin/logout" method="post"><button className="icon-button" type="submit" aria-label="Keluar dari admin"><LogOut size={18} /></button></form>
+            <form action="/api/admin/logout" method="post"><button className="icon-button" type="submit" aria-label="Keluar dari admin"><LogOut size={18} aria-hidden="true" /></button></form>
           </div>
         </div>
       </header>

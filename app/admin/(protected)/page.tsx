@@ -4,7 +4,7 @@ import { cmsContentCounts } from '@/lib/cms/content';
 import { getCmsWriteStatus } from '@/lib/cms/store';
 
 function StatusCard({ label, value, detail, ok }: { label: string; value: string; detail: string; ok: boolean }) {
-  return <div className="rounded-2xl border border-neutral-200 bg-white p-6"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-extrabold uppercase tracking-[.14em] text-neutral-500">{label}</p><p className="mt-3 font-heading text-2xl font-extrabold">{value}</p></div>{ok ? <CheckCircle2 className="status-icon-success" size={22} /> : <ShieldAlert className="status-icon-warning" size={22} />}</div><p className="mt-4 text-sm leading-6 text-neutral-600">{detail}</p></div>;
+  return <div className="rounded-2xl border border-neutral-200 bg-white p-6"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-extrabold uppercase tracking-[.14em] text-neutral-500">{label}</p><p className="mt-3 font-heading text-2xl font-extrabold">{value}</p></div>{ok ? <CheckCircle2 className="status-icon-success" size={22} aria-hidden="true" /> : <ShieldAlert className="status-icon-warning" size={22} aria-hidden="true" />}</div><p className="mt-4 text-sm leading-6 text-neutral-600">{detail}</p></div>;
 }
 
 export default async function AdminDashboardPage() {

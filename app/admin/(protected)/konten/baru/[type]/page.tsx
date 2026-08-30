@@ -27,7 +27,7 @@ export default async function NewContentPage({ params }: { params: Promise<{ typ
       <h1 className="font-heading text-4xl font-extrabold tracking-tight">Buat {config.label}</h1>
       <p className="mt-4 max-w-2xl leading-7 text-neutral-600">Record baru selalu dimulai sebagai draft. Publikasi harus melalui workflow dan permission terpisah.</p>
 
-      {!cms.configured ? <div className="status-message-warning mt-7 rounded-xl border p-5 text-sm leading-6"><strong>Mode baca saja.</strong> Backend tulis CMS belum tersedia sehingga tombol simpan dinonaktifkan. Form ini tetap menunjukkan schema input produksi tanpa menyimpan data ke penyimpanan sementara.</div> : null}
+      {!cms.configured ? <div role="status" className="status-message-warning mt-7 rounded-xl border p-5 text-sm leading-6"><strong>Mode baca saja.</strong> Backend tulis CMS belum tersedia sehingga tombol simpan dinonaktifkan. Form ini tetap menunjukkan schema input produksi tanpa menyimpan data ke penyimpanan sementara.</div> : null}
 
       <form action="/api/admin/content" method="post" className="mt-8 space-y-6 rounded-2xl border border-neutral-200 bg-white p-6 md:p-8">
         <input type="hidden" name="intent" value="create" />
