@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { can, rolePermissions } from '@/lib/auth/permissions';
+import { rolePermissions } from '@/lib/auth/permissions';
 import { getBootstrapAuthStatus, requireSuperAdminSession } from '@/lib/auth/admin-session';
 import { getIdentityStatus } from '@/lib/auth/config';
 import { getControlPlaneSecurityStatus } from '@/lib/auth/control-plane-gate';
