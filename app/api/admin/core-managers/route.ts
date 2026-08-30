@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       actorUserId = bootstrapUser?.role === 'super_admin' ? bootstrapUser.id : null;
     }
 
-    const manager = await createCoreManager({ fullName, email, actorUserId });
+    await createCoreManager({ fullName, email, actorUserId });
     return redirectToSystem(request, 'created');
   } catch (error) {
     const reason = error instanceof Error ? error.message : '';
