@@ -8,7 +8,7 @@ export function RouteShell({ children, publicHeader, publicFooter, publicStructu
   const isAdmin = pathname === '/admin' || pathname.startsWith('/admin/');
 
   if (isAdmin) {
-    return <main id="main-content" className="min-h-screen">{children}</main>;
+    return <main id="main-content" tabIndex={-1} className="min-h-screen">{children}</main>;
   }
 
   return (
@@ -16,7 +16,7 @@ export function RouteShell({ children, publicHeader, publicFooter, publicStructu
       {publicStructuredData}
       <a className="skip-link" href="#main-content">Lewati ke konten utama</a>
       {publicHeader}
-      <main id="main-content" className="min-h-screen">{children}</main>
+      <main id="main-content" tabIndex={-1} className="min-h-screen">{children}</main>
       {publicFooter}
     </>
   );

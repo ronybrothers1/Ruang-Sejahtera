@@ -206,8 +206,9 @@ export function Navbar() {
                   else desktopTriggerRefs.current.delete(item.name);
                 }}
                 type="button"
+                aria-current={isItemActive(item) ? 'location' : undefined}
                 aria-expanded={activeDesktopMenu === item.name}
-                aria-controls={menuId(item.name)}
+                aria-controls={activeDesktopMenu === item.name ? menuId(item.name) : undefined}
                 className={`nav-link ${isItemActive(item) ? 'nav-link-active' : ''}`}
                 onClick={() => {
                   setDesktopMenuPathname(pathname);
@@ -256,7 +257,7 @@ export function Navbar() {
             }
           }}
           aria-expanded={mobileMenuOpen}
-          aria-controls="mobile-navigation"
+          aria-controls={mobileMenuOpen ? 'mobile-navigation' : undefined}
           aria-label={mobileMenuOpen ? 'Tutup menu' : 'Buka menu'}
         >
           {mobileMenuOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
