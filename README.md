@@ -11,7 +11,7 @@ Rekonstruksi terbaru memindahkan proyek dari prototipe visual menjadi fondasi pl
 - Route publik mencakup Tentang, Program + detail, Kegiatan + detail, Berita + detail, Galeri + detail, Dampak, Transparansi, Organisasi, Donasi, Kontak, Pencarian, Privasi, Ketentuan, Kebijakan Donasi, Aksesibilitas, dan Disclaimer.
 - Dynamic content registry berasal dari `content/cms/*.json` dan hanya record berstatus `published` yang masuk ke website publik.
 - Control plane `/admin` dibangun terpisah dari chrome website publik dengan dashboard, CMS editorial, modul transparansi, dan observabilitas permission.
-- Autentikasi production memakai Clerk, role/status aplikasi tersimpan di Neon PostgreSQL, dan bootstrap lama tetap terbatas pada local/preview.
+- Autentikasi production memakai Clerk, role/status aplikasi tersimpan di Neon PostgreSQL, dan login bootstrap sederhana dapat diaktifkan sementara pada environment deployment mana pun melalui flag eksplisit.
 - RBAC server-side tepat tiga role: `super_admin`, `core_manager`, dan `member`. Hanya Super Admin memiliki authority kurasi akhir, publikasi, dan mutasi keuangan.
 - Workflow editorial memakai `draft → pending_review → revision_required/approved/rejected → published` dengan metadata provenance aktor/waktu.
 - Form Berita, Kegiatan, dan Galeri mempunyai server-side validation; backend tulis tetap **fail-closed** sampai persistence produksi tersedia.
@@ -48,7 +48,7 @@ Status workflow: `draft → pending_review → revision_required/approved/reject
 
 Form dan mutation endpoint sudah disiapkan, tetapi persistence write adapter sengaja dinonaktifkan sampai backend produksi dipilih dan diaudit. Tidak ada fallback ke localStorage atau filesystem serverless sementara.
 
-Login/register production berada di `/masuk` dan `/daftar`; portal pengguna di `/akun`. Bootstrap admin hanya untuk local/preview. Lihat `docs/AUTH-RBAC-PHASE-1.md` dan `docs/ADMIN-CMS.md`.
+Login/register pengguna berada di `/masuk` dan `/daftar`; portal pengguna di `/akun`. Selama tahap pembangunan, Super Admin dapat memakai login bootstrap sederhana dan menambahkan Core Manager dari menu Sistem. Matikan mode bootstrap sebelum go-live. Lihat `docs/AUTH-RBAC-PHASE-1.md` dan `docs/ADMIN-CMS.md`.
 
 ## Quality gates
 
@@ -73,7 +73,7 @@ Salin `.env.example` ke environment deployment. Jangan commit secret.
 
 ## Tahap produksi berikutnya
 
-1. Hubungkan Clerk dan Neon ke project Vercel, jalankan migrasi, seed Super Admin, konfigurasi webhook, lalu verifikasi MFA dan lifecycle session. Jika Clerk Hobby masih digunakan, aktifkan gate approval sementara hanya dengan dua secret deployment terpisah; lihat `docs/AUTH-RBAC-PHASE-1.md`.
+1. Hubungkan Clerk dan Neon ke project Vercel, jalankan migrasi, seed Super Admin, konfigurasi webhook, lalu verifikasi lifecycle session. Selama pembangunan, login bootstrap sederhana dan penambahan Core Manager dapat digunakan; sebelum go-live, matikan bootstrap dan aktifkan pengamanan final.
 2. Implementasikan formulir data anggota, ujian, penilaian manusia, approval, dan kartu anggota dari schema yang tersedia.
 3. Hubungkan workflow kurasi ke persistence adapter PostgreSQL dan audit log immutable.
 4. Migrasi data kegiatan, berita, galeri dan dokumentasi asli melalui workflow publikasi.
