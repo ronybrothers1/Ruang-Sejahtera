@@ -2701,3 +2701,49 @@ body {
   .trust-accountability-grid > a,
   .trust-console-list > a { transition: none; }
 }
+
+
+.member-card-print-page {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}
+.member-card {
+  width: 85.6mm;
+  height: 53.98mm;
+  min-width: 85.6mm;
+  min-height: 53.98mm;
+}
+@media print {
+  @page {
+    size: 85.6mm 53.98mm;
+    margin: 0;
+  }
+  html,
+  body {
+    width: 85.6mm;
+    height: 53.98mm;
+    margin: 0;
+    background: #fff;
+  }
+  body * {
+    visibility: hidden !important;
+  }
+  .member-card-print-page,
+  .member-card-print-page * {
+    visibility: visible !important;
+  }
+  .member-card-print-page {
+    position: absolute;
+    inset: 0;
+    display: block;
+    padding: 0;
+  }
+  .member-card {
+    box-shadow: none !important;
+    border: 0;
+  }
+  .member-card-actions {
+    display: none !important;
+  }
+}
