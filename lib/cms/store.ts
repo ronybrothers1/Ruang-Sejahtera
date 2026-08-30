@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { desc, isNull } from 'drizzle-orm';
 import { isDatabaseConfigured } from '@/lib/auth/config';
 import { getDb } from '@/lib/db';
 import { contentItems, contentRevisions, mediaAssets } from '@/lib/db/schema';
@@ -27,10 +27,6 @@ export function getCmsWriteStatus() {
 
 function contentType(collection: CmsCollection) {
   return collection === 'articles' ? 'article' : collection === 'activities' ? 'activity' : 'gallery';
-}
-
-function dateValue(value: Date | null | undefined) {
-  return value ? value.toISOString() : undefined;
 }
 
 export async function persistCmsMutation(mutation: CmsMutation): Promise<void> {
