@@ -6,6 +6,7 @@ import { isClerkConfigured, isDatabaseConfigured } from '@/lib/auth/config';
 import { canAccessControlPlane } from '@/lib/auth/permissions';
 import { syncClerkUser } from '@/lib/auth/identity-sync';
 import { findUserByIdentityProviderId } from '@/lib/db/users';
+import { getControlPlaneSecurityStatus, hasValidControlPlaneApproval } from '@/lib/auth/control-plane-gate';
 import type { AdminRole, MembershipStatus } from '@/lib/models';
 
 export const ADMIN_SESSION_COOKIE = 'rs_admin_session';
@@ -19,6 +20,7 @@ export type AdminSession = {
   fullName?: string;
   membershipStatus: MembershipStatus;
   identityProviderId?: string;
+  sessionId?: string;
   authMethod: 'clerk' | 'bootstrap';
   mfaRequired: boolean;
   issuedAt: number;
@@ -156,6 +158,7 @@ async function getClerkSession(): Promise<AdminSession | null> {
   return {
     id: profile.id,
     identityProviderId: identitySession.userId,
+    sessionId: identitySession.sessionId,
     role: profile.role,
     email: profile.email,
     fullName: profile.fullName,
@@ -176,6 +179,17 @@ export async function getCurrentUserSession() {
 
 export const getAdminSession = getCurrentUserSession;
 
+export async function hasControlPlaneAccess(session: AdminSession) {
+  if (!canAccessControlPlane(session.role)) return false;
+  if (!session.mfaRequired) return true;
+
+  const security = getControlPlaneSecurityStatus();
+  return security.mode === 'approval'
+    && security.configured
+    && !security.configurationError
+    && await hasValidControlPlaneApproval(session);
+}
+
 export async function requireUserSession() {
   const session = await getCurrentUserSession();
   if (!session) redirect('/masuk?redirect_url=/akun');
@@ -186,7 +200,14 @@ export async function requireAdminSession() {
   const session = await getCurrentUserSession();
   if (!session) redirect('/admin/login');
   if (!canAccessControlPlane(session.role)) redirect('/akun?error=forbidden');
-  if (session.mfaRequired) redirect('/akun/profil?mfa=required');
+  if (!(await hasControlPlaneAccess(session))) {
+    const security = getControlPlaneSecurityStatus();
+    if (session.mfaRequired && security.mode === 'approval' && security.configured && !security.configurationError) {
+      redirect('/admin/approval?required=1');
+    }
+    if (session.mfaRequired) redirect('/akun/profil?mfa=required');
+    redirect('/akun?error=forbidden');
+  }
   return session;
 }
 

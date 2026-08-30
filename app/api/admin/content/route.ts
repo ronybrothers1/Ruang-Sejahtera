@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getAdminSession } from '@/lib/auth/admin-session';
-import { can } from '@/lib/auth/permissions';
+import { getAdminSession, hasControlPlaneAccess } from '@/lib/auth/admin-session';
+import { can, canAccessControlPlane } from '@/lib/auth/permissions';
 import { getCmsWriteStatus, persistCmsMutation } from '@/lib/cms/store';
 import { CmsValidationError, isCmsCollection, parseCreateContent } from '@/lib/cms/validation';
 import { hasAllowedFormContentType, isDeclaredBodyWithinLimit } from '@/lib/security/request-limits';
@@ -15,6 +15,9 @@ export async function POST(request: Request) {
 
   const session = await getAdminSession();
   if (!session) return NextResponse.json({ error: 'Autentikasi diperlukan.' }, { status: 401 });
+  if (!canAccessControlPlane(session.role) || !(await hasControlPlaneAccess(session))) {
+    return NextResponse.json({ error: 'Akses control plane belum disetujui.' }, { status: 403 });
+  }
   if (!can(session.role, 'content.create')) return NextResponse.json({ error: 'Tidak memiliki izin.' }, { status: 403 });
 
   const form = await request.formData();

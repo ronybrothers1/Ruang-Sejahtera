@@ -5,6 +5,9 @@ const models = readFileSync('lib/models.ts', 'utf8');
 const workflow = readFileSync('lib/cms/workflow.ts', 'utf8');
 const schema = readFileSync('lib/db/schema.ts', 'utf8');
 const proxy = readFileSync('proxy.ts', 'utf8');
+const session = readFileSync('lib/auth/admin-session.ts', 'utf8');
+const gate = readFileSync('lib/auth/control-plane-gate.ts', 'utf8');
+const contentRoute = readFileSync('app/api/admin/content/route.ts', 'utf8');
 
 const failures = [];
 const requireSource = (condition, message) => { if (!condition) failures.push(message); };
@@ -22,6 +25,9 @@ requireSource(!/member:\s*\[[\s\S]*?'finance\.read'/.test(permissions), 'Members
 requireSource(workflow.includes("to === 'published'") && workflow.includes("can(role, 'content.publish')"), 'Publishing must be permission-gated server-side.');
 requireSource(schema.includes("verificationTokenHash") && !schema.includes('verificationToken:'), 'Member QR verification must store only a token hash.');
 requireSource(proxy.includes("'/akun(.*)'") && proxy.includes("'/admin(.*)'") && proxy.includes('isPublicAdminAuthRoute'), 'Account and control-plane routes must be protected at the routing boundary.');
+requireSource(session.includes('hasControlPlaneAccess') && session.includes('mfaRequired'), 'Control-plane access must be checked server-side with the MFA/compensating gate.');
+requireSource(gate.includes('timingSafeEqual') && gate.includes('sessionId') && gate.includes('CONTROL_PLANE_APPROVAL_TTL_SECONDS'), 'Temporary approval must be HMAC-verified, session-bound, and short-lived.');
+requireSource(contentRoute.includes('hasControlPlaneAccess'), 'Admin content mutations must enforce the control-plane gate, not only role permissions.');
 
 if (failures.length) {
   console.error(`Auth/RBAC audit failed (${failures.length}):\n${failures.map((item) => `- ${item}`).join('\n')}`);

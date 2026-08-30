@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { BadgeCheck, ClipboardCheck, FileText, ShieldCheck, UserRound } from 'lucide-react';
 import { BrandLogo } from '@/components/BrandLogo';
 import { SessionLogout } from '@/components/auth/SessionLogout';
+import { getControlPlaneSecurityStatus } from '@/lib/auth/control-plane-gate';
 import { canAccessControlPlane } from '@/lib/auth/permissions';
 import { requireUserSession } from '@/lib/auth/admin-session';
 
@@ -28,6 +29,7 @@ const membershipLabels = {
 export default async function AccountPage({ searchParams }: { searchParams: Promise<{ error?: string; mfa?: string }> }) {
   const session = await requireUserSession();
   const query = await searchParams;
+  const security = getControlPlaneSecurityStatus();
 
   return (
     <div className="min-h-screen bg-neutral-100 text-brand-ink">
@@ -40,7 +42,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
 
       <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-10">
         {query.error === 'forbidden' ? <div className="status-message-error mb-6 rounded-xl border p-4 text-sm font-semibold" role="alert">Akun Anda tidak memiliki akses ke control plane administrasi.</div> : null}
-        {session.mfaRequired || query.mfa === 'required' ? <div className="status-message-warning mb-6 rounded-xl border p-4 text-sm font-semibold" role="alert">Super Admin wajib mengaktifkan autentikasi dua langkah sebelum membuka panel administrasi.</div> : null}
+        {session.mfaRequired || query.mfa === 'required' ? <div className="status-message-warning mb-6 rounded-xl border p-4 text-sm font-semibold" role="alert">{security.mode === 'approval' && security.configured && !security.configurationError ? 'MFA belum aktif. Akses Control Plane sementara memerlukan approval keamanan tambahan.' : 'Super Admin wajib mengaktifkan autentikasi dua langkah sebelum membuka panel administrasi.'}</div> : null}
 
         <section className="grid gap-6 lg:grid-cols-[1fr_320px]">
           <div><p className="eyebrow">Ringkasan Akun</p><h1 className="font-heading text-4xl font-extrabold tracking-tight">Selamat datang, {session.fullName || 'Anggota'}.</h1><p className="mt-4 max-w-3xl leading-7 text-neutral-600">Portal ini menjadi pusat proses keanggotaan, pengiriman konten, status kurasi, dan kartu anggota Anda.</p></div>

@@ -73,7 +73,7 @@ Salin `.env.example` ke environment deployment. Jangan commit secret.
 
 ## Tahap produksi berikutnya
 
-1. Hubungkan Clerk dan Neon ke project Vercel, jalankan migrasi, seed Super Admin, konfigurasi webhook, lalu verifikasi MFA dan lifecycle session.
+1. Hubungkan Clerk dan Neon ke project Vercel, jalankan migrasi, seed Super Admin, konfigurasi webhook, lalu verifikasi MFA dan lifecycle session. Jika Clerk Hobby masih digunakan, aktifkan gate approval sementara hanya dengan dua secret deployment terpisah; lihat `docs/AUTH-RBAC-PHASE-1.md`.
 2. Implementasikan formulir data anggota, ujian, penilaian manusia, approval, dan kartu anggota dari schema yang tersedia.
 3. Hubungkan workflow kurasi ke persistence adapter PostgreSQL dan audit log immutable.
 4. Migrasi data kegiatan, berita, galeri dan dokumentasi asli melalui workflow publikasi.

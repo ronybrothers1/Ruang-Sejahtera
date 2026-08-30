@@ -88,6 +88,29 @@ profile. MFA must be enabled before `/admin` is accessible.
 7. Verify sign-up, verification, MFA, logout, member rejection from `/admin`,
    and Super Admin access before enabling registration publicly.
 
+### Temporary free control-plane gate
+
+Clerk Hobby does not provide production MFA. Until the identity plan supports
+MFA, an explicitly configured temporary approval gate may be used without
+changing the default security posture:
+
+```env
+ADMIN_CONTROL_PLANE_MODE=approval
+ADMIN_CONTROL_PLANE_APPROVAL_KEY_SHA256=<sha256-of-a-long-random-key>
+ADMIN_CONTROL_PLANE_APPROVAL_SECRET=<separate-random-secret-min-32-bytes>
+```
+
+The Super Admin must already be authenticated by Clerk, then enter a random
+approval key of at least 32 characters at `/admin/approval`. The resulting HttpOnly, SameSite=Strict
+cookie is HMAC-signed, bound to both the Clerk user and current session, and
+expires after 30 minutes. Invalid or incomplete configuration falls back to
+the MFA gate; there is no silent bypass.
+
+This is a compensating control, not MFA: both values must be stored outside
+the repository, the approval key should be high-entropy and rotated after any
+suspected disclosure, and the Vercel Firewall/Deployment Protection should
+also be configured where a stable administrator network is available.
+
 ## Verification gates
 
 - `npm run typecheck`

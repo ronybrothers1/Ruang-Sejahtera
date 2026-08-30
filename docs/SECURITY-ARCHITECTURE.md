@@ -20,6 +20,14 @@ Kontrol bootstrap:
 
 Production menggunakan Clerk untuk identity lifecycle dan Neon PostgreSQL sebagai source of truth role/status. Webhook Clerk wajib diverifikasi dengan signing secret. Super Admin wajib mengaktifkan MFA sebelum control plane dapat dibuka.
 
+Jika paket Clerk aktif belum menyediakan MFA, mode `approval` dapat diaktifkan
+secara eksplisit sebagai mitigasi sementara. Mode ini mensyaratkan sesi Clerk
+Super Admin yang aktif dan kunci approval terpisah. Kunci hanya disimpan
+sebagai SHA-256 hash; server menerbitkan cookie HttpOnly yang ditandatangani
+HMAC, terikat pada `userId` dan `sessionId`, dengan masa berlaku 30 menit.
+Konfigurasi tidak lengkap atau mode tidak dikenal selalu kembali ke gate MFA.
+Approval ini bukan pengganti MFA dan tidak boleh dianggap setara.
+
 ## RBAC dan publication authority
 Role aplikasi tepat tiga: `super_admin`, `core_manager`, dan `member`. Pendaftar publik selalu dibuat sebagai `member`; status calon anggota disimpan terpisah sebagai membership status.
 
