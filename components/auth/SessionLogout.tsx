@@ -16,7 +16,7 @@ export function SessionLogout({ authMethod }: { authMethod: 'clerk' | 'bootstrap
 
   return (
     <form action="/api/admin/logout" method="post">
-      <button className="icon-button" type="submit" aria-label="Keluar dari admin preview">
+      <button className="icon-button" type="submit" aria-label="Keluar dari admin">
         <LogOut size={18} aria-hidden="true" />
       </button>
     </form>
