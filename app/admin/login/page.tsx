@@ -17,7 +17,7 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
         <h1 id="admin-login-title" className="mt-4 font-heading text-3xl font-extrabold tracking-tight">Akses pengelolaan konten</h1>
         <p className="mt-4 text-sm leading-7 text-neutral-600">Halaman ini tidak menggunakan akun contoh. Akses hanya tersedia setelah autentikasi admin dikonfigurasi secara eksplisit pada environment deployment.</p>
 
-        {error === 'invalid' ? <div role="alert" className="status-message-error mt-6 rounded-xl border p-4 text-sm font-semibold">Kredensial tidak valid.</div> : null}
+        {error === 'invalid' ? <div id="admin-login-error" role="alert" className="status-message-error mt-6 rounded-xl border p-4 text-sm font-semibold">Kredensial tidak valid.</div> : null}
 
         {auth.configured ? (
           <form action="/api/admin/session" method="post" className="mt-7 space-y-5">
@@ -25,7 +25,7 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
               <label htmlFor="accessKey" className="text-sm font-bold">Kunci akses preview</label>
               <div className="relative mt-2">
                 <LockKeyhole className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={18} aria-hidden="true" />
-                <input id="accessKey" name="accessKey" type="password" autoComplete="current-password" required className="min-h-12 w-full rounded-xl border border-neutral-300 bg-white pl-11 pr-4 text-sm" />
+                <input id="accessKey" name="accessKey" type="password" autoComplete="current-password" required aria-invalid={error === 'invalid'} aria-describedby={error === 'invalid' ? 'admin-login-error' : undefined} className="min-h-12 w-full rounded-xl border border-neutral-300 bg-white pl-11 pr-4 text-sm" />
               </div>
             </div>
             <button className="button-primary w-full" type="submit">Masuk ke Admin</button>

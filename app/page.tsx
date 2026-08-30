@@ -107,7 +107,7 @@ export default function Home() {
                 <div className="trust-activity-image"><Image src={activity.image} alt={activity.imageAlt} fill sizes={index === 0 ? '(max-width: 900px) 100vw, 55vw' : '(max-width: 680px) 100vw, (max-width: 1120px) 50vw, 33vw'} /><span className="preview-chip">{activity.imageLabel}</span></div>
                 <div className="trust-activity-copy">
                   <div><time>{activity.date}</time><span><MapPin size={13} aria-hidden="true" /> {activity.location}</span></div>
-                  <h3>{activity.title}</h3><p>{activity.summary}</p><Link href={`/kegiatan#${activity.slug}`}>Lihat kegiatan <ArrowRight size={14} aria-hidden="true" /></Link>
+                  <h3>{activity.title}</h3><p>{activity.summary}</p><Link href={`/kegiatan#${activity.slug}`} aria-label={`Lihat kegiatan: ${activity.title}`}>Lihat kegiatan <ArrowRight size={14} aria-hidden="true" /></Link>
                 </div>
               </article>
             ))}
@@ -165,7 +165,7 @@ export default function Home() {
           <div className="trust-section-heading trust-section-heading-compact"><div><span>Berita & cerita</span><h2 id="news-heading">Kabar dari lapangan.</h2></div><Link href="/berita" className="trust-text-link">Lihat semua berita <ArrowRight size={16} aria-hidden="true" /></Link></div>
           <div className="trust-news-grid">
             {sampleNews.map((item) => (
-              <article key={item.slug}><div className="trust-news-image"><Image src={item.image} alt={item.imageAlt} fill sizes="(max-width: 680px) 100vw, (max-width: 1024px) 50vw, 25vw" /><span>{item.category}</span></div><div><small>{item.date} · CONTOH</small><h3>{item.title}</h3><Link href={`/berita#${item.slug}`}>Lihat preview berita <ArrowRight size={14} aria-hidden="true" /></Link></div></article>
+              <article key={item.slug}><div className="trust-news-image"><Image src={item.image} alt={item.imageAlt} fill sizes="(max-width: 680px) 100vw, (max-width: 1024px) 50vw, 25vw" /><span>{item.category}</span></div><div><small>{item.date} · CONTOH</small><h3>{item.title}</h3><Link href={`/berita#${item.slug}`} aria-label={`Lihat preview berita: ${item.title}`}>Lihat preview berita <ArrowRight size={14} aria-hidden="true" /></Link></div></article>
             ))}
           </div>
         </div>

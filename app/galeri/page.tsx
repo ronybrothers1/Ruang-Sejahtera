@@ -59,7 +59,7 @@ export default function GalleryPage() {
               <h2 id="video-documentation-heading">Kegiatan nyata, ditampilkan langsung dari TikTok.</h2>
               <p>Setiap video menggunakan player resmi TikTok, dimuat saat dibutuhkan, dan tetap dapat diputar tanpa meninggalkan halaman galeri.</p>
             </div>
-            <a href={tiktokProfileUrl} target="_blank" rel="noreferrer" className="trust-tiktok-profile">
+            <a href={tiktokProfileUrl} target="_blank" rel="noreferrer" className="trust-tiktok-profile" aria-label="Buka profil TikTok resmi @ruangsejahtera.idn, dibuka di tab baru">
               <Music2 size={20} aria-hidden="true" />
               <span><small>Profil resmi</small><strong>@ruangsejahtera.idn</strong></span>
             </a>
