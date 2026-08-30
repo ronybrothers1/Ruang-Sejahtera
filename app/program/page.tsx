@@ -32,9 +32,9 @@ export default function ProgramsPage() {
             {programs.map((program) => (
               <Link href={`/program/${program.slug}`} key={program.slug}>
                 <div className="trust-card-image trust-program-archive-image">
-                  <Image src={program.image} alt={`Foto contoh ${program.name}`} fill sizes="(max-width: 680px) 38vw, (max-width: 1024px) 50vw, 33vw" />
+                  <Image src={program.image} alt={program.imageAlt} fill sizes="(max-width: 680px) 38vw, (max-width: 1024px) 50vw, 33vw" />
                   <ProgramMark slug={program.slug} accent={program.accent} compact />
-                  <span className="preview-chip">CONTOH</span>
+                  <span className="preview-chip">{program.imageLabel}</span>
                 </div>
                 <div><span>{program.focus}</span><h2>{program.name}</h2><p>{program.summary}</p></div>
                 <strong>Jelajahi program <ArrowRight size={16} aria-hidden="true" /></strong>

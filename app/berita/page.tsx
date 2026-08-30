@@ -63,7 +63,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
         <div className="shell trust-news-archive">
           {visibleSamples.map((item, index) => (
             <article id={visibleSamples.findIndex((candidate) => candidate.slug === item.slug) === index ? item.slug : undefined} className={index === 0 ? 'trust-news-archive-card trust-news-lead' : 'trust-news-archive-card'} key={`${item.slug}-${index}`}>
-              <div className="trust-archive-image"><Image src={item.image} alt={`Foto contoh ${item.title}`} fill sizes={index === 0 ? '(max-width: 900px) 100vw, 58vw' : '(max-width: 900px) 100vw, 30vw'} /><span>{item.category}</span></div>
+              <div className="trust-archive-image"><Image src={item.image} alt={item.imageAlt} fill sizes={index === 0 ? '(max-width: 900px) 100vw, 58vw' : '(max-width: 900px) 100vw, 30vw'} /><span>{item.category}</span></div>
               <div className="trust-news-archive-copy"><small>{item.date} · CONTOH</small><h2>{item.title}</h2><p>Artikel contoh ini menunjukkan ritme judul, ringkasan, metadata, dan hubungan visual dengan dokumentasi program.</p><span className="preview-article-label">Preview artikel · belum diterbitkan</span></div>
             </article>
           ))}

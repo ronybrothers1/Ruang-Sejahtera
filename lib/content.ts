@@ -4,6 +4,8 @@ export type Program = {
   summary: string;
   focus: string;
   image: string;
+  imageAlt: string;
+  imageLabel: 'DOKUMENTASI' | 'VISUAL CONTOH';
   accent: string;
 };
 
@@ -19,7 +21,9 @@ export const programs: Program[] = [
     name: 'Berbagi Rasa',
     summary: 'Berbagi Rasa (Rakyat Sejahtera): bantuan sembako dan uang tunai bagi masyarakat yang membutuhkan.',
     focus: 'Rakyat Sejahtera',
-    image: 'https://images.unsplash.com/photo-1758599669327-83d310882929?auto=format&fit=crop&w=1600&q=82',
+    image: '/media/bantuan-sembako.webp',
+    imageAlt: 'Penyerahan bantuan sembako kepada seorang warga lanjut usia di rumahnya',
+    imageLabel: 'DOKUMENTASI',
     accent: '01',
   },
   {
@@ -27,7 +31,9 @@ export const programs: Program[] = [
     name: 'Merakyat',
     summary: 'Merakyat (Mabecce’ Usahanah Rakyat): bantuan renovasi serta modal bagi usaha mikro dan kecil.',
     focus: 'Usaha rakyat',
-    image: 'https://images.unsplash.com/photo-1758599668949-5118d71838fd?auto=format&fit=crop&w=1600&q=82',
+    image: '/media/visual-merakyat.webp',
+    imageAlt: 'Visual contoh pendampingan usaha mikro di warung warga Indonesia',
+    imageLabel: 'VISUAL CONTOH',
     accent: '02',
   },
   {
@@ -35,7 +41,9 @@ export const programs: Program[] = [
     name: 'REHAT',
     summary: 'REHAT (Renovasi Rumah Rakyat): bedah dan renovasi rumah agar menjadi hunian yang lebih layak.',
     focus: 'Renovasi Rumah Rakyat',
-    image: 'https://images.unsplash.com/photo-1632215861513-130b66fe97f4?auto=format&fit=crop&w=1600&q=82',
+    image: '/media/visual-rehat.webp',
+    imageAlt: 'Visual contoh gotong royong renovasi rumah warga di perdesaan Indonesia',
+    imageLabel: 'VISUAL CONTOH',
     accent: '03',
   },
   {
@@ -43,7 +51,9 @@ export const programs: Program[] = [
     name: 'Berbagi Air Bersih',
     summary: 'Bantuan air bersih untuk masyarakat di wilayah yang terdampak kekeringan.',
     focus: 'Air bersih',
-    image: 'https://images.unsplash.com/photo-1768381569898-7a2613a67356?auto=format&fit=crop&w=1600&q=82',
+    image: '/media/penyaluran-air-bersih.webp',
+    imageAlt: 'Warga mengisi jeriken saat penyaluran air bersih dari mobil tangki',
+    imageLabel: 'DOKUMENTASI',
     accent: '04',
   },
   {
@@ -51,7 +61,9 @@ export const programs: Program[] = [
     name: 'Berbagi Masa Depan',
     summary: 'Bantuan pendidikan berupa peralatan sekolah dan dukungan biaya pendidikan.',
     focus: 'Pendidikan',
-    image: 'https://images.unsplash.com/photo-1727553957788-9ddfd38889d2?auto=format&fit=crop&w=1600&q=82',
+    image: '/media/visual-pendidikan.webp',
+    imageAlt: 'Visual contoh penyerahan perlengkapan belajar kepada siswa sekolah dasar Indonesia',
+    imageLabel: 'VISUAL CONTOH',
     accent: '05',
   },
 ];
@@ -64,17 +76,17 @@ export const sampleStats = [
 ] as const;
 
 export const sampleActivities = [
-  { slug: 'penyaluran-air-bersih-sukamaju', date: '20 Mei 2026', location: 'Desa Sukamaju, Sampang', title: 'Penyaluran Air Bersih untuk Warga', summary: 'Distribusi air bersih untuk keluarga terdampak kekeringan.', image: 'https://images.unsplash.com/photo-1768381569898-7a2613a67356?auto=format&fit=crop&w=1400&q=80' },
-  { slug: 'sembako-lansia-banyukapah', date: '18 Mei 2026', location: 'Banyukapah, Sampang', title: 'Bantuan Sembako untuk Lansia', summary: 'Penyaluran paket kebutuhan pokok kepada warga lanjut usia.', image: 'https://images.unsplash.com/photo-1758599669327-83d310882929?auto=format&fit=crop&w=1400&q=80' },
-  { slug: 'kelas-belajar-anak', date: '16 Mei 2026', location: 'Sampang, Jawa Timur', title: 'Kelas Belajar Ceria untuk Anak', summary: 'Kegiatan belajar dan pendampingan untuk anak usia sekolah.', image: 'https://images.unsplash.com/photo-1727553957788-9ddfd38889d2?auto=format&fit=crop&w=1400&q=80' },
-  { slug: 'gotong-royong-lingkungan', date: '14 Mei 2026', location: 'Pesisir Sampang', title: 'Gotong Royong Lingkungan', summary: 'Aksi bersama relawan menjaga lingkungan dan ruang hidup warga.', image: 'https://images.unsplash.com/photo-1758599668949-5118d71838fd?auto=format&fit=crop&w=1400&q=80' },
+  { slug: 'penyaluran-air-bersih-sukamaju', date: '20 Mei 2026', location: 'Desa Sukamaju, Sampang', title: 'Penyaluran Air Bersih untuk Warga', summary: 'Distribusi air bersih untuk keluarga terdampak kekeringan.', image: '/media/penyaluran-air-bersih.webp', imageAlt: 'Warga menyiapkan jeriken saat penyaluran air bersih', imageLabel: 'DOKUMENTASI' },
+  { slug: 'sembako-lansia-banyukapah', date: '18 Mei 2026', location: 'Banyukapah, Sampang', title: 'Bantuan Sembako untuk Lansia', summary: 'Penyaluran paket kebutuhan pokok kepada warga lanjut usia.', image: '/media/bantuan-sembako.webp', imageAlt: 'Penyerahan paket sembako kepada warga lanjut usia', imageLabel: 'DOKUMENTASI' },
+  { slug: 'kelas-belajar-anak', date: '16 Mei 2026', location: 'Sampang, Jawa Timur', title: 'Kelas Belajar Ceria untuk Anak', summary: 'Kegiatan belajar dan pendampingan untuk anak usia sekolah.', image: '/media/visual-pendidikan.webp', imageAlt: 'Visual contoh dukungan pendidikan bagi siswa sekolah dasar', imageLabel: 'VISUAL CONTOH' },
+  { slug: 'gotong-royong-lingkungan', date: '14 Mei 2026', location: 'Pesisir Sampang', title: 'Gotong Royong Lingkungan', summary: 'Aksi bersama relawan menjaga lingkungan dan ruang hidup warga.', image: '/media/visual-gotong-royong.webp', imageAlt: 'Visual contoh gotong royong membersihkan lingkungan pesisir Indonesia', imageLabel: 'VISUAL CONTOH' },
 ] as const;
 
 export const sampleNews = [
-  { slug: 'air-bersih-terus-bergerak', date: '19 Mei 2026', title: 'Ketika Air Menjadi Prioritas, Distribusi Terus Bergerak', category: 'Kegiatan', image: 'https://images.unsplash.com/photo-1768381569898-7a2613a67356?auto=format&fit=crop&w=1400&q=80' },
-  { slug: 'pendidikan-investasi-masa-depan', date: '15 Mei 2026', title: 'Pendidikan adalah Investasi Masa Depan Anak', category: 'Cerita', image: 'https://images.unsplash.com/photo-1727553957788-9ddfd38889d2?auto=format&fit=crop&w=1400&q=80' },
-  { slug: 'rumah-layak-harapan-baru', date: '12 Mei 2026', title: 'Rumah Layak, Harapan Baru untuk Keluarga', category: 'Program', image: 'https://images.unsplash.com/photo-1632215861513-130b66fe97f4?auto=format&fit=crop&w=1400&q=80' },
-  { slug: 'relawan-bergerak-bersama', date: '8 Mei 2026', title: 'Relawan Bergerak Bersama untuk Lingkungan', category: 'Relawan', image: 'https://images.unsplash.com/photo-1758599669327-83d310882929?auto=format&fit=crop&w=1400&q=80' },
+  { slug: 'air-bersih-terus-bergerak', date: '19 Mei 2026', title: 'Ketika Air Menjadi Prioritas, Distribusi Terus Bergerak', category: 'Kegiatan', image: '/media/penyaluran-air-bersih.webp', imageAlt: 'Warga mengantrekan jeriken saat distribusi air bersih' },
+  { slug: 'pendidikan-investasi-masa-depan', date: '15 Mei 2026', title: 'Pendidikan adalah Investasi Masa Depan Anak', category: 'Cerita', image: '/media/visual-pendidikan.webp', imageAlt: 'Visual contoh dukungan alat belajar untuk anak Indonesia' },
+  { slug: 'rumah-layak-harapan-baru', date: '12 Mei 2026', title: 'Rumah Layak, Harapan Baru untuk Keluarga', category: 'Program', image: '/media/visual-rehat.webp', imageAlt: 'Visual contoh gotong royong memperbaiki rumah warga' },
+  { slug: 'relawan-bergerak-bersama', date: '8 Mei 2026', title: 'Relawan Bergerak Bersama untuk Lingkungan', category: 'Relawan', image: '/media/visual-gotong-royong.webp', imageAlt: 'Visual contoh relawan membersihkan lingkungan pesisir' },
 ] as const;
 
 export const sampleTestimonials = [
