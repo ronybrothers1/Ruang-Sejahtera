@@ -31,6 +31,7 @@ check(/@media \(max-width: 760px\)[\s\S]*?grid-template-columns: repeat\(2, minm
 check(/\.footer-v3 \.footer-title-v3 \{[\s\S]*?text-wrap: nowrap;/.test(footerCss), 'Footer section headings do not split mid-word');
 check(footer.includes('footer-meta-links-v9'), 'Footer legal links use a dedicated proportional layout');
 check(/@media \(max-width: 760px\)[\s\S]*?\.footer-meta-links-v9 \{[\s\S]*?display: flex;[\s\S]*?flex-wrap: wrap;[\s\S]*?gap: 0 1rem;/.test(footerCss), 'Mobile meta links wrap into compact content-driven rows');
+check(footerCss.includes('max-width: 16rem;'), 'Mobile meta group is capped to a balanced three-plus-two composition');
 check(footerCss.includes('padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));'), 'Mobile footer preserves compact spacing plus the device safe area');
 check(/\.footer-v3 \.footer-meta-links-v9 a \{[\s\S]*?white-space: nowrap;/.test(footerCss), 'Footer meta labels remain intact while wrapping between links');
 
