@@ -11,15 +11,15 @@ import { StatusBadge } from '@/components/admin/StatusBadge';
 
 type CollectionItem = { id: string; title: string; slug: string; status: PublicationStatus; persisted?: boolean };
 
-function WorkflowActions({ item, role }: { item: CollectionItem; role: Parameters<typeof canTransitionPublication>[0] }) {
+function WorkflowActions({ item, role }: { item: CollectionItem; role: Parameters<typeof canTransitionPublication>[0]; collection: 'articles' | 'activities' | 'galleries' }) {
   if (!item.persisted) return <span className="text-xs text-neutral-400">Preview repository</span>;
   const transitions = allowedPublicationTransitions[item.status].filter((status) => canTransitionPublication(role, item.status, status));
   if (!transitions.length) return null;
-  return <div className="flex flex-wrap gap-2">{transitions.map((toStatus) => <form action="/api/admin/content" method="post" key={toStatus}><input type="hidden" name="intent" value="transition" /><input type="hidden" name="collection" value="" /><input type="hidden" name="id" value={item.id} /><input type="hidden" name="toStatus" value={toStatus} /><button type="submit" className={toStatus === 'published' ? 'button-primary' : 'button-secondary'}>{transitionLabel(item.status, toStatus)}</button></form>)}</div>;
+  return <div className="flex flex-wrap gap-2">{transitions.map((toStatus) => <form action="/api/admin/content" method="post" key={toStatus}><input type="hidden" name="intent" value="transition" /><input type="hidden" name="collection" value={collection} /><input type="hidden" name="id" value={item.id} /><input type="hidden" name="toStatus" value={toStatus} /><button type="submit" className={toStatus === 'published' ? 'button-primary' : 'button-secondary'}>{transitionLabel(item.status, toStatus)}</button></form>)}</div>;
 }
 
-function Collection({ title, items, role }: { title: string; items: CollectionItem[]; role: Parameters<typeof canTransitionPublication>[0] }) {
-  return <section className="rounded-2xl border border-neutral-200 bg-white p-6"><div className="flex items-center justify-between gap-4"><h2 className="font-heading text-xl font-extrabold">{title}</h2><span className="count-badge" aria-label={`${items.length} record`}>{items.length}</span></div>{items.length ? <div className="mt-5 divide-y divide-neutral-100">{items.map((item) => <div key={item.id} className="flex flex-col gap-3 py-4"><div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-bold">{item.title}</p><p className="mt-1 text-xs text-neutral-500">/{item.slug}</p></div><StatusBadge status={item.status} /></div><WorkflowActions item={item} role={role} /></div>)}</div> : <p className="mt-5 text-sm leading-6 text-neutral-500">Belum ada record pada collection ini.</p>}</section>;
+function Collection({ title, items, role }: { title: string; items: CollectionItem[]; role: Parameters<typeof canTransitionPublication>[0]; collection: 'articles' | 'activities' | 'galleries' }) {
+  return <section className="rounded-2xl border border-neutral-200 bg-white p-6"><div className="flex items-center justify-between gap-4"><h2 className="font-heading text-xl font-extrabold">{title}</h2><span className="count-badge" aria-label={`${items.length} record`}>{items.length}</span></div>{items.length ? <div className="mt-5 divide-y divide-neutral-100">{items.map((item) => <div key={item.id} className="flex flex-col gap-3 py-4"><div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-bold">{item.title}</p><p className="mt-1 text-xs text-neutral-500">/{item.slug}</p></div><StatusBadge status={item.status} /></div><WorkflowActions item={item} role={role} collection={collection} /></div>)}</div> : <p className="mt-5 text-sm leading-6 text-neutral-500">Belum ada record pada collection ini.</p>}</section>;
 }
 
 export default async function AdminContentPage({ searchParams }: { searchParams: Promise<{ queued?: string; transitioned?: string; deleted?: string; error?: string }> }) {
@@ -45,7 +45,7 @@ export default async function AdminContentPage({ searchParams }: { searchParams:
       {query.deleted ? <div role="status" className="status-message-success mt-7 rounded-xl border p-4 text-sm font-semibold">Konten diarsipkan dari daftar aktif.</div> : null}
       {query.error ? <div role="alert" className="status-message-error mt-7 rounded-xl border p-4 text-sm font-semibold">Operasi konten belum berhasil. Silakan coba lagi.</div> : null}
       {!cms.configured ? <div role="status" className="status-message-warning mt-7 rounded-xl border p-5"><p className="font-bold">Backend tulis CMS masih nonaktif.</p><p className="mt-2 text-sm leading-6">Form baru aktif setelah DATABASE_URL tersedia. Data contoh tetap diberi label Preview repository agar tidak tertukar dengan konten resmi.</p></div> : null}
-      <div className="mt-8 grid gap-5 xl:grid-cols-3"><Collection title="Berita" items={articles} role={session.role} /><Collection title="Kegiatan" items={activities} role={session.role} /><Collection title="Galeri" items={galleries} role={session.role} /></div>
+      <div className="mt-8 grid gap-5 xl:grid-cols-3"><Collection title="Berita" items={articles} role={session.role} collection="articles" /><Collection title="Kegiatan" items={activities} role={session.role} collection="activities" /><Collection title="Galeri" items={galleries} role={session.role} collection="galleries" /></div>
     </div>
   );
 }
