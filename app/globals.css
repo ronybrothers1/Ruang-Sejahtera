@@ -1725,7 +1725,11 @@ body {
   justify-content: center;
   border: 1px solid rgba(255,255,255,.14);
   border-radius: 12px;
+  background: transparent;
   color: rgba(255,255,255,.78);
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
 }
 .nav-search-link:hover,
 .nav-search-link.is-active { border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.08); color: #fff; }
@@ -2746,4 +2750,31 @@ body {
   .member-card-actions {
     display: none !important;
   }
+}
+
+
+.nav-portal-popover {
+  min-width: 245px;
+}
+
+.nav-portal-heading,
+.mobile-nav-portal-title {
+  margin: .65rem .85rem .35rem;
+  color: #fff;
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.mobile-nav-portal {
+  display: grid;
+  gap: .55rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+
+.mobile-nav-portal .cta-ghost {
+  justify-content: flex-start;
 }
