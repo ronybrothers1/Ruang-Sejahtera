@@ -44,6 +44,7 @@ export const mediaVisibilityEnum = pgEnum('media_visibility', ['private', 'restr
 export const consentStatusEnum = pgEnum('consent_status', ['confirmed', 'restricted', 'not_required', 'unknown']);
 export const examAttemptStatusEnum = pgEnum('exam_attempt_status', ['in_progress', 'submitted', 'graded', 'invalidated']);
 export const cardStatusEnum = pgEnum('member_card_status', ['active', 'revoked', 'expired']);
+export const programApplicationStatusEnum = pgEnum('program_application_status', ['submitted', 'under_review', 'revision_required', 'approved', 'rejected']);
 
 const timestamps = {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -251,6 +252,28 @@ export const financialReports = pgTable('financial_reports', {
   check('financial_reports_total_income_nonnegative', sql`${table.totalIncome} >= 0`),
   check('financial_reports_total_disbursement_nonnegative', sql`${table.totalDisbursement} >= 0`),
   check('financial_reports_operational_cost_nonnegative', sql`${table.operationalCost} IS NULL OR ${table.operationalCost} >= 0`),
+]);
+
+export const programApplications = pgTable('program_applications', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  applicantUserId: uuid('applicant_user_id').notNull().references(() => users.id, { onDelete: 'restrict' }),
+  programSlug: text('program_slug').notNull(),
+  beneficiaryName: text('beneficiary_name').notNull(),
+  beneficiaryIdentity: text('beneficiary_identity').notNull(),
+  phone: text('phone').notNull(),
+  address: jsonb('address').$type<Record<string, string>>().default({}).notNull(),
+  details: jsonb('details').$type<Record<string, string>>().default({}).notNull(),
+  existingPhotoUrl: text('existing_photo_url'),
+  existingPhotoAlt: text('existing_photo_alt'),
+  status: programApplicationStatusEnum('status').default('submitted').notNull(),
+  reviewedBy: uuid('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
+  reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
+  reviewNote: text('review_note'),
+  ...timestamps,
+}, (table) => [
+  index('program_applications_status_idx').on(table.status, table.createdAt),
+  index('program_applications_program_idx').on(table.programSlug, table.createdAt),
+  index('program_applications_applicant_idx').on(table.applicantUserId, table.createdAt),
 ]);
 
 export const auditLogs = pgTable('audit_logs', {
