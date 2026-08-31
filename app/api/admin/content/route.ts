@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getAdminSession, hasControlPlaneAccess } from '@/lib/auth/admin-session';
-import { can, canAccessControlPlane } from '@/lib/auth/permissions';
+import { can, canAccessControlPlane, canEditContent } from '@/lib/auth/permissions';
 import { findUserByEmail, seedInitialSuperAdmin } from '@/lib/db/users';
 import { hasPassedExam } from '@/lib/membership';
 import { getCmsWriteStatus, listCmsRecords, persistCmsMutation } from '@/lib/cms/store';
-import { CmsValidationError, isCmsCollection, parseCreateContent } from '@/lib/cms/validation';
+import { CmsValidationError, isCmsCollection, parseCreateContent, parseUpdateContent } from '@/lib/cms/validation';
 import { canTransitionPublication } from '@/lib/cms/workflow';
 import type { AdminSession } from '@/lib/auth/admin-session';
 import type { CmsMediaInput, CmsRecord } from '@/lib/cms/types';
@@ -100,6 +100,19 @@ export async function POST(request: Request) {
     const records = await listCmsRecords();
     const record = records.find((item) => item.id === id);
     if (!record) return redirectWith(request, 'error=record-not-found');
+
+    if (intent === 'update') {
+      if (!canEditContent(session.role, record.lastEditedBy, actorId)) {
+        return NextResponse.json({ error: 'Tidak memiliki izin mengedit konten ini.' }, { status: 403 });
+      }
+      const updatedRecord = parseUpdateContent(collectionValue, form, actorId, record);
+      const imageValue = form.get('imageFile');
+      const media = collectionValue === 'articles' && imageValue instanceof File && imageValue.size > 0
+        ? await readArticleImage(form)
+        : undefined;
+      await persistCmsMutation({ collection: collectionValue, action: 'update', records: [updatedRecord], media, actorRole: session.role });
+      return redirectWith(request, 'updated=1');
+    }
 
     if (intent === 'transition') {
       const toStatusValue = String(form.get('toStatus') || '');
