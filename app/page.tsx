@@ -6,14 +6,11 @@ import {
   Building2,
   FileCheck2,
   Heart,
-  KeyRound,
   Landmark,
   MapPin,
   Quote,
   ShieldCheck,
   Sparkles,
-  UserRound,
-  UsersRound,
 } from 'lucide-react';
 import { ProgramMark } from '@/components/ProgramMark';
 import {
@@ -47,7 +44,6 @@ export default function Home() {
               <Link href="/program" className="trust-button trust-button-primary">Kenali Program <ArrowRight size={18} aria-hidden="true" /></Link>
               <Link href="/donasi" className="trust-button trust-button-secondary"><Heart size={18} aria-hidden="true" /> Cara Mendukung</Link>
             </div>
-            <Link href="#akses-portal" className="trust-text-link mt-4 inline-flex">Masuk atau daftar ke portal <ArrowRight size={16} aria-hidden="true" /></Link>
             <div className="trust-hero-assurance">
               <ShieldCheck size={20} aria-hidden="true" />
               <p><strong>Preview lengkap untuk evaluasi desain.</strong> Foto dan angka bertanda “contoh” akan diganti dengan dokumentasi serta data resmi saat materi final tersedia.</p>
@@ -65,38 +61,6 @@ export default function Home() {
               <div><Image src={programs[4].image} alt={programs[4].imageAlt} fill sizes="(max-width: 900px) 50vw, 20vw" /></div>
             </div>
             <Link href="/galeri" className="trust-hero-gallery-link">Lihat galeri preview <ArrowRight size={15} aria-hidden="true" /></Link>
-          </div>
-        </div>
-      </section>
-
-      <section id="akses-portal" className="trust-section trust-access-section" aria-labelledby="portal-access-heading">
-        <div className="shell">
-          <div className="trust-section-heading">
-            <div><span>Akses portal</span><h2 id="portal-access-heading">Masuk sesuai peran Anda.</h2></div>
-            <p>Pilih jalur yang sesuai. Fungsi dan hak akses tiap peran tetap mengikuti kewenangannya masing-masing.</p>
-          </div>
-          <div className="grid gap-5 md:grid-cols-3">
-            <article className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-              <ShieldCheck className="text-brand-red" size={25} aria-hidden="true" />
-              <h3 className="mt-5 font-heading text-2xl font-extrabold">Super Admin</h3>
-              <p className="mt-3 min-h-14 text-sm leading-6 text-neutral-600">Kelola sistem, pengguna, konten, persetujuan, dan transparansi yayasan.</p>
-              <Link href="/admin/login" className="trust-button trust-button-primary mt-6 w-full">Masuk sebagai Super Admin <KeyRound size={16} aria-hidden="true" /></Link>
-            </article>
-            <article className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-              <UsersRound className="text-brand-red" size={25} aria-hidden="true" />
-              <h3 className="mt-5 font-heading text-2xl font-extrabold">Core Manager</h3>
-              <p className="mt-3 min-h-14 text-sm leading-6 text-neutral-600">Masuk untuk menjalankan tugas pengelolaan sesuai role Pengurus Inti.</p>
-              <Link href="/masuk?redirect_url=%2Fadmin" className="trust-button trust-button-secondary mt-6 w-full">Masuk sebagai Core Manager <ArrowRight size={16} aria-hidden="true" /></Link>
-            </article>
-            <article className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-              <UserRound className="text-brand-red" size={25} aria-hidden="true" />
-              <h3 className="mt-5 font-heading text-2xl font-extrabold">Anggota</h3>
-              <p className="mt-3 min-h-14 text-sm leading-6 text-neutral-600">Masuk ke akun anggota atau buat akun baru untuk memulai proses keanggotaan.</p>
-              <div className="mt-6 grid gap-2 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
-                <Link href="/masuk?redirect_url=%2Fakun" className="trust-button trust-button-secondary w-full">Masuk <ArrowRight size={16} aria-hidden="true" /></Link>
-                <Link href="/daftar" className="trust-button trust-button-primary w-full">Daftar <UserRound size={16} aria-hidden="true" /></Link>
-              </div>
-            </article>
           </div>
         </div>
       </section>
