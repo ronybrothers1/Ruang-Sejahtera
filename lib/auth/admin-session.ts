@@ -45,6 +45,7 @@ function isRole(value: string): value is AdminRole {
 export function getBootstrapAuthStatus() {
   const production = process.env.VERCEL_ENV === 'production';
   const productionOverride = process.env.ADMIN_BOOTSTRAP_ALLOW_PRODUCTION === 'true';
+  const productionConfirmation = process.env.ADMIN_BOOTSTRAP_PRODUCTION_CONFIRMATION === 'I_UNDERSTAND_BOOTSTRAP_RISK';
   const enabled = isBootstrapEnabledForEnvironment();
   const role = process.env.ADMIN_BOOTSTRAP_ROLE?.trim() || '';
   const configured = enabled
@@ -56,7 +57,7 @@ export function getBootstrapAuthStatus() {
   return {
     enabled,
     configured,
-    productionBlocked: production && !productionOverride,
+    productionBlocked: production && (!productionOverride || !productionConfirmation),
   };
 }
 

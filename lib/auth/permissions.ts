@@ -46,6 +46,7 @@ export const rolePermissions: Record<AdminRole, readonly Permission[]> = {
     'audit.read',
   ],
   core_manager: [
+    'membership.review',
     'member_cards.read_own',
     'content.read',
     'content.create',

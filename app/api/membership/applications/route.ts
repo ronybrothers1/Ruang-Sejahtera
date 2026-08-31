@@ -4,11 +4,10 @@ import { createProgramApplication } from '@/lib/program-applications';
 import { programs } from '@/lib/content';
 import { hasAllowedFormContentType, isDeclaredBodyWithinLimit } from '@/lib/security/request-limits';
 import { isSameOriginRequest } from '@/lib/security/same-origin';
+import { deleteStoredImage, storeValidatedImage, validateImageFile } from '@/lib/security/image-upload';
 
 export const dynamic = 'force-dynamic';
 
-const MAX_IMAGE_BYTES = 2_000_000;
-const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const detailFields = ['familyCount', 'condition', 'needDescription', 'businessType', 'businessDuration', 'currentCondition', 'assistanceNeed', 'houseCondition', 'occupants', 'damageDescription', 'waterSource', 'affectedFamilies', 'crisisDuration', 'schoolLevel', 'studentCount', 'educationNeed'] as const;
 
 function value(form: FormData, key: string, max: number) {
@@ -37,14 +36,16 @@ export async function POST(request: Request) {
 
   const photo = form.get('existingPhoto');
   if (!(photo instanceof File) || photo.size === 0) return redirectWith(request, 'error=photo', programSlug);
-  if (!ALLOWED_IMAGE_TYPES.has(photo.type) || photo.size > MAX_IMAGE_BYTES) return redirectWith(request, 'error=photo-format', programSlug);
   const photoAlt = value(form, 'existingPhotoAlt', 160);
-  const bytes = Buffer.from(await photo.arrayBuffer());
   const details = Object.fromEntries(detailFields
     .map((key) => [key, String(form.get(key) || '').trim()])
     .filter(([, item]) => item.length > 0)) as Record<string, string>;
 
+  let objectKey: string | null = null;
   try {
+    const validatedImage = await validateImageFile(photo);
+    const storedImage = await storeValidatedImage({ image: validatedImage, ownerId: session.id, visibility: 'private' });
+    objectKey = storedImage.objectKey;
     await createProgramApplication({
       applicantUserId: session.id,
       programSlug,
@@ -59,13 +60,16 @@ export async function POST(request: Request) {
         province: value(form, 'addressProvince', 120),
       },
       details,
-      existingPhotoUrl: `data:${photo.type};base64,${bytes.toString('base64')}`,
+      existingPhotoMedia: storedImage,
       existingPhotoAlt: photoAlt,
     });
+    objectKey = null;
     return redirectWith(request, 'submitted=1');
   } catch (error) {
+    await deleteStoredImage(objectKey);
     if (error instanceof Error && error.message === 'APPLICATION_ALREADY_EXISTS') return redirectWith(request, 'error=exists', programSlug);
     if (error instanceof Error && error.message === 'APPLICATION_FIELD_INVALID') return redirectWith(request, 'error=field', programSlug);
+    if (error instanceof Error && ['IMAGE_FILE_INVALID', 'IMAGE_TYPE_INVALID', 'IMAGE_SIGNATURE_INVALID', 'IMAGE_DIMENSIONS_INVALID'].includes(error.message)) return redirectWith(request, 'error=photo-format', programSlug);
     return redirectWith(request, 'error=save', programSlug);
   }
 }

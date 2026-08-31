@@ -8,6 +8,7 @@ import {
 } from '@/lib/auth/admin-session';
 import { hasAllowedFormContentType, isDeclaredBodyWithinLimit } from '@/lib/security/request-limits';
 import { isSameOriginRequest } from '@/lib/security/same-origin';
+import { checkAdminLoginRateLimit, clearAdminLoginFailures, recordAdminLoginFailure } from '@/lib/security/admin-login-rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,12 +27,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Akses admin belum dikonfigurasi.' }, { status: 503 });
   }
 
+  const rateLimit = await checkAdminLoginRateLimit(request);
+  if (!rateLimit.allowed) {
+    const response = NextResponse.json({ error: 'Terlalu banyak percobaan. Silakan coba lagi nanti.' }, { status: 429 });
+    response.headers.set('Retry-After', String(rateLimit.retryAfterSeconds || 60));
+    return response;
+  }
+
   const form = await request.formData();
   const accessKey = String(form.get('accessKey') || '');
   if (accessKey.length > 512 || !verifyBootstrapAccessKey(accessKey)) {
+    await recordAdminLoginFailure(request);
     return NextResponse.redirect(new URL('/admin/login?error=invalid', request.url), 303);
   }
 
+  await clearAdminLoginFailures(request);
   const session = createBootstrapSessionToken();
   const response = NextResponse.redirect(new URL('/admin', request.url), 303);
   response.headers.set('Cache-Control', 'private, no-store, max-age=0');

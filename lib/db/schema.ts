@@ -13,7 +13,7 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
+import { isNull, sql } from 'drizzle-orm';
 
 export const userRoleEnum = pgEnum('user_role', ['super_admin', 'core_manager', 'member']);
 export const membershipStatusEnum = pgEnum('membership_status', [
@@ -119,6 +119,15 @@ export const examQuestions = pgTable('exam_questions', {
   check('exam_questions_display_order_positive', sql`${table.displayOrder} > 0`),
 ]);
 
+export type ExamQuestionSnapshot = {
+  id: string;
+  settingsId: string;
+  dimension: string;
+  prompt: string;
+  options: Array<{ id: string; label: string; score: number }>;
+  displayOrder: number;
+};
+
 export const examAttempts = pgTable('exam_attempts', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'restrict' }),
@@ -133,9 +142,11 @@ export const examAttempts = pgTable('exam_attempts', {
   submittedAt: timestamp('submitted_at', { withTimezone: true }),
   gradedAt: timestamp('graded_at', { withTimezone: true }),
   gradedBy: uuid('graded_by').references(() => users.id, { onDelete: 'set null' }),
+  questionSnapshot: jsonb('question_snapshot').$type<ExamQuestionSnapshot[] | null>(),
   ...timestamps,
 }, (table) => [
   uniqueIndex('exam_attempts_user_number_idx').on(table.userId, table.attemptNumber),
+  uniqueIndex('exam_attempts_one_active_user_idx').on(table.userId).where(sql`${table.status} = 'in_progress'`),
   index('exam_attempts_status_idx').on(table.status, table.submittedAt),
   check('exam_attempts_attempt_number_positive', sql`${table.attemptNumber} > 0`),
   check('exam_attempts_automatic_score_range', sql`${table.automaticScore} IS NULL OR (${table.automaticScore} BETWEEN 0 AND 100)`),
@@ -264,6 +275,7 @@ export const programApplications = pgTable('program_applications', {
   address: jsonb('address').$type<Record<string, string>>().default({}).notNull(),
   details: jsonb('details').$type<Record<string, string>>().default({}).notNull(),
   existingPhotoUrl: text('existing_photo_url'),
+  existingPhotoMediaId: uuid('existing_photo_media_id').references(() => mediaAssets.id, { onDelete: 'set null' }),
   existingPhotoAlt: text('existing_photo_alt'),
   status: programApplicationStatusEnum('status').default('submitted').notNull(),
   reviewedBy: uuid('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
@@ -275,6 +287,20 @@ export const programApplications = pgTable('program_applications', {
   index('program_applications_status_idx').on(table.status, table.createdAt),
   index('program_applications_program_idx').on(table.programSlug, table.createdAt),
   index('program_applications_applicant_idx').on(table.applicantUserId, table.createdAt),
+  uniqueIndex('program_applications_active_applicant_program_idx')
+    .on(table.applicantUserId, table.programSlug)
+    .where(isNull(table.deletedAt)),
+]);
+
+export const adminLoginAttempts = pgTable('admin_login_attempts', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  keyHash: text('key_hash').notNull().unique(),
+  failures: integer('failures').default(0).notNull(),
+  windowStartedAt: timestamp('window_started_at', { withTimezone: true }).defaultNow().notNull(),
+  blockedUntil: timestamp('blocked_until', { withTimezone: true }),
+  ...timestamps,
+}, (table) => [
+  index('admin_login_attempts_blocked_idx').on(table.blockedUntil),
 ]);
 
 export const auditLogs = pgTable('audit_logs', {

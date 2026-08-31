@@ -130,46 +130,48 @@ export async function seedInitialSuperAdmin(input: { email: string; fullName: st
   const fullName = input.fullName.trim();
   if (!email || !fullName) throw new Error('SUPER_ADMIN_SEED_INVALID');
 
-  const existingSuperAdmins = await db.select({ id: users.id, email: users.email })
-    .from(users)
-    .where(eq(users.role, 'super_admin'))
-    .limit(2);
-  if (existingSuperAdmins.some((item) => item.email !== email)) {
-    throw new Error('SUPER_ADMIN_ALREADY_EXISTS');
-  }
+  return db.transaction(async (tx) => {
+    const existingSuperAdmins = await tx.select({ id: users.id, email: users.email })
+      .from(users)
+      .where(eq(users.role, 'super_admin'))
+      .limit(2);
+    if (existingSuperAdmins.some((item) => item.email !== email)) {
+      throw new Error('SUPER_ADMIN_ALREADY_EXISTS');
+    }
 
-  const existing = await findUserByEmail(email);
-  let superAdmin: UserRow;
-  if (existing) {
-    const updated = await db.update(users).set({
-      fullName,
-      role: 'super_admin',
-      membershipStatus: 'active',
-      isActive: true,
-      deletedAt: null,
-      updatedAt: new Date(),
-    }).where(eq(users.id, existing.id)).returning();
-    superAdmin = updated[0];
-  } else {
-    const inserted = await db.insert(users).values({
-      email,
-      fullName,
-      role: 'super_admin',
-      membershipStatus: 'active',
-      isActive: true,
-    }).returning();
-    superAdmin = inserted[0];
-  }
+    const existingRows = await tx.select().from(users).where(eq(users.email, email)).limit(1);
+    const existing = existingRows[0];
+    let superAdmin: UserRow | undefined;
+    if (existing) {
+      superAdmin = (await tx.update(users).set({
+        fullName,
+        role: 'super_admin',
+        membershipStatus: 'active',
+        isActive: true,
+        deletedAt: null,
+        updatedAt: new Date(),
+      }).where(eq(users.id, existing.id)).returning())[0];
+    } else {
+      superAdmin = (await tx.insert(users).values({
+        email,
+        fullName,
+        role: 'super_admin',
+        membershipStatus: 'active',
+        isActive: true,
+      }).returning())[0];
+    }
+    if (!superAdmin) throw new Error('SUPER_ADMIN_SEED_FAILED');
 
-  await db.insert(auditLogs).values({
-    actorUserId: superAdmin.id,
-    actorRole: 'super_admin',
-    action: 'identity.super_admin_seeded',
-    resourceType: 'user',
-    resourceId: superAdmin.id,
-    metadata: { source: 'controlled_seed' },
+    await tx.insert(auditLogs).values({
+      actorUserId: superAdmin.id,
+      actorRole: 'super_admin',
+      action: 'identity.super_admin_seeded',
+      resourceType: 'user',
+      resourceId: superAdmin.id,
+      metadata: { source: 'controlled_seed' },
+    });
+    return superAdmin;
   });
-  return superAdmin;
 }
 
 export async function listCoreManagers() {
@@ -185,41 +187,42 @@ export async function createCoreManager(input: ManagedCoreManagerInput) {
     throw new Error('CORE_MANAGER_INPUT_INVALID');
   }
 
-  const existing = await findUserByEmail(email);
-  if (existing?.role === 'super_admin') throw new Error('CORE_MANAGER_EMAIL_RESERVED');
-  if (existing?.membershipStatus === 'suspended' || existing?.membershipStatus === 'revoked') {
-    throw new Error('CORE_MANAGER_MEMBERSHIP_BLOCKED');
-  }
+  return db.transaction(async (tx) => {
+    const existingRows = await tx.select().from(users).where(eq(users.email, email)).limit(1);
+    const existing = existingRows[0];
+    if (existing?.role === 'super_admin') throw new Error('CORE_MANAGER_EMAIL_RESERVED');
+    if (existing?.membershipStatus === 'suspended' || existing?.membershipStatus === 'revoked') {
+      throw new Error('CORE_MANAGER_MEMBERSHIP_BLOCKED');
+    }
 
-  let manager: UserRow;
-  if (existing) {
-    const updated = await db.update(users).set({
-      fullName,
-      role: 'core_manager',
-      isActive: true,
-      deletedAt: null,
-      updatedAt: new Date(),
-    }).where(eq(users.id, existing.id)).returning();
-    manager = updated[0];
-  } else {
-    const inserted = await db.insert(users).values({
-      email,
-      fullName,
-      role: 'core_manager',
-      membershipStatus: 'registered',
-      isActive: true,
-    }).returning();
-    manager = inserted[0];
-  }
+    let manager: UserRow | undefined;
+    if (existing) {
+      manager = (await tx.update(users).set({
+        fullName,
+        role: 'core_manager',
+        isActive: true,
+        deletedAt: null,
+        updatedAt: new Date(),
+      }).where(eq(users.id, existing.id)).returning())[0];
+    } else {
+      manager = (await tx.insert(users).values({
+        email,
+        fullName,
+        role: 'core_manager',
+        membershipStatus: 'registered',
+        isActive: true,
+      }).returning())[0];
+    }
+    if (!manager) throw new Error('CORE_MANAGER_CREATE_FAILED');
 
-  await db.insert(auditLogs).values({
-    actorUserId: input.actorUserId || null,
-    actorRole: 'super_admin',
-    action: 'identity.core_manager_added',
-    resourceType: 'user',
-    resourceId: manager.id,
-    metadata: { source: 'manual_admin', existingUser: Boolean(existing) },
+    await tx.insert(auditLogs).values({
+      actorUserId: input.actorUserId || null,
+      actorRole: 'super_admin',
+      action: 'identity.core_manager_added',
+      resourceType: 'user',
+      resourceId: manager.id,
+      metadata: { source: 'manual_admin', existingUser: Boolean(existing) },
+    });
+    return manager;
   });
-
-  return manager;
 }

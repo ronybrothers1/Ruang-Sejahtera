@@ -5,6 +5,7 @@ import { auditLogs, contentItems, contentReviews, contentRevisions, mediaAssets 
 import { canTransitionPublication } from '@/lib/cms/workflow';
 import type { CmsCollection, CmsMediaInput, CmsRecord } from '@/lib/cms/types';
 import type { AdminRole, PublicationStatus } from '@/lib/models';
+import { isBlobStorageConfigured } from '@/lib/security/image-upload';
 
 export type CmsMutation = {
   collection: CmsCollection;
@@ -21,16 +22,21 @@ export interface CmsWriteAdapter {
 export function getCmsWriteStatus() {
   return {
     configured: isDatabaseConfigured(),
+    mediaConfigured: isBlobStorageConfigured(),
     mode: isDatabaseConfigured() ? 'database' as const : 'disabled' as const,
-    reason: isDatabaseConfigured()
-      ? 'CMS tersambung ke database.'
-      : 'DATABASE_URL belum dikonfigurasi.',
+    reason: !isDatabaseConfigured()
+      ? 'DATABASE_URL belum dikonfigurasi.'
+      : !isBlobStorageConfigured()
+        ? 'CMS tersambung ke database; BLOB_READ_WRITE_TOKEN diperlukan untuk unggah gambar.'
+        : 'CMS tersambung ke database dan penyimpanan media.',
   };
 }
 
 function contentType(collection: CmsCollection) {
   return collection === 'articles' ? 'article' : collection === 'activities' ? 'activity' : 'gallery';
 }
+
+type CmsDatabase = Pick<ReturnType<typeof getDb>, 'select' | 'insert' | 'update'>;
 
 function recordFields(record: CmsRecord) {
   return {
@@ -42,8 +48,8 @@ function recordFields(record: CmsRecord) {
   };
 }
 
-async function writeAudit(actorUserId: string, actorRole: AdminRole, action: string, resourceId: string, metadata: Record<string, unknown> = {}) {
-  await getDb().insert(auditLogs).values({
+async function writeAudit(db: CmsDatabase, actorUserId: string, actorRole: AdminRole, action: string, resourceId: string, metadata: Record<string, unknown> = {}) {
+  await db.insert(auditLogs).values({
     actorUserId,
     actorRole,
     action,
@@ -53,19 +59,22 @@ async function writeAudit(actorUserId: string, actorRole: AdminRole, action: str
   });
 }
 
-async function attachMedia(contentId: string, media: CmsMediaInput, ownerId: string) {
-  await getDb().insert(mediaAssets).values({
+async function attachMedia(db: CmsDatabase, contentId: string, media: CmsMediaInput, ownerId: string) {
+  await db.insert(mediaAssets).values({
     ownerId,
     contentId,
+    objectKey: media.objectKey,
     externalUrl: media.externalUrl,
     type: 'image',
     mimeType: media.mimeType,
     byteSize: media.byteSize,
+    width: media.width,
+    height: media.height,
     altText: media.altText,
     caption: media.caption || null,
-    visibility: 'private',
-    malwareScanStatus: 'pending',
-    consentStatus: 'unknown',
+    visibility: media.visibility,
+    malwareScanStatus: media.malwareScanStatus,
+    consentStatus: media.consentStatus,
   });
 }
 
@@ -79,22 +88,24 @@ export async function persistCmsMutation(mutation: CmsMutation): Promise<void> {
 
   if (mutation.action === 'create') {
     const fields = recordFields(record);
-    await db.insert(contentItems).values({
-      id: record.id,
-      type: contentType(mutation.collection),
-      ...fields,
-      ownerId: record.lastEditedBy,
-      status: 'draft',
-      currentRevision: 1,
+    await db.transaction(async (tx) => {
+      await tx.insert(contentItems).values({
+        id: record.id,
+        type: contentType(mutation.collection),
+        ...fields,
+        ownerId: record.lastEditedBy,
+        status: 'draft',
+        currentRevision: 1,
+      });
+      await tx.insert(contentRevisions).values({
+        contentId: record.id,
+        revisionNumber: 1,
+        snapshot: record,
+        editedBy: record.lastEditedBy,
+      });
+      if (mutation.media) await attachMedia(tx, record.id, mutation.media, record.lastEditedBy);
+      await writeAudit(tx, record.lastEditedBy, actorRole, 'content.created', record.id, { collection: mutation.collection, status: 'draft' });
     });
-    await db.insert(contentRevisions).values({
-      contentId: record.id,
-      revisionNumber: 1,
-      snapshot: record,
-      editedBy: record.lastEditedBy,
-    });
-    if (mutation.media) await attachMedia(record.id, mutation.media, record.lastEditedBy);
-    await writeAudit(record.lastEditedBy, actorRole, 'content.created', record.id, { collection: mutation.collection, status: 'draft' });
     return;
   }
 
@@ -105,32 +116,36 @@ export async function persistCmsMutation(mutation: CmsMutation): Promise<void> {
   if (mutation.action === 'update') {
     const fields = recordFields(record);
     const revisionNumber = existing.currentRevision + 1;
-    await db.update(contentItems).set({
-      ...fields,
-      status: 'draft',
-      currentRevision: revisionNumber,
-      reviewRequestedAt: null,
-      approvedAt: null,
-      approvedBy: null,
-      publishedAt: null,
-      publishedBy: null,
-      archivedAt: null,
-      updatedAt: new Date(),
-    }).where(eq(contentItems.id, record.id));
-    await db.insert(contentRevisions).values({
-      contentId: record.id,
-      revisionNumber,
-      snapshot: record,
-      editedBy: record.lastEditedBy,
+    await db.transaction(async (tx) => {
+      await tx.update(contentItems).set({
+        ...fields,
+        status: 'draft',
+        currentRevision: revisionNumber,
+        reviewRequestedAt: null,
+        approvedAt: null,
+        approvedBy: null,
+        publishedAt: null,
+        publishedBy: null,
+        archivedAt: null,
+        updatedAt: new Date(),
+      }).where(eq(contentItems.id, record.id));
+      await tx.insert(contentRevisions).values({
+        contentId: record.id,
+        revisionNumber,
+        snapshot: record,
+        editedBy: record.lastEditedBy,
+      });
+      if (mutation.media) await attachMedia(tx, record.id, mutation.media, record.lastEditedBy);
+      await writeAudit(tx, record.lastEditedBy, actorRole, 'content.updated', record.id, { collection: mutation.collection, revisionNumber });
     });
-    if (mutation.media) await attachMedia(record.id, mutation.media, record.lastEditedBy);
-    await writeAudit(record.lastEditedBy, actorRole, 'content.updated', record.id, { collection: mutation.collection, revisionNumber });
     return;
   }
 
   if (mutation.action === 'delete') {
-    await db.update(contentItems).set({ deletedAt: new Date(), updatedAt: new Date() }).where(eq(contentItems.id, record.id));
-    await writeAudit(record.lastEditedBy, actorRole, 'content.deleted', record.id, { collection: mutation.collection });
+    await db.transaction(async (tx) => {
+      await tx.update(contentItems).set({ deletedAt: new Date(), updatedAt: new Date() }).where(eq(contentItems.id, record.id));
+      await writeAudit(tx, record.lastEditedBy, actorRole, 'content.deleted', record.id, { collection: mutation.collection });
+    });
     return;
   }
 
@@ -148,15 +163,17 @@ export async function persistCmsMutation(mutation: CmsMutation): Promise<void> {
     updates.publishedBy = record.lastEditedBy;
   }
   if (toStatus === 'archived') updates.archivedAt = now;
-  await db.update(contentItems).set(updates).where(eq(contentItems.id, record.id));
-  await db.insert(contentReviews).values({
-    contentId: record.id,
-    reviewerId: record.lastEditedBy,
-    fromStatus: existing.status,
-    toStatus,
-    note: null,
+  await db.transaction(async (tx) => {
+    await tx.update(contentItems).set(updates).where(eq(contentItems.id, record.id));
+    await tx.insert(contentReviews).values({
+      contentId: record.id,
+      reviewerId: record.lastEditedBy,
+      fromStatus: existing.status,
+      toStatus,
+      note: null,
+    });
+    await writeAudit(tx, record.lastEditedBy, actorRole, 'content.status_changed', record.id, { collection: mutation.collection, from: existing.status, to: toStatus });
   });
-  await writeAudit(record.lastEditedBy, actorRole, 'content.status_changed', record.id, { collection: mutation.collection, from: existing.status, to: toStatus });
 }
 
 export async function listCmsRecords(): Promise<CmsRecord[]> {

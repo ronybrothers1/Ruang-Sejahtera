@@ -8,7 +8,9 @@ export function isClerkConfigured() {
 export function isBootstrapEnabledForEnvironment() {
   const production = process.env.VERCEL_ENV === 'production';
   const allowProduction = process.env.ADMIN_BOOTSTRAP_ALLOW_PRODUCTION === 'true';
-  return process.env.ADMIN_BOOTSTRAP_ENABLED === 'true' && (!production || allowProduction);
+  const productionConfirmation = process.env.ADMIN_BOOTSTRAP_PRODUCTION_CONFIRMATION === 'I_UNDERSTAND_BOOTSTRAP_RISK';
+  return process.env.ADMIN_BOOTSTRAP_ENABLED === 'true'
+    && (!production || (allowProduction && productionConfirmation));
 }
 
 export function isDatabaseConfigured() {

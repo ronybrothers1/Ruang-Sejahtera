@@ -51,11 +51,17 @@ export type CmsGallery = CmsBaseRecord & {
 export type CmsRecord = CmsArticle | CmsActivity | CmsGallery;
 
 export type CmsMediaInput = {
-  externalUrl: string;
+  objectKey: string;
+  externalUrl: string | null;
   mimeType: string;
   byteSize: number;
+  width: number | null;
+  height: number | null;
   altText: string;
   caption?: string;
+  visibility: 'private' | 'public';
+  consentStatus: 'confirmed' | 'restricted' | 'not_required';
+  malwareScanStatus: 'signature_validated';
 };
 
 export const cmsCollectionPaths: Record<CmsCollection, string> = {

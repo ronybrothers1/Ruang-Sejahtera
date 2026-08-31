@@ -5,6 +5,17 @@ import { getDb } from '@/lib/db';
 import { listFinancialReports, type FinancialReportRecord } from '@/lib/finance';
 import { contentItems, mediaAssets } from '@/lib/db/schema';
 
+function isPublishableMedia(media: typeof mediaAssets.$inferSelect | null) {
+  return Boolean(
+    media
+    && media.type === 'image'
+    && !media.deletedAt
+    && media.visibility === 'public'
+    && media.malwareScanStatus === 'signature_validated'
+    && (media.consentStatus === 'confirmed' || media.consentStatus === 'not_required'),
+  );
+}
+
 export type PublishedActivity = {
   slug: string;
   title: string;
@@ -95,8 +106,9 @@ export async function getPublishedArticleBySlug(slug: string): Promise<Published
         isNull(contentItems.deletedAt),
       ));
 
-    const row = rows.find((item) => item.media?.type === 'image' && !item.media.deletedAt) || rows[0];
+    const row = rows.find((item) => isPublishableMedia(item.media)) || rows[0];
     if (!row) return null;
+    const media = isPublishableMedia(row.media) ? row.media : null;
     return {
       slug: row.content.slug,
       title: row.content.title,
@@ -104,9 +116,9 @@ export async function getPublishedArticleBySlug(slug: string): Promise<Published
       publishedAt: row.content.publishedAt?.toISOString() || '',
       category: row.content.category || '',
       body: row.content.body,
-      imageUrl: row.media?.type === 'image' ? row.media.externalUrl || undefined : undefined,
-      imageAlt: row.media?.type === 'image' ? row.media.altText : undefined,
-      imageCaption: row.media?.type === 'image' ? row.media.caption || undefined : undefined,
+      imageUrl: media?.externalUrl || undefined,
+      imageAlt: media?.altText,
+      imageCaption: media?.caption || undefined,
     };
   } catch {
     return null;
@@ -130,7 +142,7 @@ export async function getPublishedArticles(): Promise<PublishedArticle[]> {
 
     const articles = new Map<string, PublishedArticle>();
     for (const row of rows) {
-      const media = row.media?.type === 'image' && !row.media.deletedAt ? row.media : null;
+      const media = isPublishableMedia(row.media) ? row.media : null;
       const current = articles.get(row.content.slug);
       if (current && current.imageUrl) continue;
       articles.set(row.content.slug, {

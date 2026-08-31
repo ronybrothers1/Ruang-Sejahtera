@@ -1,5 +1,5 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { getDb } from '@/lib/db';
 import {
   examAnswers,
@@ -8,6 +8,7 @@ import {
   examSettings,
   memberCards,
   users,
+  type ExamQuestionSnapshot,
   type UserRow,
 } from '@/lib/db/schema';
 
@@ -16,6 +17,8 @@ const EXAM_PASSING_SCORE = 75;
 const EXAM_DURATION_MINUTES = 120;
 const EXAM_MAXIMUM_ATTEMPTS = 2;
 const EXAM_RETRY_WINDOW_DAYS = 7;
+const EXAM_QUESTION_COUNT = 50;
+const OPTION_IDS = ['a', 'b', 'c', 'd'] as const;
 
 export const defaultExamQuestions = [
   {
@@ -529,6 +532,10 @@ export type MemberExamState = ActiveExam & {
   attempt: typeof examAttempts.$inferSelect;
 };
 
+export type PublicExamQuestion = Omit<typeof examQuestions.$inferSelect, 'options'> & {
+  options: Array<{ id: string; label: string }>;
+};
+
 function seededValue(seed: string) {
   let value = 2166136261;
   for (let index = 0; index < seed.length; index += 1) {
@@ -550,14 +557,50 @@ function shuffle<T>(values: T[], seed: string) {
 }
 
 export function getQuestionsForAttempt(questions: Array<typeof examQuestions.$inferSelect>, attemptId: string) {
-  return shuffle(questions, attemptId).map((question) => ({
+  return shuffle(questions, attemptId).map((question): PublicExamQuestion => ({
     ...question,
-    options: shuffle(question.options, `${attemptId}:${question.id}`),
+    options: shuffle(question.options, `${attemptId}:${question.id}`).map(({ id, label }) => ({ id, label })),
+  }));
+}
+
+function getScoredQuestionsForAttempt(questions: Array<typeof examQuestions.$inferSelect>, attemptId: string) {
+  return shuffle(questions, attemptId);
+}
+
+function normalizeQuestionOptions(options: Array<{ id: string; label: string; score: number }>, questionIndex: number) {
+  const correct = options.find((option) => option.score > 0);
+  if (!correct || options.length !== OPTION_IDS.length) throw new Error('EXAM_OPTIONS_INVALID');
+  const incorrect = options.filter((option) => option !== correct);
+  const targetIndex = seededValue(`${EXAM_VERSION}:${questionIndex}:correct-option`) % OPTION_IDS.length;
+  const ordered = [...incorrect];
+  ordered.splice(targetIndex, 0, correct);
+  return ordered.map((option, index) => ({ ...option, id: OPTION_IDS[index] }));
+}
+
+function toSnapshot(questions: Array<typeof examQuestions.$inferSelect>): ExamQuestionSnapshot[] {
+  return questions.map(({ id, settingsId, dimension, prompt, options, displayOrder }) => ({
+    id,
+    settingsId,
+    dimension,
+    prompt,
+    options,
+    displayOrder,
+  }));
+}
+
+function snapshotToQuestions(snapshot: ExamQuestionSnapshot[]): Array<typeof examQuestions.$inferSelect> {
+  const now = new Date();
+  return snapshot.map((question) => ({
+    ...question,
+    isActive: true,
+    createdAt: now,
+    updatedAt: now,
   }));
 }
 
 async function getOrCreateVersionTwo(createdBy: string) {
   const db = getDb();
+  const questionBank = defaultExamQuestions.slice(0, EXAM_QUESTION_COUNT);
   let settings = (await db.select().from(examSettings).where(eq(examSettings.version, EXAM_VERSION)).limit(1))[0];
 
   if (!settings) {
@@ -589,24 +632,24 @@ async function getOrCreateVersionTwo(createdBy: string) {
     .where(and(eq(examQuestions.settingsId, settings.id), eq(examQuestions.isActive, true)))
     .orderBy(examQuestions.displayOrder);
 
-  if (questions.length > defaultExamQuestions.length) {
-    const extras = questions.slice(defaultExamQuestions.length);
+  if (questions.length > questionBank.length) {
+    const extras = questions.slice(questionBank.length);
     await db.update(examQuestions).set({ isActive: false }).where(
       inArray(examQuestions.id, extras.map((question) => question.id)),
     );
-    questions = questions.slice(0, defaultExamQuestions.length);
+    questions = questions.slice(0, questionBank.length);
   }
 
-  if (questions.length < defaultExamQuestions.length) {
+  if (questions.length < questionBank.length) {
     const existingPrompts = new Set(questions.map((question) => question.prompt));
     const nextOrder = questions.reduce((highest, question) => Math.max(highest, question.displayOrder), 0);
-    const missing = defaultExamQuestions.filter((question) => !existingPrompts.has(question.prompt));
+    const missing = questionBank.filter((question) => !existingPrompts.has(question.prompt));
     if (missing.length) {
       await db.insert(examQuestions).values(missing.map((question, index) => ({
         settingsId: settings.id,
         dimension: question.dimension,
         prompt: question.prompt,
-        options: [...question.options],
+        options: normalizeQuestionOptions([...question.options], nextOrder + index),
         displayOrder: nextOrder + index + 1,
         isActive: true,
       })));
@@ -615,6 +658,17 @@ async function getOrCreateVersionTwo(createdBy: string) {
         .orderBy(examQuestions.displayOrder);
     }
   }
+
+  const normalizedQuestions = questions.map((question, index) => ({
+    question,
+    options: normalizeQuestionOptions(question.options, index),
+  }));
+  for (const item of normalizedQuestions) {
+    if (JSON.stringify(item.question.options) !== JSON.stringify(item.options)) {
+      await db.update(examQuestions).set({ options: item.options, updatedAt: new Date() }).where(eq(examQuestions.id, item.question.id));
+    }
+  }
+  questions = normalizedQuestions.map(({ question, options }) => ({ ...question, options }));
 
   return { settings, questions };
 }
@@ -632,32 +686,40 @@ export async function countWeeklyExamAttempts(userId: string) {
 export async function getOrCreateExamAttempt(userId: string): Promise<MemberExamState> {
   const db = getDb();
   const exam = await getActiveExam(userId);
-  const attempts = await db.select().from(examAttempts)
-    .where(eq(examAttempts.userId, userId))
-    .orderBy(desc(examAttempts.createdAt));
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`SELECT id FROM users WHERE id = ${userId} FOR UPDATE`);
+    const attempts = await tx.select().from(examAttempts)
+      .where(eq(examAttempts.userId, userId))
+      .orderBy(desc(examAttempts.createdAt));
 
-  const now = Date.now();
-  const active = attempts.find((attempt) => attempt.status === 'in_progress');
-  if (active && active.startedAt.getTime() + exam.settings.durationMinutes * 60 * 1000 > now) {
-    return { ...exam, attempt: active };
-  }
-  if (active) {
-    await db.update(examAttempts).set({ status: 'invalidated', updatedAt: new Date() }).where(eq(examAttempts.id, active.id));
-  }
+    const now = Date.now();
+    const active = attempts.find((attempt) => attempt.status === 'in_progress');
+    if (active && active.startedAt.getTime() + exam.settings.durationMinutes * 60 * 1000 > now) {
+      const questions = active.questionSnapshot?.length ? snapshotToQuestions(active.questionSnapshot) : exam.questions;
+      if (!active.questionSnapshot?.length) {
+        await tx.update(examAttempts).set({ questionSnapshot: toSnapshot(exam.questions), updatedAt: new Date() }).where(eq(examAttempts.id, active.id));
+      }
+      return { ...exam, questions, attempt: active };
+    }
+    if (active) {
+      await tx.update(examAttempts).set({ status: 'invalidated', updatedAt: new Date() }).where(and(eq(examAttempts.id, active.id), eq(examAttempts.status, 'in_progress')));
+    }
 
-  const since = now - EXAM_RETRY_WINDOW_DAYS * 24 * 60 * 60 * 1000;
-  const recentAttempts = attempts.filter((attempt) => attempt.createdAt.getTime() >= since);
-  if (recentAttempts.length >= EXAM_MAXIMUM_ATTEMPTS) throw new Error('EXAM_WEEKLY_LIMIT');
+    const since = now - EXAM_RETRY_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+    const recentAttempts = attempts.filter((attempt) => attempt.createdAt.getTime() >= since);
+    if (recentAttempts.length >= EXAM_MAXIMUM_ATTEMPTS) throw new Error('EXAM_WEEKLY_LIMIT');
 
-  const attemptNumber = attempts.reduce((highest, attempt) => Math.max(highest, attempt.attemptNumber), 0) + 1;
-  const inserted = (await db.insert(examAttempts).values({
-    userId,
-    settingsId: exam.settings.id,
-    attemptNumber,
-    status: 'in_progress',
-  }).returning())[0];
-  if (!inserted) throw new Error('EXAM_ATTEMPT_CREATE_FAILED');
-  return { ...exam, attempt: inserted };
+    const attemptNumber = attempts.reduce((highest, attempt) => Math.max(highest, attempt.attemptNumber), 0) + 1;
+    const inserted = (await tx.insert(examAttempts).values({
+      userId,
+      settingsId: exam.settings.id,
+      attemptNumber,
+      status: 'in_progress',
+      questionSnapshot: toSnapshot(exam.questions),
+    }).returning())[0];
+    if (!inserted) throw new Error('EXAM_ATTEMPT_CREATE_FAILED');
+    return { ...exam, attempt: inserted };
+  });
 }
 
 export async function getLatestExamAttempt(userId: string) {
@@ -681,22 +743,27 @@ export async function getMemberCard(userId: string) {
   return rows[0] || null;
 }
 
-export async function issueMemberCard(userId: string) {
-  const existing = await getMemberCard(userId);
-  if (existing) return existing;
+type MembershipDatabase = Pick<ReturnType<typeof getDb>, 'select' | 'insert'>;
 
+async function issueMemberCardWithDatabase(userId: string, db: MembershipDatabase) {
   const suffix = randomBytes(3).toString('hex').toUpperCase();
   const memberNumber = `RS-${new Date().getFullYear()}-${suffix}`;
   const verificationTokenHash = createHash('sha256').update(randomUUID()).digest('hex');
-  const inserted = await getDb().insert(memberCards).values({
+  const inserted = await db.insert(memberCards).values({
     userId,
     memberNumber,
     verificationTokenHash,
     joinedAt: new Date().toISOString().slice(0, 10),
     status: 'active',
     issuedBy: userId,
-  }).returning();
-  return inserted[0];
+  }).onConflictDoNothing({ target: memberCards.userId }).returning();
+  if (inserted[0]) return inserted[0];
+  const existingRows = await db.select().from(memberCards).where(eq(memberCards.userId, userId)).limit(1);
+  return existingRows[0] || null;
+}
+
+export async function issueMemberCard(userId: string) {
+  return issueMemberCardWithDatabase(userId, getDb());
 }
 
 export async function submitMembershipExam(input: {
@@ -705,61 +772,60 @@ export async function submitMembershipExam(input: {
   answers: Record<string, string>;
 }) {
   const db = getDb();
-  const attemptRows = await db.select().from(examAttempts)
-    .where(and(eq(examAttempts.id, input.attemptId), eq(examAttempts.userId, input.userId)))
-    .limit(1);
-  const attempt = attemptRows[0];
-  if (!attempt) throw new Error('EXAM_ATTEMPT_NOT_FOUND');
-  if (attempt.status !== 'in_progress') throw new Error('EXAM_ATTEMPT_CLOSED');
+  return db.transaction(async (tx) => {
+    const attemptRows = await tx.select().from(examAttempts)
+      .where(and(eq(examAttempts.id, input.attemptId), eq(examAttempts.userId, input.userId)))
+      .limit(1);
+    const attempt = attemptRows[0];
+    if (!attempt) throw new Error('EXAM_ATTEMPT_NOT_FOUND');
+    if (attempt.status !== 'in_progress') throw new Error('EXAM_ATTEMPT_CLOSED');
 
-  const settingsRows = await db.select().from(examSettings).where(eq(examSettings.id, attempt.settingsId)).limit(1);
-  const settings = settingsRows[0];
-  if (!settings) throw new Error('EXAM_SETTINGS_NOT_FOUND');
-  const questions = await db.select().from(examQuestions)
-    .where(and(eq(examQuestions.settingsId, settings.id), eq(examQuestions.isActive, true)))
-    .orderBy(examQuestions.displayOrder);
+    const settingsRows = await tx.select().from(examSettings).where(eq(examSettings.id, attempt.settingsId)).limit(1);
+    const settings = settingsRows[0];
+    if (!settings) throw new Error('EXAM_SETTINGS_NOT_FOUND');
+    const questions = attempt.questionSnapshot?.length
+      ? snapshotToQuestions(attempt.questionSnapshot)
+      : await tx.select().from(examQuestions).where(and(eq(examQuestions.settingsId, settings.id), eq(examQuestions.isActive, true))).orderBy(examQuestions.displayOrder);
 
-  if (attempt.startedAt.getTime() + settings.durationMinutes * 60 * 1000 <= Date.now()) {
-    await db.update(examAttempts).set({ status: 'invalidated', updatedAt: new Date() }).where(eq(examAttempts.id, attempt.id));
-    throw new Error('EXAM_TIME_EXPIRED');
-  }
+    if (attempt.startedAt.getTime() + settings.durationMinutes * 60 * 1000 <= Date.now()) {
+      await tx.update(examAttempts).set({ status: 'invalidated', updatedAt: new Date() }).where(and(eq(examAttempts.id, attempt.id), eq(examAttempts.status, 'in_progress')));
+      throw new Error('EXAM_TIME_EXPIRED');
+    }
 
-  const shuffledQuestions = getQuestionsForAttempt(questions, attempt.id);
-  const answerRows = shuffledQuestions.map((question) => {
-    const selectedOptionId = input.answers[question.id];
-    const selected = question.options.find((option) => option.id === selectedOptionId);
-    if (!selected) throw new Error('EXAM_INCOMPLETE');
-    return { questionId: question.id, selectedOptionId, awardedScore: selected.score };
+    const shuffledQuestions = getScoredQuestionsForAttempt(questions, attempt.id);
+    const answerRows = shuffledQuestions.map((question) => {
+      const selectedOptionId = input.answers[question.id];
+      const selected = question.options.find((option) => option.id === selectedOptionId);
+      if (!selected) throw new Error('EXAM_INCOMPLETE');
+      return { questionId: question.id, selectedOptionId, awardedScore: selected.score };
+    });
+    const automaticScore = answerRows.reduce((total, answer) => total + answer.awardedScore, 0);
+    const passed = automaticScore >= settings.passingScore;
+    const submittedAt = new Date();
+
+    const updated = await tx.update(examAttempts).set({
+      status: 'submitted',
+      automaticScore,
+      finalScore: automaticScore,
+      passed,
+      submittedAt,
+      gradedAt: submittedAt,
+      updatedAt: submittedAt,
+    }).where(and(eq(examAttempts.id, attempt.id), eq(examAttempts.status, 'in_progress'))).returning();
+    if (!updated[0]) throw new Error('EXAM_ATTEMPT_CLOSED');
+
+    await tx.insert(examAnswers).values(answerRows.map((answer) => ({
+      attemptId: attempt.id,
+      questionId: answer.questionId,
+      selectedOptionId: answer.selectedOptionId,
+      awardedScore: answer.awardedScore,
+    })));
+
+    await tx.update(users).set({ membershipStatus: passed ? 'passed' : 'failed', updatedAt: new Date() }).where(eq(users.id, input.userId));
+    if (passed) await issueMemberCardWithDatabase(input.userId, tx);
+
+    return { attempt: updated[0], passed, score: automaticScore, passingScore: settings.passingScore };
   });
-  const automaticScore = answerRows.reduce((total, answer) => total + answer.awardedScore, 0);
-  const passed = automaticScore >= settings.passingScore;
-  const submittedAt = new Date();
-
-  await db.update(examAttempts).set({
-    status: 'submitted',
-    automaticScore,
-    finalScore: automaticScore,
-    passed,
-    submittedAt,
-    gradedAt: submittedAt,
-    updatedAt: submittedAt,
-  }).where(eq(examAttempts.id, attempt.id));
-
-  await db.insert(examAnswers).values(answerRows.map((answer) => ({
-    attemptId: attempt.id,
-    questionId: answer.questionId,
-    selectedOptionId: answer.selectedOptionId,
-    awardedScore: answer.awardedScore,
-  })));
-
-  if (passed) {
-    await db.update(users).set({ membershipStatus: 'passed', updatedAt: new Date() }).where(eq(users.id, input.userId));
-    await issueMemberCard(input.userId);
-  } else {
-    await db.update(users).set({ membershipStatus: 'failed', updatedAt: new Date() }).where(eq(users.id, input.userId));
-  }
-
-  return { attempt, passed, score: automaticScore, passingScore: settings.passingScore };
 }
 
 export const examRules = {
@@ -768,5 +834,5 @@ export const examRules = {
   maximumAttempts: EXAM_MAXIMUM_ATTEMPTS,
   retryWindowDays: EXAM_RETRY_WINDOW_DAYS,
   pointsPerQuestion: 2,
-  questionCount: defaultExamQuestions.length,
+  questionCount: EXAM_QUESTION_COUNT,
 };

@@ -12,11 +12,9 @@ import { publicationStatuses } from '@/lib/cms/types';
 import type { PublicationStatus } from '@/lib/models';
 import { hasAllowedFormContentType, isDeclaredBodyWithinLimit } from '@/lib/security/request-limits';
 import { isSameOriginRequest } from '@/lib/security/same-origin';
+import { deleteStoredImage, storeValidatedImage, validateImageFile } from '@/lib/security/image-upload';
 
 export const dynamic = 'force-dynamic';
-
-const MAX_IMAGE_BYTES = 2_000_000;
-const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 async function resolveActorId(session: AdminSession) {
   if (session.authMethod !== 'bootstrap') return session.id;
@@ -28,11 +26,9 @@ async function resolveActorId(session: AdminSession) {
   return admin.id;
 }
 
-async function readArticleImage(form: FormData): Promise<CmsMediaInput> {
+async function readArticleImage(form: FormData, ownerId: string): Promise<CmsMediaInput> {
   const value = form.get('imageFile');
   if (!(value instanceof File) || value.size === 0) throw new CmsValidationError('Gambar berita wajib dipilih.');
-  if (!ALLOWED_IMAGE_TYPES.has(value.type)) throw new CmsValidationError('Format gambar harus JPG, PNG, atau WEBP.');
-  if (value.size > MAX_IMAGE_BYTES) throw new CmsValidationError('Ukuran gambar maksimal 2 MB.');
 
   const altText = String(form.get('imageAlt') || '').trim();
   if (!altText) throw new CmsValidationError('Teks alternatif gambar wajib diisi.');
@@ -40,13 +36,28 @@ async function readArticleImage(form: FormData): Promise<CmsMediaInput> {
   const caption = String(form.get('imageCaption') || '').trim();
   if (caption.length > 240) throw new CmsValidationError('Keterangan gambar terlalu panjang.');
 
-  const bytes = Buffer.from(await value.arrayBuffer());
+  let image;
+  try {
+    image = await validateImageFile(value);
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : '';
+    if (reason === 'IMAGE_FILE_INVALID') throw new CmsValidationError('Ukuran gambar harus lebih dari 0 dan maksimal 2 MB.');
+    if (reason === 'IMAGE_DIMENSIONS_INVALID') throw new CmsValidationError('Dimensi gambar terlalu besar.');
+    throw new CmsValidationError('Isi file tidak cocok dengan format JPG, PNG, atau WEBP.');
+  }
+  const stored = await storeValidatedImage({ image, ownerId, visibility: 'public' });
   return {
-    externalUrl: `data:${value.type};base64,${bytes.toString('base64')}`,
-    mimeType: value.type,
-    byteSize: value.size,
+    objectKey: stored.objectKey,
+    externalUrl: stored.externalUrl,
+    mimeType: stored.mimeType,
+    byteSize: stored.byteSize,
+    width: stored.width,
+    height: stored.height,
     altText,
     caption: caption || undefined,
+    visibility: 'public',
+    consentStatus: 'not_required',
+    malwareScanStatus: 'signature_validated',
   };
 }
 
@@ -75,6 +86,7 @@ export async function POST(request: Request) {
   const status = getCmsWriteStatus();
   if (!status.configured) return NextResponse.json({ error: 'Backend tulis CMS belum dikonfigurasi.' }, { status: 503 });
 
+  let uploadedObjectKey: string | null = null;
   try {
     const actorId = await resolveActorId(session);
 
@@ -88,8 +100,10 @@ export async function POST(request: Request) {
       }
       if (!can(session.role, 'content.create')) return NextResponse.json({ error: 'Tidak memiliki izin.' }, { status: 403 });
       const record = parseCreateContent(collectionValue, form, actorId);
-      const media = collectionValue === 'articles' ? await readArticleImage(form) : undefined;
+      const media = collectionValue === 'articles' ? await readArticleImage(form, actorId) : undefined;
+      uploadedObjectKey = media?.objectKey || null;
       await persistCmsMutation({ collection: collectionValue, action: 'create', records: [record], media, actorRole: session.role });
+      uploadedObjectKey = null;
       return redirectWith(request, 'queued=1');
     }
 
@@ -108,9 +122,11 @@ export async function POST(request: Request) {
       const updatedRecord = parseUpdateContent(collectionValue, form, actorId, record);
       const imageValue = form.get('imageFile');
       const media = collectionValue === 'articles' && imageValue instanceof File && imageValue.size > 0
-        ? await readArticleImage(form)
+        ? await readArticleImage(form, actorId)
         : undefined;
+      uploadedObjectKey = media?.objectKey || null;
       await persistCmsMutation({ collection: collectionValue, action: 'update', records: [updatedRecord], media, actorRole: session.role });
+      uploadedObjectKey = null;
       return redirectWith(request, 'updated=1');
     }
 
@@ -133,6 +149,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ error: 'Operasi tidak valid.' }, { status: 400 });
   } catch (error) {
+    await deleteStoredImage(uploadedObjectKey);
     if (error instanceof CmsValidationError) return NextResponse.json({ error: error.message }, { status: 400 });
     return NextResponse.json({ error: 'Penyimpanan konten gagal.' }, { status: 503 });
   }

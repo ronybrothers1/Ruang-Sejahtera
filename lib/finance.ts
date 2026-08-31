@@ -91,94 +91,105 @@ function validateInput(input: FinancialReportInput) {
 
 export async function createFinancialReport(input: FinancialReportInput & { actorUserId: string }) {
   validateInput(input);
-  const inserted = await getDb().insert(financialReports).values({
-    period: input.period.trim(),
-    title: input.title.trim(),
-    totalIncome: String(input.totalIncome),
-    totalDisbursement: String(input.totalDisbursement),
-    operationalCost: String(input.operationalCost),
-    createdBy: input.actorUserId,
-    status: 'draft',
-  }).returning();
-  const report = inserted[0];
-  await getDb().insert(auditLogs).values({
-    actorUserId: input.actorUserId,
-    actorRole: 'super_admin',
-    action: 'finance.report_created',
-    resourceType: 'financial_report',
-    resourceId: report.id,
-    metadata: { status: 'draft' },
+  const report = await getDb().transaction(async (tx) => {
+    const inserted = await tx.insert(financialReports).values({
+      period: input.period.trim(),
+      title: input.title.trim(),
+      totalIncome: String(input.totalIncome),
+      totalDisbursement: String(input.totalDisbursement),
+      operationalCost: String(input.operationalCost),
+      createdBy: input.actorUserId,
+      status: 'draft',
+    }).returning();
+    const created = inserted[0];
+    if (!created) throw new Error('FINANCE_REPORT_CREATE_FAILED');
+    await tx.insert(auditLogs).values({
+      actorUserId: input.actorUserId,
+      actorRole: 'super_admin',
+      action: 'finance.report_created',
+      resourceType: 'financial_report',
+      resourceId: created.id,
+      metadata: { status: 'draft' },
+    });
+    return created;
   });
   return toRecord(report);
 }
 
 export async function updateFinancialReport(input: FinancialReportInput & { id: string; actorUserId: string }) {
   validateInput(input);
-  const updated = await getDb().update(financialReports).set({
-    period: input.period.trim(),
-    title: input.title.trim(),
-    totalIncome: String(input.totalIncome),
-    totalDisbursement: String(input.totalDisbursement),
-    operationalCost: String(input.operationalCost),
-    updatedAt: new Date(),
-  }).where(and(eq(financialReports.id, input.id), isNull(financialReports.deletedAt))).returning();
-  const report = updated[0];
-  if (!report) throw new Error('FINANCE_REPORT_NOT_FOUND');
-  if (report.status === 'published') {
-    await getDb().update(financialReports).set({
-      status: 'draft',
-      publishedAt: null,
-      publishedBy: null,
+  const report = await getDb().transaction(async (tx) => {
+    const updated = await tx.update(financialReports).set({
+      period: input.period.trim(),
+      title: input.title.trim(),
+      totalIncome: String(input.totalIncome),
+      totalDisbursement: String(input.totalDisbursement),
+      operationalCost: String(input.operationalCost),
       updatedAt: new Date(),
-    }).where(eq(financialReports.id, report.id));
-  }
-  await getDb().insert(auditLogs).values({
-    actorUserId: input.actorUserId,
-    actorRole: 'super_admin',
-    action: 'finance.report_updated',
-    resourceType: 'financial_report',
-    resourceId: report.id,
-    metadata: { status: report.status === 'published' ? 'draft' : report.status },
+    }).where(and(eq(financialReports.id, input.id), isNull(financialReports.deletedAt))).returning();
+    let saved = updated[0];
+    if (!saved) throw new Error('FINANCE_REPORT_NOT_FOUND');
+    if (saved.status === 'published') {
+      saved = (await tx.update(financialReports).set({
+        status: 'draft',
+        publishedAt: null,
+        publishedBy: null,
+        updatedAt: new Date(),
+      }).where(eq(financialReports.id, saved.id)).returning())[0] || saved;
+    }
+    await tx.insert(auditLogs).values({
+      actorUserId: input.actorUserId,
+      actorRole: 'super_admin',
+      action: 'finance.report_updated',
+      resourceType: 'financial_report',
+      resourceId: saved.id,
+      metadata: { status: saved.status },
+    });
+    return saved;
   });
-  const refreshed = await getFinancialReport(report.id);
-  if (!refreshed) throw new Error('FINANCE_REPORT_NOT_FOUND');
-  return refreshed;
+  return toRecord(report);
 }
 
 export async function publishFinancialReport(id: string, actorUserId: string) {
-  const updated = await getDb().update(financialReports).set({
-    status: 'published',
-    publishedAt: new Date(),
-    publishedBy: actorUserId,
-    updatedAt: new Date(),
-  }).where(and(eq(financialReports.id, id), isNull(financialReports.deletedAt))).returning();
-  const report = updated[0];
-  if (!report) throw new Error('FINANCE_REPORT_NOT_FOUND');
-  await getDb().insert(auditLogs).values({
-    actorUserId,
-    actorRole: 'super_admin',
-    action: 'finance.report_published',
-    resourceType: 'financial_report',
-    resourceId: report.id,
-    metadata: { status: 'published' },
+  const report = await getDb().transaction(async (tx) => {
+    const updated = await tx.update(financialReports).set({
+      status: 'published',
+      publishedAt: new Date(),
+      publishedBy: actorUserId,
+      updatedAt: new Date(),
+    }).where(and(eq(financialReports.id, id), isNull(financialReports.deletedAt))).returning();
+    const published = updated[0];
+    if (!published) throw new Error('FINANCE_REPORT_NOT_FOUND');
+    await tx.insert(auditLogs).values({
+      actorUserId,
+      actorRole: 'super_admin',
+      action: 'finance.report_published',
+      resourceType: 'financial_report',
+      resourceId: published.id,
+      metadata: { status: 'published' },
+    });
+    return published;
   });
   return toRecord(report);
 }
 
 export async function archiveFinancialReport(id: string, actorUserId: string) {
-  const updated = await getDb().update(financialReports).set({
-    status: 'archived',
-    updatedAt: new Date(),
-  }).where(and(eq(financialReports.id, id), isNull(financialReports.deletedAt))).returning();
-  const report = updated[0];
-  if (!report) throw new Error('FINANCE_REPORT_NOT_FOUND');
-  await getDb().insert(auditLogs).values({
-    actorUserId,
-    actorRole: 'super_admin',
-    action: 'finance.report_archived',
-    resourceType: 'financial_report',
-    resourceId: report.id,
-    metadata: { status: 'archived' },
+  const report = await getDb().transaction(async (tx) => {
+    const updated = await tx.update(financialReports).set({
+      status: 'archived',
+      updatedAt: new Date(),
+    }).where(and(eq(financialReports.id, id), isNull(financialReports.deletedAt))).returning();
+    const archived = updated[0];
+    if (!archived) throw new Error('FINANCE_REPORT_NOT_FOUND');
+    await tx.insert(auditLogs).values({
+      actorUserId,
+      actorRole: 'super_admin',
+      action: 'finance.report_archived',
+      resourceType: 'financial_report',
+      resourceId: archived.id,
+      metadata: { status: 'archived' },
+    });
+    return archived;
   });
   return toRecord(report);
 }

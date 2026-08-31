@@ -14,7 +14,9 @@ const productionIdentityMiddleware = clerkMiddleware(async (auth, request) => {
 
 export default function proxy(request: NextRequest, event: NextFetchEvent) {
   if (!isClerkConfigured()) return NextResponse.next();
-  if (isBootstrapEnabledForEnvironment() && isAdminRoute(request)) return NextResponse.next();
+  const bootstrapCookiePresent = Boolean(request.cookies.get('rs_admin_session')?.value);
+  if (isBootstrapEnabledForEnvironment() && isAdminRoute(request)
+    && (isPublicAdminAuthRoute(request) || bootstrapCookiePresent)) return NextResponse.next();
   return productionIdentityMiddleware(request, event);
 }
 
