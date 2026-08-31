@@ -19,6 +19,7 @@ const staticPaths = [
   '/organisasi',
   '/donasi',
   '/kontak',
+  '/peta-situs',
   '/cari',
   '/privasi',
   '/ketentuan',

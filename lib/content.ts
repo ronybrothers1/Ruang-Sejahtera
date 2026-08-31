@@ -193,6 +193,7 @@ export const publicSearchIndex: PublicSearchItem[] = [
   { title: 'Kebijakan Donasi', description: 'Prinsip pencatatan, privasi donatur, dan keamanan transaksi.', href: '/kebijakan-donasi', category: 'Akuntabilitas' },
   { title: 'Cara Mendukung', description: 'Pilihan dukungan, simulasi donasi, dan standar keamanan.', href: '/donasi', category: 'Terlibat' },
   { title: 'Kontak & Kolaborasi', description: 'Kanal untuk pertanyaan program, kemitraan, relawan, media, dan dukungan.', href: '/kontak', category: 'Terlibat' },
+  { title: 'Peta Situs', description: 'Direktori seluruh halaman publik Yayasan Ruang Sejahtera.', href: '/peta-situs', category: 'Bantuan' },
   { title: 'Kebijakan Privasi', description: 'Prinsip pengelolaan data pribadi, penerima manfaat, analytics, dan formulir.', href: '/privasi', category: 'Kebijakan' },
   { title: 'Ketentuan Penggunaan', description: 'Ketentuan penggunaan informasi dan layanan website.', href: '/ketentuan', category: 'Kebijakan' },
   { title: 'Aksesibilitas', description: 'Komitmen aksesibilitas dan perbaikan berkelanjutan website.', href: '/aksesibilitas', category: 'Kebijakan' },
