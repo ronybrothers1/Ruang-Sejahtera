@@ -12,7 +12,7 @@ const tools = [
   { command: 'insertOrderedList', label: 'Daftar bernomor', text: '1.' },
 ] as const;
 
-export function RichTextEditor({ name, defaultValue, required = true }: { name: string; defaultValue?: string; required?: boolean }) {
+export function RichTextEditor({ name, defaultValue }: { name: string; defaultValue?: string }) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [value, setValue] = useState(defaultValue || '');
 
@@ -52,7 +52,7 @@ export function RichTextEditor({ name, defaultValue, required = true }: { name: 
         onInput={syncValue}
         dangerouslySetInnerHTML={{ __html: defaultValue || '' }}
       />
-      <textarea name={name} value={value} onChange={() => undefined} required={required} hidden aria-hidden="true" tabIndex={-1} />
+      <textarea name={name} value={value} onChange={() => undefined} hidden aria-hidden="true" tabIndex={-1} />
       <p className="mt-2 text-xs font-normal text-neutral-500">Gunakan H2 untuk subjudul utama dan H3 untuk subjudul turunannya.</p>
     </div>
   );

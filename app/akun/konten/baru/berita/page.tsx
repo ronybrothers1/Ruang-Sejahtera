@@ -4,6 +4,7 @@ import { requireUserSession } from '@/lib/auth/admin-session';
 import { findUserByIdentityProviderId } from '@/lib/db/users';
 import { getCmsWriteStatus } from '@/lib/cms/store';
 import { hasPassedExam } from '@/lib/membership';
+import { RichTextEditor } from '@/components/RichTextEditor';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,7 +48,7 @@ export default async function MemberNewsPage() {
             <label className="block text-sm font-bold">Teks alternatif gambar<input name="imageAlt" required maxLength={160} placeholder="Contoh: Relawan membagikan bantuan" className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label>
             <label className="block text-sm font-bold">Keterangan gambar <span className="font-normal text-neutral-500">(opsional)</span><input name="imageCaption" maxLength={240} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label>
             <label className="block text-sm font-bold">Ringkasan<input name="excerpt" required maxLength={420} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label>
-            <label className="block text-sm font-bold">Isi<textarea name="body" required maxLength={20000} rows={14} className="mt-2 w-full rounded-xl border border-neutral-300 p-4 font-normal leading-7" /></label>
+            <label className="block text-sm font-bold">Isi<RichTextEditor name="body" /></label>
             <button type="submit" className="button-primary">Simpan berita sebagai draft</button>
           </form>
         )}
