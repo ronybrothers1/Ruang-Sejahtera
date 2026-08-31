@@ -11,14 +11,14 @@ import { StatusBadge } from '@/components/admin/StatusBadge';
 
 type CollectionItem = { id: string; title: string; slug: string; status: PublicationStatus; persisted?: boolean };
 
-function WorkflowActions({ item, role }: { item: CollectionItem; role: Parameters<typeof canTransitionPublication>[0]; collection: 'articles' | 'activities' | 'galleries' }) {
+function WorkflowActions({ item, role, collection }: { item: CollectionItem; role: Parameters<typeof canTransitionPublication>[0]; collection: 'articles' | 'activities' | 'galleries' }) {
   if (!item.persisted) return <span className="text-xs text-neutral-400">Preview repository</span>;
   const transitions = allowedPublicationTransitions[item.status].filter((status) => canTransitionPublication(role, item.status, status));
   if (!transitions.length) return null;
   return <div className="flex flex-wrap gap-2">{transitions.map((toStatus) => <form action="/api/admin/content" method="post" key={toStatus}><input type="hidden" name="intent" value="transition" /><input type="hidden" name="collection" value={collection} /><input type="hidden" name="id" value={item.id} /><input type="hidden" name="toStatus" value={toStatus} /><button type="submit" className={toStatus === 'published' ? 'button-primary' : 'button-secondary'}>{transitionLabel(item.status, toStatus)}</button></form>)}</div>;
 }
 
-function Collection({ title, items, role }: { title: string; items: CollectionItem[]; role: Parameters<typeof canTransitionPublication>[0]; collection: 'articles' | 'activities' | 'galleries' }) {
+function Collection({ title, items, role, collection }: { title: string; items: CollectionItem[]; role: Parameters<typeof canTransitionPublication>[0]; collection: 'articles' | 'activities' | 'galleries' }) {
   return <section className="rounded-2xl border border-neutral-200 bg-white p-6"><div className="flex items-center justify-between gap-4"><h2 className="font-heading text-xl font-extrabold">{title}</h2><span className="count-badge" aria-label={`${items.length} record`}>{items.length}</span></div>{items.length ? <div className="mt-5 divide-y divide-neutral-100">{items.map((item) => <div key={item.id} className="flex flex-col gap-3 py-4"><div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-bold">{item.title}</p><p className="mt-1 text-xs text-neutral-500">/{item.slug}</p></div><StatusBadge status={item.status} /></div><WorkflowActions item={item} role={role} collection={collection} /></div>)}</div> : <p className="mt-5 text-sm leading-6 text-neutral-500">Belum ada record pada collection ini.</p>}</section>;
 }
 
