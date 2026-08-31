@@ -1,4 +1,5 @@
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
+import { cache } from 'react';
 import { isDatabaseConfigured } from '@/lib/auth/config';
 import { cmsActivities, cmsArticles, cmsGalleries } from '@/lib/cms/content';
 import { getDb } from '@/lib/db';
@@ -66,7 +67,7 @@ export const publishedActivities: PublishedActivity[] = cmsActivities
     body,
   }));
 
-function mapActivity(row: typeof contentItems.$inferSelect, media: (typeof mediaAssets.$inferSelect)[]) {
+function mapActivity(row: PublishedActivityContent, media: (typeof mediaAssets.$inferSelect)[]) {
   const image = media.find((item) => isPublishableMedia(item));
   const video = media.find((item) => isPublishableExternalVideo(item));
   const parsedVideo = video?.externalUrl ? parseExternalVideoUrl(video.externalUrl) : null;
@@ -111,116 +112,162 @@ export const publishedGalleries: PublishedGallery[] = cmsGalleries
 
 export type PublishedFinancialReport = FinancialReportRecord;
 
-export async function getPublishedFinancialReports(): Promise<PublishedFinancialReport[]> {
+export async function getPublishedFinancialReports(options: { limit?: number } = {}): Promise<PublishedFinancialReport[]> {
   if (!isDatabaseConfigured()) return [];
   try {
-    return await listFinancialReports({ publishedOnly: true });
+    return await listFinancialReports({ publishedOnly: true, limit: options.limit });
   } catch {
     return [];
   }
 }
 
-export async function getPublishedArticleBySlug(slug: string): Promise<PublishedArticle | null> {
+type PublishedArticleContent = Pick<typeof contentItems.$inferSelect, 'id' | 'slug' | 'title' | 'excerpt' | 'publishedAt' | 'category' | 'body'>;
+type PublishedActivityContent = Pick<typeof contentItems.$inferSelect, 'id' | 'slug' | 'title' | 'excerpt' | 'activityDate' | 'locationLabel' | 'programSlug' | 'body'>;
+
+function mediaByContentId(media: (typeof mediaAssets.$inferSelect)[]) {
+  const grouped = new Map<string, (typeof mediaAssets.$inferSelect)[]>();
+  for (const item of media) {
+    if (!item.contentId) continue;
+    const current = grouped.get(item.contentId) || [];
+    current.push(item);
+    grouped.set(item.contentId, current);
+  }
+  return grouped;
+}
+
+function mapArticle(row: PublishedArticleContent, media: (typeof mediaAssets.$inferSelect)[]) {
+  const image = media.find((item) => isPublishableMedia(item));
+  return {
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt || '',
+    publishedAt: row.publishedAt?.toISOString() || '',
+    category: row.category || '',
+    body: row.body,
+    imageUrl: image?.externalUrl || undefined,
+    imageAlt: image?.altText,
+    imageCaption: image?.caption || undefined,
+  } satisfies PublishedArticle;
+}
+
+export const getPublishedArticleBySlug = cache(async (slug: string): Promise<PublishedArticle | null> => {
   if (!isDatabaseConfigured()) return null;
   try {
-    const rows = await getDb()
-      .select({ content: contentItems, media: mediaAssets })
+    const contentRows = await getDb()
+      .select({
+        id: contentItems.id,
+        slug: contentItems.slug,
+        title: contentItems.title,
+        excerpt: contentItems.excerpt,
+        publishedAt: contentItems.publishedAt,
+        category: contentItems.category,
+        body: contentItems.body,
+      })
       .from(contentItems)
-      .leftJoin(mediaAssets, eq(mediaAssets.contentId, contentItems.id))
       .where(and(
         eq(contentItems.type, 'article'),
         eq(contentItems.slug, slug),
         eq(contentItems.status, 'published'),
         isNull(contentItems.deletedAt),
-      ));
-
-    const row = rows.find((item) => isPublishableMedia(item.media)) || rows[0];
-    if (!row) return null;
-    const media = isPublishableMedia(row.media) ? row.media : null;
-    return {
-      slug: row.content.slug,
-      title: row.content.title,
-      excerpt: row.content.excerpt || '',
-      publishedAt: row.content.publishedAt?.toISOString() || '',
-      category: row.content.category || '',
-      body: row.content.body,
-      imageUrl: media?.externalUrl || undefined,
-      imageAlt: media?.altText,
-      imageCaption: media?.caption || undefined,
-    };
+      ))
+      .limit(1);
+    const content = contentRows[0];
+    if (!content) return null;
+    const media = await getDb().select().from(mediaAssets).where(and(
+      eq(mediaAssets.contentId, content.id),
+      isNull(mediaAssets.deletedAt),
+    ));
+    return mapArticle(content, media);
   } catch {
     return null;
   }
-}
+});
 
-export async function getPublishedActivities(): Promise<PublishedActivity[]> {
+export async function getPublishedActivities(options: { limit?: number } = {}): Promise<PublishedActivity[]> {
   if (!isDatabaseConfigured()) return publishedActivities;
   try {
-    const rows = await getDb().select({ content: contentItems, media: mediaAssets }).from(contentItems)
-      .leftJoin(mediaAssets, and(eq(mediaAssets.contentId, contentItems.id), isNull(mediaAssets.deletedAt)))
+    const query = getDb().select({
+      id: contentItems.id,
+      slug: contentItems.slug,
+      title: contentItems.title,
+      excerpt: contentItems.excerpt,
+      activityDate: contentItems.activityDate,
+      locationLabel: contentItems.locationLabel,
+      programSlug: contentItems.programSlug,
+      body: contentItems.body,
+    }).from(contentItems)
       .where(and(eq(contentItems.type, 'activity'), eq(contentItems.status, 'published'), isNull(contentItems.deletedAt)))
       .orderBy(desc(contentItems.activityDate), desc(contentItems.publishedAt));
-    const grouped = new Map<string, { content: typeof rows[number]['content']; media: NonNullable<typeof rows[number]['media']>[] }>();
-    for (const row of rows) {
-      const current = grouped.get(row.content.id) || { content: row.content, media: [] };
-      if (row.media) current.media.push(row.media);
-      grouped.set(row.content.id, current);
-    }
-    const activities = Array.from(grouped.values()).map(({ content, media }) => mapActivity(content, media));
+    const contentRows = options.limit && options.limit > 0 ? await query.limit(options.limit) : await query;
+    if (!contentRows.length) return publishedActivities;
+    const media = await getDb().select().from(mediaAssets).where(and(
+      inArray(mediaAssets.contentId, contentRows.map((row) => row.id)),
+      isNull(mediaAssets.deletedAt),
+    ));
+    const groupedMedia = mediaByContentId(media);
+    const activities = contentRows.map((content) => mapActivity(content, groupedMedia.get(content.id) || []));
     return activities.length ? activities : publishedActivities;
   } catch {
     return publishedActivities;
   }
 }
 
-export async function getPublishedActivityBySlug(slug: string): Promise<PublishedActivity | null> {
+export const getPublishedActivityBySlug = cache(async (slug: string): Promise<PublishedActivity | null> => {
   if (!isDatabaseConfigured()) return null;
   try {
-    const rows = await getDb().select({ content: contentItems, media: mediaAssets }).from(contentItems)
-      .leftJoin(mediaAssets, and(eq(mediaAssets.contentId, contentItems.id), isNull(mediaAssets.deletedAt)))
-      .where(and(eq(contentItems.type, 'activity'), eq(contentItems.slug, slug), eq(contentItems.status, 'published'), isNull(contentItems.deletedAt)));
-    if (!rows.length) return null;
-    return mapActivity(rows[0].content, rows.flatMap((row) => row.media ? [row.media] : []));
+    const contentRows = await getDb().select({
+      id: contentItems.id,
+      slug: contentItems.slug,
+      title: contentItems.title,
+      excerpt: contentItems.excerpt,
+      activityDate: contentItems.activityDate,
+      locationLabel: contentItems.locationLabel,
+      programSlug: contentItems.programSlug,
+      body: contentItems.body,
+    }).from(contentItems)
+      .where(and(eq(contentItems.type, 'activity'), eq(contentItems.slug, slug), eq(contentItems.status, 'published'), isNull(contentItems.deletedAt)))
+      .limit(1);
+    const content = contentRows[0];
+    if (!content) return null;
+    const media = await getDb().select().from(mediaAssets).where(and(
+      eq(mediaAssets.contentId, content.id),
+      isNull(mediaAssets.deletedAt),
+    ));
+    return mapActivity(content, media);
   } catch {
     return null;
   }
-}
+});
 
 
-export async function getPublishedArticles(): Promise<PublishedArticle[]> {
+export async function getPublishedArticles(options: { limit?: number } = {}): Promise<PublishedArticle[]> {
   if (!isDatabaseConfigured()) return publishedArticles;
   try {
-    const rows = await getDb()
-      .select({ content: contentItems, media: mediaAssets })
+    const query = getDb()
+      .select({
+        id: contentItems.id,
+        slug: contentItems.slug,
+        title: contentItems.title,
+        excerpt: contentItems.excerpt,
+        publishedAt: contentItems.publishedAt,
+        category: contentItems.category,
+        body: contentItems.body,
+      })
       .from(contentItems)
-      .leftJoin(mediaAssets, eq(mediaAssets.contentId, contentItems.id))
       .where(and(
         eq(contentItems.type, 'article'),
         eq(contentItems.status, 'published'),
         isNull(contentItems.deletedAt),
       ))
       .orderBy(desc(contentItems.publishedAt));
-
-    const articles = new Map<string, PublishedArticle>();
-    for (const row of rows) {
-      const media = isPublishableMedia(row.media) ? row.media : null;
-      const current = articles.get(row.content.slug);
-      if (current && current.imageUrl) continue;
-      articles.set(row.content.slug, {
-        slug: row.content.slug,
-        title: row.content.title,
-        excerpt: row.content.excerpt || '',
-        publishedAt: row.content.publishedAt?.toISOString() || '',
-        category: row.content.category || '',
-        body: row.content.body,
-        imageUrl: media?.externalUrl || current?.imageUrl,
-        imageAlt: media?.altText || current?.imageAlt,
-        imageCaption: media?.caption || current?.imageCaption,
-      });
-    }
-
-    const dynamicArticles = Array.from(articles.values());
-    const dynamicSlugs = new Set(dynamicArticles.map((item) => item.slug));
+    const contentRows = options.limit && options.limit > 0 ? await query.limit(options.limit) : await query;
+    if (!contentRows.length) return publishedArticles;
+    const media = await getDb().select().from(mediaAssets).where(and(
+      inArray(mediaAssets.contentId, contentRows.map((row) => row.id)),
+      isNull(mediaAssets.deletedAt),
+    ));
+    const groupedMedia = mediaByContentId(media);
+    const dynamicArticles = contentRows.map((content) => mapArticle(content, groupedMedia.get(content.id) || []));
     return dynamicArticles.length ? dynamicArticles : publishedArticles;
   } catch {
     return publishedArticles;

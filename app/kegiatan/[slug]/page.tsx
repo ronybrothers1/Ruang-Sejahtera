@@ -39,7 +39,7 @@ export default async function ActivityDetailPage({ params }: { params: Promise<{
             <p><strong className="text-brand-ink">Program:</strong><br /><Link className="font-bold text-brand-red hover:underline" href={`/program/${activity.programSlug}`}>Lihat program terkait</Link></p>
           </aside>
           <div>
-            {activity.imageUrl ? <figure className="mb-8 overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-100"><Image src={activity.imageUrl} alt={activity.imageAlt || activity.title} width={1200} height={675} unoptimized className="h-auto w-full object-cover" />{activity.imageCaption ? <figcaption className="px-4 py-3 text-sm text-neutral-600">{activity.imageCaption}</figcaption> : null}</figure> : null}
+            {activity.imageUrl ? <figure className="mb-8 overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-100"><Image src={activity.imageUrl} alt={activity.imageAlt || activity.title} width={1200} height={675} sizes="(max-width: 768px) 100vw, 768px" className="h-auto w-full object-cover" />{activity.imageCaption ? <figcaption className="px-4 py-3 text-sm text-neutral-600">{activity.imageCaption}</figcaption> : null}</figure> : null}
             {activity.video ? <ExternalVideoEmbed {...activity.video} title={activity.title} /> : null}
             <RichTextContent value={activity.body} className="prose prose-neutral max-w-none leading-8" />
           </div>

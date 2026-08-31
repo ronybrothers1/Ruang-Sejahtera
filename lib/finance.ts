@@ -67,14 +67,15 @@ export function formatRupiah(value: number) {
   }).format(value);
 }
 
-export async function listFinancialReports(options: { publishedOnly?: boolean } = {}) {
+export async function listFinancialReports(options: { publishedOnly?: boolean; limit?: number } = {}) {
   const conditions = [isNull(financialReports.deletedAt)];
   if (options.publishedOnly) conditions.push(eq(financialReports.status, 'published'));
-  const rows = await getDb()
+  const query = getDb()
     .select()
     .from(financialReports)
     .where(and(...conditions))
     .orderBy(desc(financialReports.publishedAt), desc(financialReports.period), desc(financialReports.createdAt));
+  const rows = options.limit && options.limit > 0 ? await query.limit(options.limit) : await query;
   return rows.map(toRecord);
 }
 

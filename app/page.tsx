@@ -34,9 +34,9 @@ const accountabilityLinks = [
 
 export default async function Home() {
   const [publishedArticles, financialReports, publishedActivities] = await Promise.all([
-    getPublishedArticles(),
-    getPublishedFinancialReports(),
-    getPublishedActivities(),
+    getPublishedArticles({ limit: 4 }),
+    getPublishedFinancialReports({ limit: 1 }),
+    getPublishedActivities({ limit: 3 }),
   ]);
   const activityItems = publishedActivities.length ? publishedActivities.slice(0, 3).map((activity, index) => ({ slug: activity.slug, date: activity.activityDate, location: activity.locationLabel, title: activity.title, summary: activity.summary, image: activity.imageUrl || sampleActivities[index % sampleActivities.length].image, imageAlt: activity.imageAlt || activity.title, imageLabel: activity.imageUrl ? 'Dokumentasi resmi' : 'Konten resmi' })) : sampleActivities;
   const latestReport = financialReports[0] || null;
