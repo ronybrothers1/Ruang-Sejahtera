@@ -2778,3 +2778,47 @@ body {
 .mobile-nav-portal .cta-ghost {
   justify-content: flex-start;
 }
+
+
+/* Portal identity refinements */
+.member-portal-header-inner {
+  min-height: 116px;
+}
+.member-portal-brand .member-portal-logo {
+  width: 238px !important;
+  max-width: min(34vw, 238px) !important;
+}
+.member-portal-brand > div {
+  border-left: 1px solid #e5e5e5;
+  padding-left: 1rem;
+}
+.admin-portal-logo-shell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 250px;
+  min-height: 150px;
+}
+.admin-portal-logo-shell .admin-portal-logo {
+  width: 218px !important;
+  max-width: 100% !important;
+}
+@media (max-width: 680px) {
+  .member-portal-header-inner {
+    min-height: 92px;
+  }
+  .member-portal-brand .member-portal-logo {
+    width: 168px !important;
+    max-width: min(46vw, 168px) !important;
+  }
+  .member-portal-brand > div {
+    padding-left: .75rem;
+  }
+  .admin-portal-logo-shell {
+    min-width: 0;
+    min-height: 108px;
+  }
+  .admin-portal-logo-shell .admin-portal-logo {
+    width: 164px !important;
+  }
+}
