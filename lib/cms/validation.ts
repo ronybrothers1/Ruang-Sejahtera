@@ -70,6 +70,17 @@ export function parseCreateContent(collection: CmsCollection, form: FormData, ac
   return record;
 }
 
+export function parseUpdateContent(collection: CmsCollection, form: FormData, actorId: string, existing: CmsRecord): CmsRecord {
+  const parsed = parseCreateContent(collection, form, actorId);
+  return {
+    ...parsed,
+    id: existing.id,
+    status: existing.status,
+    createdAt: existing.createdAt,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
 export function isCmsCollection(value: string): value is CmsCollection {
   return value === 'articles' || value === 'activities' || value === 'galleries';
 }
