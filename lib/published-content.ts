@@ -148,7 +148,7 @@ export async function getPublishedArticles(): Promise<PublishedArticle[]> {
 
     const dynamicArticles = Array.from(articles.values());
     const dynamicSlugs = new Set(dynamicArticles.map((item) => item.slug));
-    return [...dynamicArticles, ...publishedArticles.filter((item) => !dynamicSlugs.has(item.slug))];
+    return dynamicArticles.length ? dynamicArticles : publishedArticles;
   } catch {
     return publishedArticles;
   }
