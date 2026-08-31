@@ -1,5 +1,5 @@
-import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { and, desc, eq, inArray, sql } from 'drizzle-orm';
+import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
+import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { getDb } from '@/lib/db';
 import {
   examAnswers,
@@ -740,6 +740,45 @@ export async function hasPassedExam(userId: string) {
 
 export async function getMemberCard(userId: string) {
   const rows = await getDb().select().from(memberCards).where(eq(memberCards.userId, userId)).limit(1);
+  return rows[0] || null;
+}
+
+function memberCardVerificationSecret() {
+  return process.env.ADMIN_SESSION_SECRET?.trim() || '';
+}
+
+export function getMemberCardVerificationProof(memberNumber: string) {
+  const secret = memberCardVerificationSecret();
+  if (secret.length < 32 || !memberNumber) return null;
+  return createHmac('sha256', secret).update(memberNumber, 'utf8').digest('base64url');
+}
+
+function isValidMemberCardProof(memberNumber: string, proof: string) {
+  const expected = getMemberCardVerificationProof(memberNumber);
+  if (!expected || !proof) return false;
+  const expectedBuffer = Buffer.from(expected, 'utf8');
+  const actualBuffer = Buffer.from(proof, 'utf8');
+  return expectedBuffer.length === actualBuffer.length && timingSafeEqual(expectedBuffer, actualBuffer);
+}
+
+export async function getPublicMemberCardVerification(memberNumber: string, proof: string) {
+  const normalizedNumber = memberNumber.trim().toUpperCase();
+  if (!/^RS-\d{4}-[A-F0-9]{6}$/.test(normalizedNumber) || !isValidMemberCardProof(normalizedNumber, proof)) return null;
+
+  const rows = await getDb().select({
+    memberNumber: memberCards.memberNumber,
+    joinedAt: memberCards.joinedAt,
+    status: memberCards.status,
+    fullName: users.fullName,
+  }).from(memberCards)
+    .innerJoin(users, eq(users.id, memberCards.userId))
+    .where(and(
+      eq(memberCards.memberNumber, normalizedNumber),
+      eq(memberCards.status, 'active'),
+      eq(users.isActive, true),
+      isNull(users.deletedAt),
+    ))
+    .limit(1);
   return rows[0] || null;
 }
 

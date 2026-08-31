@@ -31,6 +31,7 @@ const nextConfig: NextConfig = {
       { source: '/admin/:path*', headers: privateControlPlaneHeaders },
       { source: '/api/admin/:path*', headers: privateControlPlaneHeaders },
       { source: '/akun/:path*', headers: privateControlPlaneHeaders },
+      { source: '/verifikasi/:path*', headers: privateControlPlaneHeaders },
       { source: '/masuk/:path*', headers: privateControlPlaneHeaders },
       { source: '/daftar/:path*', headers: privateControlPlaneHeaders },
     ];
