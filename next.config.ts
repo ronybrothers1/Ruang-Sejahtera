@@ -11,7 +11,7 @@ const securityHeaders = [
   { key: 'Cross-Origin-Resource-Policy', value: 'cross-origin' },
   { key: 'Origin-Agent-Cluster', value: '?1' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
-  { key: 'Content-Security-Policy', value: "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; frame-src https://www.tiktok.com https://*.clerk.accounts.dev https://challenges.cloudflare.com; object-src 'none'; img-src 'self' data: blob: https://img.clerk.com https://*.clerk.accounts.dev; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev https://challenges.cloudflare.com; connect-src 'self' https://*.clerk.accounts.dev https://api.clerk.com https://challenges.cloudflare.com; upgrade-insecure-requests" },
+  { key: 'Content-Security-Policy', value: "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; frame-src https://www.tiktok.com https://www.instagram.com https://*.clerk.accounts.dev https://challenges.cloudflare.com; object-src 'none'; img-src 'self' data: blob: https://img.clerk.com https://*.clerk.accounts.dev; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev https://challenges.cloudflare.com; connect-src 'self' https://*.clerk.accounts.dev https://api.clerk.com https://challenges.cloudflare.com; upgrade-insecure-requests" },
 ];
 
 const privateControlPlaneHeaders = [

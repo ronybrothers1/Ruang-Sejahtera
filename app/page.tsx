@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { ProgramMark } from '@/components/ProgramMark';
 import { formatRupiah } from '@/lib/finance';
-import { getPublishedArticles, getPublishedFinancialReports } from '@/lib/published-content';
+import { getPublishedActivities, getPublishedArticles, getPublishedFinancialReports } from '@/lib/published-content';
 import {
   programs,
   sampleActivities,
@@ -33,10 +33,12 @@ const accountabilityLinks = [
 ] as const;
 
 export default async function Home() {
-  const [publishedArticles, financialReports] = await Promise.all([
+  const [publishedArticles, financialReports, publishedActivities] = await Promise.all([
     getPublishedArticles(),
     getPublishedFinancialReports(),
+    getPublishedActivities(),
   ]);
+  const activityItems = publishedActivities.length ? publishedActivities.slice(0, 3).map((activity, index) => ({ slug: activity.slug, date: activity.activityDate, location: activity.locationLabel, title: activity.title, summary: activity.summary, image: activity.imageUrl || sampleActivities[index % sampleActivities.length].image, imageAlt: activity.imageAlt || activity.title, imageLabel: activity.imageUrl ? 'Dokumentasi resmi' : 'Konten resmi' })) : sampleActivities;
   const latestReport = financialReports[0] || null;
   const newsItems = publishedArticles.length
     ? publishedArticles.slice(0, 4).map((item, index) => ({
@@ -126,7 +128,7 @@ export default async function Home() {
             <Link href="/kegiatan" className="trust-text-link">Lihat seluruh kegiatan <ArrowRight size={16} aria-hidden="true" /></Link>
           </div>
           <div className="trust-activity-grid">
-            {sampleActivities.map((activity, index) => (
+            {activityItems.map((activity, index) => (
               <article key={activity.slug} className={index === 0 ? 'trust-activity-card trust-activity-card-featured' : 'trust-activity-card'}>
                 <div className="trust-activity-image"><Image src={activity.image} alt={activity.imageAlt} fill sizes={index === 0 ? '(max-width: 900px) 100vw, 55vw' : '(max-width: 680px) 100vw, (max-width: 1120px) 50vw, 33vw'} /><span className="preview-chip">{activity.imageLabel}</span></div>
                 <div className="trust-activity-copy">
@@ -189,7 +191,7 @@ export default async function Home() {
           <div className="trust-section-heading trust-section-heading-compact"><div><span>Berita & cerita</span><h2 id="news-heading">Kabar dari lapangan.</h2></div><Link href="/berita" className="trust-text-link">Lihat semua berita <ArrowRight size={16} aria-hidden="true" /></Link></div>
           <div className="trust-news-grid">
             {newsItems.map((item) => (
-              <article key={item.slug}><div className="trust-news-image"><Image src={item.image} alt={item.imageAlt} fill sizes="(max-width: 680px) 100vw, (max-width: 1024px) 50vw, 25vw" /><span>{item.category}</span></div><div><small>{item.date}{item.isLive ? '' : ' · CONTOH'}</small><h3>{item.title}</h3><Link href={`/berita/${item.slug}`} aria-label={`Lihat berita: ${item.title}`}>{item.isLive ? 'Baca berita' : 'Lihat preview berita'} <ArrowRight size={14} aria-hidden="true" /></Link></div></article>
+              <article key={item.slug}><div className="trust-news-image"><Image src={item.image} alt={item.imageAlt} fill sizes="(max-width: 680px) 100vw, (max-width: 1024px) 50vw, 25vw" /><span>{item.category}</span></div><div><small>{item.date}{item.isLive ? '' : ' · CONTOH'}</small><h3>{item.title}</h3><Link href={`/berita/${item.slug}`} aria-label={`Lihat preview berita: ${item.title}`}>{item.isLive ? 'Baca berita' : 'Lihat preview berita'} <ArrowRight size={14} aria-hidden="true" /></Link></div></article>
             ))}
           </div>
         </div>

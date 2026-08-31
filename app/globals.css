@@ -2947,3 +2947,27 @@ body {
     justify-self: center;
   }
 }
+
+/* CMS editor and published media */
+.rich-text-editor { overflow: hidden; border: 1px solid #d4d4d4; border-radius: .75rem; background: #fff; }
+.rich-text-toolbar { display: flex; flex-wrap: wrap; gap: .35rem; border-bottom: 1px solid #e5e5e5; padding: .65rem; background: #fafafa; }
+.rich-text-toolbar button { min-width: 2.5rem; min-height: 2.5rem; border: 1px solid #d4d4d4; border-radius: .5rem; background: #fff; padding: .35rem .65rem; font-weight: 700; }
+.rich-text-toolbar button:hover, .rich-text-toolbar button:focus-visible { border-color: #e21a22; color: #e21a22; }
+.rich-text-surface { min-height: 18rem; padding: 1rem; outline: none; line-height: 1.8; }
+.rich-text-surface:focus { box-shadow: inset 0 0 0 2px #e21a22; }
+.rich-text-surface h2, .rich-text-content h2 { margin: 1.5rem 0 .6rem; font-size: 1.65rem; font-weight: 800; line-height: 1.2; }
+.rich-text-surface h3, .rich-text-content h3 { margin: 1.25rem 0 .5rem; font-size: 1.3rem; font-weight: 800; line-height: 1.25; }
+.rich-text-content p { margin: 0 0 1rem; }
+.rich-text-content ul, .rich-text-content ol { margin: 0 0 1rem 1.5rem; }
+.rich-text-content blockquote { margin: 1.25rem 0; border-left: 4px solid #e21a22; padding-left: 1rem; font-style: italic; }
+.rich-text-content a { color: #c5121b; text-decoration: underline; }
+.external-video-embed { margin: 2rem 0; overflow: hidden; border: 1px solid #e5e5e5; border-radius: 1rem; background: #fafafa; }
+.external-video-frame { aspect-ratio: 9 / 16; max-height: 42rem; background: #111; }
+.external-video-frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+.external-video-embed figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem; padding: .75rem 1rem; font-size: .875rem; }
+.external-video-embed figcaption a { display: inline-flex; align-items: center; gap: .35rem; color: #c5121b; font-weight: 700; }
+@media (max-width: 680px) {
+  .rich-text-toolbar { gap: .25rem; padding: .5rem; }
+  .rich-text-toolbar button { min-width: 2.25rem; min-height: 2.25rem; padding: .25rem .45rem; }
+  .rich-text-surface { min-height: 14rem; }
+}

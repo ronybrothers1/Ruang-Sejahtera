@@ -6,7 +6,9 @@ import type { PublicationStatus } from '@/lib/models';
 export type FinancialReportRecord = {
   id: string;
   period: string;
+  reportDate: string;
   title: string;
+  description: string;
   totalIncome: number;
   totalDisbursement: number;
   operationalCost: number;
@@ -21,7 +23,9 @@ export type FinancialReportRecord = {
 
 export type FinancialReportInput = {
   period: string;
+  reportDate: string;
   title: string;
+  description: string;
   totalIncome: number;
   totalDisbursement: number;
   operationalCost: number;
@@ -39,7 +43,9 @@ function toRecord(row: typeof financialReports.$inferSelect): FinancialReportRec
   return {
     id: row.id,
     period: row.period,
+    reportDate: row.reportDate,
     title: row.title,
+    description: row.description,
     totalIncome,
     totalDisbursement,
     operationalCost,
@@ -83,7 +89,9 @@ export async function getFinancialReport(id: string) {
 
 function validateInput(input: FinancialReportInput) {
   if (!input.period.trim() || input.period.length > 80) throw new Error('FINANCE_PERIOD_INVALID');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.reportDate) || Number.isNaN(Date.parse(`${input.reportDate}T00:00:00Z`))) throw new Error('FINANCE_DATE_INVALID');
   if (!input.title.trim() || input.title.length > 180) throw new Error('FINANCE_TITLE_INVALID');
+  if (!input.description.trim() || input.description.length > 5000) throw new Error('FINANCE_DESCRIPTION_INVALID');
   if (![input.totalIncome, input.totalDisbursement, input.operationalCost].every((value) => Number.isSafeInteger(value) && value >= 0)) {
     throw new Error('FINANCE_AMOUNT_INVALID');
   }
@@ -94,7 +102,9 @@ export async function createFinancialReport(input: FinancialReportInput & { acto
   const report = await getDb().transaction(async (tx) => {
     const inserted = await tx.insert(financialReports).values({
       period: input.period.trim(),
+      reportDate: input.reportDate,
       title: input.title.trim(),
+      description: input.description.trim(),
       totalIncome: String(input.totalIncome),
       totalDisbursement: String(input.totalDisbursement),
       operationalCost: String(input.operationalCost),
@@ -121,7 +131,9 @@ export async function updateFinancialReport(input: FinancialReportInput & { id: 
   const report = await getDb().transaction(async (tx) => {
     const updated = await tx.update(financialReports).set({
       period: input.period.trim(),
+      reportDate: input.reportDate,
       title: input.title.trim(),
+      description: input.description.trim(),
       totalIncome: String(input.totalIncome),
       totalDisbursement: String(input.totalDisbursement),
       operationalCost: String(input.operationalCost),

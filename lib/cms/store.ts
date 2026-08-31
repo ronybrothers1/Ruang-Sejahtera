@@ -6,12 +6,13 @@ import { canTransitionPublication } from '@/lib/cms/workflow';
 import type { CmsCollection, CmsMediaInput, CmsRecord } from '@/lib/cms/types';
 import type { AdminRole, PublicationStatus } from '@/lib/models';
 import { isBlobStorageConfigured } from '@/lib/security/image-upload';
+import { parseExternalVideoUrl } from '@/lib/security/external-video';
 
 export type CmsMutation = {
   collection: CmsCollection;
   action: 'create' | 'update' | 'transition' | 'delete';
   records: CmsRecord[];
-  media?: CmsMediaInput;
+  media?: CmsMediaInput[];
   actorRole?: AdminRole;
 };
 
@@ -45,6 +46,9 @@ function recordFields(record: CmsRecord) {
     excerpt: 'excerpt' in record ? record.excerpt : 'summary' in record ? record.summary : null,
     body: 'body' in record ? record.body : record.summary,
     category: 'category' in record ? record.category : null,
+    activityDate: 'activityDate' in record ? record.activityDate : null,
+    locationLabel: 'locationLabel' in record ? record.locationLabel : null,
+    programSlug: 'programSlug' in record ? record.programSlug : null,
   };
 }
 
@@ -65,7 +69,7 @@ async function attachMedia(db: CmsDatabase, contentId: string, media: CmsMediaIn
     contentId,
     objectKey: media.objectKey,
     externalUrl: media.externalUrl,
-    type: 'image',
+    type: media.type,
     mimeType: media.mimeType,
     byteSize: media.byteSize,
     width: media.width,
@@ -103,7 +107,7 @@ export async function persistCmsMutation(mutation: CmsMutation): Promise<void> {
         snapshot: record,
         editedBy: record.lastEditedBy,
       });
-      if (mutation.media) await attachMedia(tx, record.id, mutation.media, record.lastEditedBy);
+      for (const media of mutation.media || []) await attachMedia(tx, record.id, media, record.lastEditedBy);
       await writeAudit(tx, record.lastEditedBy, actorRole, 'content.created', record.id, { collection: mutation.collection, status: 'draft' });
     });
     return;
@@ -135,7 +139,10 @@ export async function persistCmsMutation(mutation: CmsMutation): Promise<void> {
         snapshot: record,
         editedBy: record.lastEditedBy,
       });
-      if (mutation.media) await attachMedia(tx, record.id, mutation.media, record.lastEditedBy);
+      for (const media of mutation.media || []) {
+        await tx.update(mediaAssets).set({ deletedAt: new Date(), updatedAt: new Date() }).where(and(eq(mediaAssets.contentId, record.id), eq(mediaAssets.type, media.type), isNull(mediaAssets.deletedAt)));
+        await attachMedia(tx, record.id, media, record.lastEditedBy);
+      }
       await writeAudit(tx, record.lastEditedBy, actorRole, 'content.updated', record.id, { collection: mutation.collection, revisionNumber });
     });
     return;
@@ -179,12 +186,20 @@ export async function persistCmsMutation(mutation: CmsMutation): Promise<void> {
 export async function listCmsRecords(): Promise<CmsRecord[]> {
   if (!isDatabaseConfigured()) return [];
   const rows = await getDb()
-    .select()
+    .select({ content: contentItems, media: mediaAssets })
     .from(contentItems)
+    .leftJoin(mediaAssets, and(eq(mediaAssets.contentId, contentItems.id), isNull(mediaAssets.deletedAt)))
     .where(isNull(contentItems.deletedAt))
     .orderBy(desc(contentItems.createdAt));
 
-  return rows.map((row) => {
+  const grouped = new Map<string, { content: typeof rows[number]['content']; media: NonNullable<typeof rows[number]['media']>[] }>();
+  for (const row of rows) {
+    const current = grouped.get(row.content.id) || { content: row.content, media: [] };
+    if (row.media) current.media.push(row.media);
+    grouped.set(row.content.id, current);
+  }
+
+  return Array.from(grouped.values()).map(({ content: row, media }) => {
     const base = {
       id: row.id,
       slug: row.slug,
@@ -195,10 +210,14 @@ export async function listCmsRecords(): Promise<CmsRecord[]> {
     };
 
     if (row.type === 'article') {
-      return { ...base, title: row.title, excerpt: row.excerpt || '', category: row.category || '', body: row.body };
+      const image = media.find((item) => item.type === 'image' && item.visibility === 'public' && item.externalUrl);
+      return { ...base, title: row.title, excerpt: row.excerpt || '', category: row.category || '', body: row.body, imageUrl: image?.externalUrl || undefined, imageAlt: image?.altText, imageCaption: image?.caption || undefined };
     }
     if (row.type === 'activity') {
-      return { ...base, title: row.title, summary: row.excerpt || '', activityDate: '', locationLabel: '', programSlug: '', body: row.body };
+      const image = media.find((item) => item.type === 'image' && item.visibility === 'public' && item.externalUrl);
+      const video = media.find((item) => item.type === 'external_video' && item.visibility === 'public' && item.externalUrl);
+      const parsedVideo = video?.externalUrl ? parseExternalVideoUrl(video.externalUrl) : null;
+      return { ...base, title: row.title, summary: row.excerpt || '', activityDate: row.activityDate || '', locationLabel: row.locationLabel || '', programSlug: row.programSlug || '', body: row.body, imageUrl: image?.externalUrl || undefined, imageAlt: image?.altText, imageCaption: image?.caption || undefined, video: parsedVideo || undefined };
     }
     return { ...base, title: row.title, summary: row.excerpt || '' };
   });

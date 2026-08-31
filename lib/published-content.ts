@@ -4,6 +4,7 @@ import { cmsActivities, cmsArticles, cmsGalleries } from '@/lib/cms/content';
 import { getDb } from '@/lib/db';
 import { listFinancialReports, type FinancialReportRecord } from '@/lib/finance';
 import { contentItems, mediaAssets } from '@/lib/db/schema';
+import { parseExternalVideoUrl } from '@/lib/security/external-video';
 
 function isPublishableMedia(media: typeof mediaAssets.$inferSelect | null) {
   return Boolean(
@@ -16,6 +17,10 @@ function isPublishableMedia(media: typeof mediaAssets.$inferSelect | null) {
   );
 }
 
+function isPublishableExternalVideo(media: typeof mediaAssets.$inferSelect | null) {
+  return Boolean(media && media.type === 'external_video' && !media.deletedAt && media.visibility === 'public' && media.malwareScanStatus === 'url_validated' && media.externalUrl && parseExternalVideoUrl(media.externalUrl));
+}
+
 export type PublishedActivity = {
   slug: string;
   title: string;
@@ -24,6 +29,10 @@ export type PublishedActivity = {
   locationLabel: string;
   programSlug: string;
   body: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  imageCaption?: string;
+  video?: { provider: 'tiktok' | 'instagram'; sourceUrl: string; embedUrl: string };
 };
 
 export type PublishedArticle = {
@@ -56,6 +65,25 @@ export const publishedActivities: PublishedActivity[] = cmsActivities
     programSlug,
     body,
   }));
+
+function mapActivity(row: typeof contentItems.$inferSelect, media: (typeof mediaAssets.$inferSelect)[]) {
+  const image = media.find((item) => isPublishableMedia(item));
+  const video = media.find((item) => isPublishableExternalVideo(item));
+  const parsedVideo = video?.externalUrl ? parseExternalVideoUrl(video.externalUrl) : null;
+  return {
+    slug: row.slug,
+    title: row.title,
+    summary: row.excerpt || '',
+    activityDate: row.activityDate || '',
+    locationLabel: row.locationLabel || '',
+    programSlug: row.programSlug || '',
+    body: row.body,
+    imageUrl: image?.externalUrl || undefined,
+    imageAlt: image?.altText,
+    imageCaption: image?.caption || undefined,
+    video: parsedVideo || undefined,
+  } satisfies PublishedActivity;
+}
 
 export const publishedArticles: PublishedArticle[] = cmsArticles
   .filter((item) => item.status === 'published' && Boolean(item.publishedAt))
@@ -120,6 +148,39 @@ export async function getPublishedArticleBySlug(slug: string): Promise<Published
       imageAlt: media?.altText,
       imageCaption: media?.caption || undefined,
     };
+  } catch {
+    return null;
+  }
+}
+
+export async function getPublishedActivities(): Promise<PublishedActivity[]> {
+  if (!isDatabaseConfigured()) return publishedActivities;
+  try {
+    const rows = await getDb().select({ content: contentItems, media: mediaAssets }).from(contentItems)
+      .leftJoin(mediaAssets, and(eq(mediaAssets.contentId, contentItems.id), isNull(mediaAssets.deletedAt)))
+      .where(and(eq(contentItems.type, 'activity'), eq(contentItems.status, 'published'), isNull(contentItems.deletedAt)))
+      .orderBy(desc(contentItems.activityDate), desc(contentItems.publishedAt));
+    const grouped = new Map<string, { content: typeof rows[number]['content']; media: NonNullable<typeof rows[number]['media']>[] }>();
+    for (const row of rows) {
+      const current = grouped.get(row.content.id) || { content: row.content, media: [] };
+      if (row.media) current.media.push(row.media);
+      grouped.set(row.content.id, current);
+    }
+    const activities = Array.from(grouped.values()).map(({ content, media }) => mapActivity(content, media));
+    return activities.length ? activities : publishedActivities;
+  } catch {
+    return publishedActivities;
+  }
+}
+
+export async function getPublishedActivityBySlug(slug: string): Promise<PublishedActivity | null> {
+  if (!isDatabaseConfigured()) return null;
+  try {
+    const rows = await getDb().select({ content: contentItems, media: mediaAssets }).from(contentItems)
+      .leftJoin(mediaAssets, and(eq(mediaAssets.contentId, contentItems.id), isNull(mediaAssets.deletedAt)))
+      .where(and(eq(contentItems.type, 'activity'), eq(contentItems.slug, slug), eq(contentItems.status, 'published'), isNull(contentItems.deletedAt)));
+    if (!rows.length) return null;
+    return mapActivity(rows[0].content, rows.flatMap((row) => row.media ? [row.media] : []));
   } catch {
     return null;
   }

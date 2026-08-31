@@ -31,7 +31,9 @@ function positiveInteger(form: FormData, key: string) {
 function reportInput(form: FormData) {
   return {
     period: String(form.get('period') || '').trim(),
+    reportDate: String(form.get('reportDate') || '').trim(),
     title: String(form.get('title') || '').trim(),
+    description: String(form.get('description') || '').trim(),
     totalIncome: positiveInteger(form, 'totalIncome'),
     totalDisbursement: positiveInteger(form, 'totalDisbursement'),
     operationalCost: positiveInteger(form, 'operationalCost'),
@@ -79,7 +81,7 @@ export async function POST(request: Request) {
     return redirectWith(request, 'error=operation');
   } catch (error) {
     const message = error instanceof Error ? error.message : 'FINANCE_SAVE_FAILED';
-    const known = new Set(['FINANCE_PERIOD_INVALID', 'FINANCE_TITLE_INVALID', 'FINANCE_AMOUNT_INVALID', 'FINANCE_REPORT_NOT_FOUND']);
+    const known = new Set(['FINANCE_PERIOD_INVALID', 'FINANCE_DATE_INVALID', 'FINANCE_TITLE_INVALID', 'FINANCE_DESCRIPTION_INVALID', 'FINANCE_AMOUNT_INVALID', 'FINANCE_REPORT_NOT_FOUND']);
     return redirectWith(request, `error=${known.has(message) ? message.toLowerCase() : 'save'}`);
   }
 }

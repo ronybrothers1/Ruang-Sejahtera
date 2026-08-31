@@ -41,6 +41,17 @@ export type CmsActivity = CmsBaseRecord & {
   locationLabel: string;
   programSlug: string;
   body: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  imageCaption?: string;
+  video?: CmsExternalVideo;
+};
+
+export type CmsExternalVideo = {
+  provider: 'tiktok' | 'instagram';
+  sourceUrl: string;
+  embedUrl: string;
+  title?: string;
 };
 
 export type CmsGallery = CmsBaseRecord & {
@@ -51,7 +62,8 @@ export type CmsGallery = CmsBaseRecord & {
 export type CmsRecord = CmsArticle | CmsActivity | CmsGallery;
 
 export type CmsMediaInput = {
-  objectKey: string;
+  type: 'image' | 'external_video';
+  objectKey: string | null;
   externalUrl: string | null;
   mimeType: string;
   byteSize: number;
@@ -61,7 +73,7 @@ export type CmsMediaInput = {
   caption?: string;
   visibility: 'private' | 'public';
   consentStatus: 'confirmed' | 'restricted' | 'not_required';
-  malwareScanStatus: 'signature_validated';
+  malwareScanStatus: 'signature_validated' | 'url_validated';
 };
 
 export const cmsCollectionPaths: Record<CmsCollection, string> = {

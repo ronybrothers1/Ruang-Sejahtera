@@ -5,6 +5,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { ContentContinuation } from '@/components/ContentContinuation';
 import { PageHero } from '@/components/PageHero';
 import { SectionNavigation } from '@/components/SectionNavigation';
+import { RichTextContent } from '@/components/RichTextContent';
 import { activityNavItems } from '@/lib/navigation';
 import { getPublishedArticleBySlug, publishedArticles } from '@/lib/published-content';
 
@@ -35,7 +36,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             <Image src={article.imageUrl} alt={article.imageAlt || article.title} width={1200} height={675} unoptimized className="h-auto w-full object-cover" />
             {article.imageCaption ? <figcaption className="px-4 py-3 text-sm text-neutral-600">{article.imageCaption}</figcaption> : null}
           </figure> : null}
-          <div className="prose prose-neutral max-w-none leading-8"><p>{article.body}</p></div>
+          <RichTextContent value={article.body} className="prose prose-neutral max-w-none leading-8" />
         </div>
       </article>
       <ContentContinuation links={[

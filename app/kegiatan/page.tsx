@@ -7,12 +7,13 @@ import { PublishedContentIndex } from '@/components/PublishedContentIndex';
 import { SectionNavigation } from '@/components/SectionNavigation';
 import { sampleActivities } from '@/lib/content';
 import { activityNavItems } from '@/lib/navigation';
-import { publishedActivities } from '@/lib/published-content';
+import { getPublishedActivities } from '@/lib/published-content';
 
 export const metadata: Metadata = { title: 'Kegiatan', description: 'Arsip kegiatan sosial Yayasan Ruang Sejahtera.' };
 
-export default function ActivitiesPage() {
+export default async function ActivitiesPage() {
   const items = [...sampleActivities, ...sampleActivities.slice(0, 2)];
+  const publishedActivities = await getPublishedActivities();
   return (
     <>
       <PageHero eyebrow="Kegiatan" title="Jejak aksi yang dekat dengan masyarakat." description="Arsip preview ini mempertahankan foto, tanggal, lokasi, dan narasi contoh agar pengalaman membaca dapat dievaluasi secara utuh." />

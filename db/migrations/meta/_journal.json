@@ -29,6 +29,13 @@
       "when": 1788148126369,
       "tag": "0003_young_rockslide",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788150000000,
+      "tag": "0004_cms_editor_fields",
+      "breakpoints": true
     }
   ]
 }
