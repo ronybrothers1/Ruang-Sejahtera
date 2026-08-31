@@ -25,6 +25,7 @@ export function Navbar() {
   const desktopTriggerRefs = useRef(new Map<string, HTMLButtonElement>());
   const pathname = usePathname();
   const mobileMenuOpen = isOpen && mobileMenuPathname === pathname;
+  const portalMenuName = 'Akses Portal';
   const activeDesktopMenu = desktopMenuPathname === pathname ? openDesktopMenu : null;
 
   useEffect(() => {
@@ -185,7 +186,13 @@ export function Navbar() {
         <div className="mobile-nav-utilities">
           <Link onClick={closeMenu} href="/cari" aria-current={isCurrent('/cari') ? 'page' : undefined} className={`cta-ghost ${isCurrent('/cari') ? 'is-current' : ''}`}><Search size={18} aria-hidden="true" /> Cari Informasi</Link>
           <Link onClick={closeMenu} href="/kontak" aria-current={isCurrent('/kontak') ? 'page' : undefined} className={`cta-ghost ${isCurrent('/kontak') ? 'is-current' : ''}`}><MessageCircle size={18} aria-hidden="true" /> Kontak Yayasan</Link>
-          <Link onClick={closeMenu} href="/masuk" className="cta-ghost"><UserRound size={18} aria-hidden="true" /> Masuk / Akun</Link>
+          <div className="mobile-nav-portal">
+            <p className="mobile-nav-portal-title">Akses Portal</p>
+            <Link onClick={closeMenu} href="/admin/login" className="cta-ghost">Super Admin</Link>
+            <Link onClick={closeMenu} href="/masuk?redirect_url=%2Fadmin" className="cta-ghost">Core Manager</Link>
+            <Link onClick={closeMenu} href="/masuk?redirect_url=%2Fakun" className="cta-ghost">Anggota: Masuk</Link>
+            <Link onClick={closeMenu} href="/daftar" className="cta-ghost">Anggota: Daftar</Link>
+          </div>
           <Link onClick={closeMenu} href="/donasi" aria-current={isCurrent('/donasi') ? 'page' : undefined} className={`cta-red ${isCurrent('/donasi') ? 'is-current' : ''}`}><Heart size={18} aria-hidden="true" /> Cara Mendukung</Link>
         </div>
       </nav>
@@ -241,7 +248,42 @@ export function Navbar() {
         </nav>
         <div className="desktop-navigation-action">
           <Link href="/cari" aria-label="Cari informasi" aria-current={isCurrent('/cari') ? 'page' : undefined} className={`nav-search-link ${isCurrent('/cari') ? 'is-active' : ''}`}><Search size={18} aria-hidden="true" /></Link>
-          <Link href="/masuk" aria-label="Masuk atau buka akun" className="nav-search-link"><UserRound size={18} aria-hidden="true" /></Link>
+          <div className="nav-dropdown">
+            <button
+              ref={(node) => {
+                if (node) desktopTriggerRefs.current.set(portalMenuName, node);
+                else desktopTriggerRefs.current.delete(portalMenuName);
+              }}
+              type="button"
+              aria-label="Akses portal"
+              aria-expanded={activeDesktopMenu === portalMenuName}
+              aria-controls={activeDesktopMenu === portalMenuName ? menuId(portalMenuName) : undefined}
+              className="nav-search-link"
+              onClick={() => {
+                setDesktopMenuPathname(pathname);
+                setOpenDesktopMenu((current) => current === portalMenuName ? null : portalMenuName);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'ArrowDown') {
+                  event.preventDefault();
+                  setDesktopMenuPathname(pathname);
+                  setOpenDesktopMenu(portalMenuName);
+                  requestAnimationFrame(() => document.querySelector<HTMLAnchorElement>(`#${menuId(portalMenuName)} a`)?.focus());
+                }
+              }}
+            >
+              <UserRound size={18} aria-hidden="true" />
+            </button>
+            {activeDesktopMenu === portalMenuName ? (
+              <div id={menuId(portalMenuName)} className="nav-popover nav-portal-popover" onKeyDown={handlePopoverKeyDown}>
+                <p className="nav-portal-heading">Akses Portal</p>
+                <Link onClick={() => setOpenDesktopMenu(null)} href="/admin/login">Super Admin</Link>
+                <Link onClick={() => setOpenDesktopMenu(null)} href="/masuk?redirect_url=%2Fadmin">Core Manager</Link>
+                <Link onClick={() => setOpenDesktopMenu(null)} href="/masuk?redirect_url=%2Fakun">Anggota: Masuk</Link>
+                <Link onClick={() => setOpenDesktopMenu(null)} href="/daftar">Anggota: Daftar</Link>
+              </div>
+            ) : null}
+          </div>
           <Link href="/donasi" aria-current={isCurrent('/donasi') ? 'page' : undefined} className={`cta-red ${isCurrent('/donasi') ? 'is-current' : ''}`}><Heart size={16} fill="currentColor" aria-hidden="true" /> Cara Mendukung</Link>
         </div>
         <button
