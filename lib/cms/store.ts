@@ -107,7 +107,14 @@ export async function persistCmsMutation(mutation: CmsMutation): Promise<void> {
     const revisionNumber = existing.currentRevision + 1;
     await db.update(contentItems).set({
       ...fields,
+      status: 'draft',
       currentRevision: revisionNumber,
+      reviewRequestedAt: null,
+      approvedAt: null,
+      approvedBy: null,
+      publishedAt: null,
+      publishedBy: null,
+      archivedAt: null,
       updatedAt: new Date(),
     }).where(eq(contentItems.id, record.id));
     await db.insert(contentRevisions).values({
