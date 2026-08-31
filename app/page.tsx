@@ -13,6 +13,8 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { ProgramMark } from '@/components/ProgramMark';
+import { formatRupiah } from '@/lib/finance';
+import { getPublishedArticles, getPublishedFinancialReports } from '@/lib/published-content';
 import {
   programs,
   sampleActivities,
@@ -30,7 +32,29 @@ const accountabilityLinks = [
   { href: '/kebijakan-donasi', title: 'Kebijakan Donasi', description: 'Prinsip penerimaan, penggunaan, dan perlindungan donatur dijelaskan sejak awal.', icon: BookOpenText },
 ] as const;
 
-export default function Home() {
+export default async function Home() {
+  const [publishedArticles, financialReports] = await Promise.all([
+    getPublishedArticles(),
+    getPublishedFinancialReports(),
+  ]);
+  const latestReport = financialReports[0] || null;
+  const newsItems = publishedArticles.length
+    ? publishedArticles.slice(0, 4).map((item, index) => ({
+        slug: item.slug,
+        date: item.publishedAt ? new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(new Date(item.publishedAt)) : 'Baru',
+        title: item.title,
+        category: item.category || 'Berita',
+        image: item.imageUrl || sampleNews[index % sampleNews.length].image,
+        imageAlt: item.imageAlt || item.title,
+        isLive: true,
+      }))
+    : sampleNews.map((item) => ({ ...item, isLive: false }));
+  const financeItems = latestReport ? [
+    { label: 'Total penerimaan', value: 100, amount: formatRupiah(latestReport.totalIncome) },
+    { label: 'Total penyaluran', value: latestReport.totalIncome > 0 ? Math.min(100, Math.round((latestReport.totalDisbursement / latestReport.totalIncome) * 100)) : 0, amount: formatRupiah(latestReport.totalDisbursement) },
+    { label: 'Operasional', value: latestReport.totalIncome > 0 ? Math.min(100, Math.round((latestReport.operationalCost / latestReport.totalIncome) * 100)) : 0, amount: formatRupiah(latestReport.operationalCost) },
+    { label: 'Saldo laporan', value: latestReport.totalIncome > 0 ? Math.max(0, Math.min(100, Math.round((latestReport.balance / latestReport.totalIncome) * 100))) : 0, amount: formatRupiah(latestReport.balance) },
+  ] : sampleFinance;
   return (
     <div className="trust-home">
       <section className="trust-hero" aria-labelledby="home-title">
@@ -134,17 +158,17 @@ export default function Home() {
         <div className="shell trust-finance-layout">
           <div className="trust-finance-copy">
             <span>Transparansi & kepercayaan</span><h2 id="finance-heading">Amanah perlu disajikan dalam bentuk yang mudah diperiksa.</h2>
-            <p>Simulasi ini memperlihatkan bagaimana komposisi penyaluran dapat dibaca. Nominal dan periode akan diganti dengan laporan resmi.</p>
+            <p>{latestReport ? `${latestReport.title} untuk periode ${latestReport.period} dapat diperiksa pada halaman transparansi.` : 'Laporan resmi akan tampil setelah diterbitkan melalui Control Plane Super Admin.'}</p>
             <div className="trust-actions"><Link href="/transparansi" className="trust-button trust-button-light">Lihat transparansi <ArrowRight size={17} aria-hidden="true" /></Link><Link href="/kebijakan-donasi" className="trust-button trust-button-dark">Kebijakan donasi <ArrowRight size={17} aria-hidden="true" /></Link></div>
           </div>
           <div className="trust-finance-card">
-            <div className="trust-finance-head"><div><small>SIMULASI LAPORAN</small><strong>Ringkasan Penyaluran</strong></div><b>{sampleStats[3].value}</b></div>
+            <div className="trust-finance-head"><div><small>{latestReport ? `LAPORAN TERBIT · ${latestReport.period.toUpperCase()}` : 'SIMULASI LAPORAN'}</small><strong>{latestReport?.title || 'Ringkasan Penyaluran'}</strong></div><b>{latestReport ? formatRupiah(latestReport.balance) : sampleStats[3].value}</b></div>
             <div className="trust-finance-bars">
-              {sampleFinance.map((item) => (
+              {financeItems.map((item) => (
                 <div key={item.label}><div><span>{item.label}</span><strong>{item.amount}</strong></div><div className="trust-finance-track"><span style={{ width: `${item.value}%` }} /></div><small>{item.value}%</small></div>
               ))}
             </div>
-            <p>Seluruh angka pada panel ini adalah data desain contoh, bukan laporan resmi yayasan.</p>
+            <p>{latestReport ? 'Angka ini berasal dari laporan yang diterbitkan Super Admin.' : 'Panel ini masih menggunakan data desain contoh.'}</p>
           </div>
         </div>
       </section>
@@ -164,8 +188,8 @@ export default function Home() {
         <div className="shell">
           <div className="trust-section-heading trust-section-heading-compact"><div><span>Berita & cerita</span><h2 id="news-heading">Kabar dari lapangan.</h2></div><Link href="/berita" className="trust-text-link">Lihat semua berita <ArrowRight size={16} aria-hidden="true" /></Link></div>
           <div className="trust-news-grid">
-            {sampleNews.map((item) => (
-              <article key={item.slug}><div className="trust-news-image"><Image src={item.image} alt={item.imageAlt} fill sizes="(max-width: 680px) 100vw, (max-width: 1024px) 50vw, 25vw" /><span>{item.category}</span></div><div><small>{item.date} · CONTOH</small><h3>{item.title}</h3><Link href={`/berita#${item.slug}`} aria-label={`Lihat preview berita: ${item.title}`}>Lihat preview berita <ArrowRight size={14} aria-hidden="true" /></Link></div></article>
+            {newsItems.map((item) => (
+              <article key={item.slug}><div className="trust-news-image"><Image src={item.image} alt={item.imageAlt} fill sizes="(max-width: 680px) 100vw, (max-width: 1024px) 50vw, 25vw" /><span>{item.category}</span></div><div><small>{item.date}{item.isLive ? '' : ' · CONTOH'}</small><h3>{item.title}</h3><Link href={`/berita/${item.slug}`} aria-label={`Lihat berita: ${item.title}`}>{item.isLive ? 'Baca berita' : 'Lihat preview berita'} <ArrowRight size={14} aria-hidden="true" /></Link></div></article>
             ))}
           </div>
         </div>
