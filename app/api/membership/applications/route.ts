@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUserSession } from '@/lib/auth/admin-session';
-import { getDb } from '@/lib/db';
 import { createProgramApplication } from '@/lib/program-applications';
 import { programs } from '@/lib/content';
 import { hasAllowedFormContentType, isDeclaredBodyWithinLimit } from '@/lib/security/request-limits';
@@ -18,8 +17,9 @@ function value(form: FormData, key: string, max: number) {
   return result;
 }
 
-function redirectWith(request: Request, query: string) {
-  return NextResponse.redirect(new URL(`/akun/pengajuan?${query}`, request.url), 303);
+function redirectWith(request: Request, query: string, programSlug?: string) {
+  const destination = programSlug ? `/akun/pengajuan/${encodeURIComponent(programSlug)}?${query}` : `/akun/pengajuan?${query}`;
+  return NextResponse.redirect(new URL(destination, request.url), 303);
 }
 
 export async function POST(request: Request) {
@@ -33,11 +33,11 @@ export async function POST(request: Request) {
   const form = await request.formData();
   const programSlug = String(form.get('programSlug') || '').trim();
   if (!programs.some((program) => program.slug === programSlug)) return redirectWith(request, 'error=program');
-  if (String(form.get('photoConsent') || '') !== 'yes') return redirectWith(request, 'error=consent');
+  if (String(form.get('photoConsent') || '') !== 'yes') return redirectWith(request, 'error=consent', programSlug);
 
   const photo = form.get('existingPhoto');
-  if (!(photo instanceof File) || photo.size === 0) return redirectWith(request, 'error=photo');
-  if (!ALLOWED_IMAGE_TYPES.has(photo.type) || photo.size > MAX_IMAGE_BYTES) return redirectWith(request, 'error=photo-format');
+  if (!(photo instanceof File) || photo.size === 0) return redirectWith(request, 'error=photo', programSlug);
+  if (!ALLOWED_IMAGE_TYPES.has(photo.type) || photo.size > MAX_IMAGE_BYTES) return redirectWith(request, 'error=photo-format', programSlug);
   const photoAlt = value(form, 'existingPhotoAlt', 160);
   const bytes = Buffer.from(await photo.arrayBuffer());
   const details = Object.fromEntries(detailFields
@@ -64,8 +64,8 @@ export async function POST(request: Request) {
     });
     return redirectWith(request, 'submitted=1');
   } catch (error) {
-    if (error instanceof Error && error.message === 'APPLICATION_ALREADY_EXISTS') return redirectWith(request, 'error=exists');
-    if (error instanceof Error && error.message === 'APPLICATION_FIELD_INVALID') return redirectWith(request, 'error=field');
-    return redirectWith(request, 'error=save');
+    if (error instanceof Error && error.message === 'APPLICATION_ALREADY_EXISTS') return redirectWith(request, 'error=exists', programSlug);
+    if (error instanceof Error && error.message === 'APPLICATION_FIELD_INVALID') return redirectWith(request, 'error=field', programSlug);
+    return redirectWith(request, 'error=save', programSlug);
   }
 }
