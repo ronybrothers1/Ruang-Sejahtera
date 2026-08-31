@@ -1,5 +1,6 @@
 import { and, desc, eq, isNull } from 'drizzle-orm';
 import { getDb } from '@/lib/db';
+import type { AdminRole } from '@/lib/models';
 import { auditLogs, programApplications } from '@/lib/db/schema';
 
 export type ApplicationStatus = 'submitted' | 'under_review' | 'revision_required' | 'approved' | 'rejected';
@@ -108,6 +109,7 @@ export async function getProgramApplication(id: string) {
 export async function reviewProgramApplication(input: {
   id: string;
   reviewerUserId: string;
+  reviewerRole: AdminRole;
   status: Exclude<ApplicationStatus, 'submitted'>;
   reviewNote?: string;
 }) {
@@ -123,7 +125,7 @@ export async function reviewProgramApplication(input: {
   if (!application) throw new Error('APPLICATION_NOT_FOUND');
   await getDb().insert(auditLogs).values({
     actorUserId: input.reviewerUserId,
-    actorRole: 'super_admin',
+    actorRole: input.reviewerRole,
     action: `program_application.${input.status}`,
     resourceType: 'program_application',
     resourceId: input.id,
