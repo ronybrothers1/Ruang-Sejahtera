@@ -2,6 +2,7 @@ import { and, desc, eq, isNull } from 'drizzle-orm';
 import { isDatabaseConfigured } from '@/lib/auth/config';
 import { cmsActivities, cmsArticles, cmsGalleries } from '@/lib/cms/content';
 import { getDb } from '@/lib/db';
+import { listFinancialReports, type FinancialReportRecord } from '@/lib/finance';
 import { contentItems, mediaAssets } from '@/lib/db/schema';
 
 export type PublishedActivity = {
@@ -68,6 +69,17 @@ export const publishedGalleries: PublishedGallery[] = cmsGalleries
     publishedAt: publishedAt as string,
   }));
 
+
+export type PublishedFinancialReport = FinancialReportRecord;
+
+export async function getPublishedFinancialReports(): Promise<PublishedFinancialReport[]> {
+  if (!isDatabaseConfigured()) return [];
+  try {
+    return await listFinancialReports({ publishedOnly: true });
+  } catch {
+    return [];
+  }
+}
 
 export async function getPublishedArticleBySlug(slug: string): Promise<PublishedArticle | null> {
   if (!isDatabaseConfigured()) return null;
