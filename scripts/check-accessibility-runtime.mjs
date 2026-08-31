@@ -108,7 +108,7 @@ try {
 
   const home = await (await fetch(baseUrl)).text();
   assert.equal((home.match(/aria-label="Lihat kegiatan:/g) ?? []).length, 4, 'Repeated activity links have unique accessible names');
-  assert.equal((home.match(/aria-label="Lihat preview berita:/g) ?? []).length, 4, 'Repeated preview links have unique accessible names');
+  assert.equal((home.match(/aria-label="Lihat (?:arsip berita contoh|berita):/g) ?? []).length, 4, 'Repeated preview links have unique accessible names');
 
   console.log(`Accessibility production smoke passed (${routes.length} cross-page routes + 404/media/link contracts).`);
 } finally {

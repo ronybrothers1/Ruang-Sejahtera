@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { DocumentLayout } from '@/components/DocumentLayout';
 import { PageHero } from '@/components/PageHero';
-export const metadata: Metadata = { title: 'Ketentuan Penggunaan' };
+import { createPageMetadata } from '@/lib/seo';
+export const metadata: Metadata = createPageMetadata({ title: 'Ketentuan Penggunaan', description: 'Ketentuan penggunaan informasi dan layanan website Yayasan Ruang Sejahtera.', path: '/ketentuan' });
 export default function TermsPage() {
   const sections = [
     { id: 'informasi-publik', title: 'Informasi publik', content: 'Informasi pada website ditujukan untuk komunikasi publik yayasan. Data program, kegiatan, dampak, dan laporan harus berasal dari sumber resmi yang telah disetujui untuk publikasi.' },

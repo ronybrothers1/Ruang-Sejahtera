@@ -8,12 +8,22 @@ import { SectionNavigation } from '@/components/SectionNavigation';
 import { sampleNews } from '@/lib/content';
 import { activityNavItems } from '@/lib/navigation';
 import { getPublishedArticles } from '@/lib/published-content';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Berita & Cerita', description: 'Berita, cerita dampak, dan pengumuman Yayasan Ruang Sejahtera.' };
+const newsMetadata = { title: 'Berita & Cerita', description: 'Berita, cerita dampak, dan pengumuman Yayasan Ruang Sejahtera.', path: '/berita' } as const;
 
 type NewsPageProps = {
   searchParams: Promise<{ category?: string | string[] }>;
 };
+
+export async function generateMetadata({ searchParams }: NewsPageProps): Promise<Metadata> {
+  const { category = '' } = await searchParams;
+  const requestedCategory = Array.isArray(category) ? category[0] || '' : category;
+  return {
+    ...createPageMetadata(newsMetadata),
+    robots: requestedCategory.trim() ? { index: false, follow: true } : undefined,
+  };
+}
 
 export default async function NewsPage({ searchParams }: NewsPageProps) {
   const { category: categoryParam } = await searchParams;

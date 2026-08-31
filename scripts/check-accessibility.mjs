@@ -60,7 +60,7 @@ check(gallery.includes('aria-label="Buka profil TikTok resmi @ruangsejahtera.idn
 check(media.includes('autoplay=1') === false && tiktok.includes('autoplay=0&loop=0'), 'WCAG 1.4.2/2.2.2: embedded media does not autoplay or loop');
 
 check(home.includes('aria-label={`Lihat kegiatan: ${activity.title}`}'), 'WCAG 2.4.4: repeated activity links expose a unique purpose');
-check(home.includes('aria-label={`Lihat preview berita: ${item.title}`}'), 'WCAG 2.4.4: repeated preview links expose a unique purpose');
+check(home.includes("aria-label={`Lihat ${item.isLive ? 'berita' : 'arsip berita contoh'}: ${item.title}`}"), 'WCAG 2.4.4: repeated preview links expose a unique purpose');
 check(notFound.includes("title: 'Halaman Tidak Ditemukan'"), 'WCAG 2.4.2: the 404 state has a meaningful page title');
 
 for (const file of [...sourceFiles('app'), ...sourceFiles('components')]) {

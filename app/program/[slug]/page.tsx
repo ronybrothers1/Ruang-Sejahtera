@@ -9,6 +9,7 @@ import { ProgramMark } from '@/components/ProgramMark';
 import { SectionNavigation } from '@/components/SectionNavigation';
 import { programs } from '@/lib/content';
 import { programNavItems } from '@/lib/navigation';
+import { createPageMetadata } from '@/lib/seo';
 
 export function generateStaticParams() {
   return programs.map(({ slug }) => ({ slug }));
@@ -17,7 +18,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const program = programs.find((item) => item.slug === slug);
-  return program ? { title: program.name, description: program.summary } : {};
+  return program ? createPageMetadata({ title: program.name, description: program.summary, path: `/program/${program.slug}`, imagePath: program.image, imageAlt: program.imageAlt }) : {};
 }
 
 export default async function ProgramDetailPage({ params }: { params: Promise<{ slug: string }> }) {

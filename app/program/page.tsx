@@ -7,11 +7,13 @@ import { ProgramMark } from '@/components/ProgramMark';
 import { SectionNavigation } from '@/components/SectionNavigation';
 import { programs } from '@/lib/content';
 import { programNavItems } from '@/lib/navigation';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: 'Program',
   description: 'Lima program utama Yayasan Ruang Sejahtera.',
-};
+  path: '/program',
+});
 
 export default function ProgramsPage() {
   return (

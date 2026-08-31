@@ -1,3 +1,13 @@
 import type { MetadataRoute } from 'next';
 import { siteConfig } from '@/lib/site';
-export default function robots(): MetadataRoute.Robots { if (!siteConfig.url) return { rules: { userAgent: '*', disallow: '/' } }; return { rules: { userAgent: '*', allow: '/', disallow: ['/admin/', '/api/'] }, sitemap: `${siteConfig.url.replace(/\/$/, '')}/sitemap.xml` }; }
+export default function robots(): MetadataRoute.Robots {
+  if (!siteConfig.url) return { rules: { userAgent: '*', disallow: '/' } };
+  return {
+    rules: {
+      userAgent: '*',
+      allow: '/',
+      disallow: ['/admin', '/api', '/akun', '/masuk', '/daftar', '/verifikasi'],
+    },
+    sitemap: `${siteConfig.url.replace(/\/$/, '')}/sitemap.xml`,
+  };
+}

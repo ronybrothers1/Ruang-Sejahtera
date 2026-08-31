@@ -6,7 +6,8 @@ import { EmptyState } from '@/components/EmptyState';
 import { PageHero } from '@/components/PageHero';
 import { SectionNavigation } from '@/components/SectionNavigation';
 import { activityNavItems } from '@/lib/navigation';
-import { publishedGalleries } from '@/lib/published-content';
+import { getPublishedGalleryBySlug, publishedGalleries } from '@/lib/published-content';
+import { createPageMetadata } from '@/lib/seo';
 
 export function generateStaticParams() {
   return publishedGalleries.map(({ slug }) => ({ slug }));
@@ -14,13 +15,13 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const gallery = publishedGalleries.find((item) => item.slug === slug);
-  return gallery ? { title: gallery.title, description: gallery.summary } : {};
+  const gallery = await getPublishedGalleryBySlug(slug) || publishedGalleries.find((item) => item.slug === slug);
+  return gallery ? createPageMetadata({ title: gallery.title, description: gallery.summary, path: `/galeri/${gallery.slug}` }) : {};
 }
 
 export default async function GalleryDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const gallery = publishedGalleries.find((item) => item.slug === slug);
+  const gallery = await getPublishedGalleryBySlug(slug) || publishedGalleries.find((item) => item.slug === slug);
   if (!gallery) notFound();
 
   return (

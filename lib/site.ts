@@ -1,9 +1,14 @@
+const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+const productionSiteUrl = process.env.VERCEL_ENV === 'production'
+  ? 'https://ruang-sejahtera-iota.vercel.app'
+  : null;
+
 export const siteConfig = {
   name: 'Yayasan Ruang Sejahtera',
   shortName: 'Ruang Sejahtera',
   description:
     'Platform resmi Yayasan Ruang Sejahtera untuk informasi program, kegiatan sosial, dampak, transparansi, dan dukungan publik.',
-  url: process.env.NEXT_PUBLIC_SITE_URL || null,
+  url: configuredSiteUrl || productionSiteUrl,
   locale: 'id_ID',
   contact: {
     address: process.env.NEXT_PUBLIC_OFFICIAL_ADDRESS || null,

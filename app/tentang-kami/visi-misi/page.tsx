@@ -6,8 +6,9 @@ import { PreviewNotice } from '@/components/PreviewNotice';
 import { SectionNavigation } from '@/components/SectionNavigation';
 import { sampleMissions, sampleVision } from '@/lib/content';
 import { aboutNavItems } from '@/lib/navigation';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Visi & Misi', description: 'Visi dan misi Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = createPageMetadata({ title: 'Visi & Misi', description: 'Visi dan misi Yayasan Ruang Sejahtera.', path: '/tentang-kami/visi-misi' });
 
 export default function VisionMissionPage() {
   return (

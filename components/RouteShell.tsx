@@ -8,8 +8,9 @@ export function RouteShell({ children, publicHeader, publicFooter, publicStructu
   const isAdmin = pathname === '/admin' || pathname.startsWith('/admin/');
   const isAccount = pathname === '/akun' || pathname.startsWith('/akun/');
   const isAuth = pathname === '/masuk' || pathname.startsWith('/masuk/') || pathname === '/daftar' || pathname.startsWith('/daftar/');
+  const isVerification = pathname === '/verifikasi' || pathname.startsWith('/verifikasi/');
 
-  if (isAdmin || isAccount || isAuth) {
+  if (isAdmin || isAccount || isAuth || isVerification) {
     return <main id="main-content" tabIndex={-1} className="min-h-screen">{children}</main>;
   }
 

@@ -123,6 +123,7 @@ export async function getPublishedFinancialReports(options: { limit?: number } =
 
 type PublishedArticleContent = Pick<typeof contentItems.$inferSelect, 'id' | 'slug' | 'title' | 'excerpt' | 'publishedAt' | 'category' | 'body'>;
 type PublishedActivityContent = Pick<typeof contentItems.$inferSelect, 'id' | 'slug' | 'title' | 'excerpt' | 'activityDate' | 'locationLabel' | 'programSlug' | 'body'>;
+type PublishedGalleryContent = Pick<typeof contentItems.$inferSelect, 'id' | 'slug' | 'title' | 'excerpt' | 'publishedAt'>;
 
 function mediaByContentId(media: (typeof mediaAssets.$inferSelect)[]) {
   const grouped = new Map<string, (typeof mediaAssets.$inferSelect)[]>();
@@ -148,6 +149,15 @@ function mapArticle(row: PublishedArticleContent, media: (typeof mediaAssets.$in
     imageAlt: image?.altText,
     imageCaption: image?.caption || undefined,
   } satisfies PublishedArticle;
+}
+
+function mapGallery(row: PublishedGalleryContent): PublishedGallery {
+  return {
+    slug: row.slug,
+    title: row.title,
+    summary: row.excerpt || '',
+    publishedAt: row.publishedAt?.toISOString() || '',
+  };
 }
 
 export const getPublishedArticleBySlug = cache(async (slug: string): Promise<PublishedArticle | null> => {
@@ -273,3 +283,55 @@ export async function getPublishedArticles(options: { limit?: number } = {}): Pr
     return publishedArticles;
   }
 }
+
+export async function getPublishedGalleries(options: { limit?: number } = {}): Promise<PublishedGallery[]> {
+  if (!isDatabaseConfigured()) return publishedGalleries;
+  try {
+    const query = getDb()
+      .select({
+        id: contentItems.id,
+        slug: contentItems.slug,
+        title: contentItems.title,
+        excerpt: contentItems.excerpt,
+        publishedAt: contentItems.publishedAt,
+      })
+      .from(contentItems)
+      .where(and(
+        eq(contentItems.type, 'gallery'),
+        eq(contentItems.status, 'published'),
+        isNull(contentItems.deletedAt),
+      ))
+      .orderBy(desc(contentItems.publishedAt));
+    const contentRows = options.limit && options.limit > 0 ? await query.limit(options.limit) : await query;
+    if (!contentRows.length) return publishedGalleries;
+    return contentRows.map(mapGallery);
+  } catch {
+    return publishedGalleries;
+  }
+}
+
+export const getPublishedGalleryBySlug = cache(async (slug: string): Promise<PublishedGallery | null> => {
+  if (!isDatabaseConfigured()) return null;
+  try {
+    const contentRows = await getDb()
+      .select({
+        id: contentItems.id,
+        slug: contentItems.slug,
+        title: contentItems.title,
+        excerpt: contentItems.excerpt,
+        publishedAt: contentItems.publishedAt,
+      })
+      .from(contentItems)
+      .where(and(
+        eq(contentItems.type, 'gallery'),
+        eq(contentItems.slug, slug),
+        eq(contentItems.status, 'published'),
+        isNull(contentItems.deletedAt),
+      ))
+      .limit(1);
+    const content = contentRows[0];
+    return content ? mapGallery(content) : null;
+  } catch {
+    return null;
+  }
+});

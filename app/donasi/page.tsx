@@ -6,8 +6,9 @@ import { PageHero } from '@/components/PageHero';
 import { PreviewNotice } from '@/components/PreviewNotice';
 import { sampleDonationAmounts } from '@/lib/content';
 import { whatsappUrl } from '@/lib/site';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Cara Mendukung', description: 'Informasi donasi dan standar keamanan Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = createPageMetadata({ title: 'Cara Mendukung', description: 'Informasi donasi dan standar keamanan Yayasan Ruang Sejahtera.', path: '/donasi' });
 const safeguards = [[LockKeyhole, 'Data pembayaran sensitif tidak disimpan langsung.'], [CreditCard, 'Metode pembayaran harus berasal dari kanal resmi.'], [ReceiptText, 'Setiap transaksi memiliki referensi dan bukti.']] as const;
 
 export default function DonationPage() {

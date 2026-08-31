@@ -3,11 +3,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { ActivityJsonLd } from '@/components/ContentJsonLd';
 import { ContentContinuation } from '@/components/ContentContinuation';
 import { PageHero } from '@/components/PageHero';
 import { SectionNavigation } from '@/components/SectionNavigation';
 import { activityNavItems } from '@/lib/navigation';
 import { getPublishedActivityBySlug, publishedActivities } from '@/lib/published-content';
+import { createPageMetadata } from '@/lib/seo';
 import { RichTextContent } from '@/components/RichTextContent';
 import { ExternalVideoEmbed } from '@/components/ExternalVideoEmbed';
 
@@ -18,7 +20,13 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const activity = await getPublishedActivityBySlug(slug) || publishedActivities.find((item) => item.slug === slug);
-  return activity ? { title: activity.title, description: activity.summary } : {};
+  return activity ? createPageMetadata({
+    title: activity.title,
+    description: activity.summary,
+    path: `/kegiatan/${activity.slug}`,
+    imagePath: activity.imageUrl,
+    imageAlt: activity.imageAlt,
+  }) : {};
 }
 
 export default async function ActivityDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -28,6 +36,7 @@ export default async function ActivityDetailPage({ params }: { params: Promise<{
 
   return (
     <>
+      <ActivityJsonLd path={`/kegiatan/${activity.slug}`} title={activity.title} description={activity.summary} activityDate={activity.activityDate} location={activity.locationLabel} imagePath={activity.imageUrl} />
       <PageHero eyebrow="Kegiatan" title={activity.title} description={activity.summary} />
       <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: 'Kegiatan', href: '/kegiatan' }, { label: activity.title }]} />
       <SectionNavigation label="Jelajahi Kegiatan" items={activityNavItems} currentHref="/kegiatan" currentType="location" />

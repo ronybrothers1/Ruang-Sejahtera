@@ -18,11 +18,13 @@ import { PageHero } from '@/components/PageHero';
 import { PreviewNotice } from '@/components/PreviewNotice';
 import { SectionNavigation } from '@/components/SectionNavigation';
 import { aboutNavItems } from '@/lib/navigation';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: 'Organisasi',
   description: 'Struktur organisasi Yayasan Ruang Sejahtera, bidang kerja, Tim IT, dan koordinator kecamatan.',
-};
+  path: '/organisasi',
+});
 
 type PersonCardProps = {
   name: string;

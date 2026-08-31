@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, HeartHandshake, Home, Info, Landmark, LayoutGrid, Search, ShieldCheck, UsersRound } from 'lucide-react';
+import { ArrowRight, BookOpen, HeartHandshake, Home, Info, Landmark, Search, ShieldCheck, UsersRound } from 'lucide-react';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { PageHero } from '@/components/PageHero';
 import { aboutNavItems, programNavItems } from '@/lib/navigation';
-import { getPublishedActivities, getPublishedArticles, publishedGalleries } from '@/lib/published-content';
+import { getPublishedActivities, getPublishedArticles, getPublishedGalleries } from '@/lib/published-content';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: 'Peta Situs',
   description: 'Peta situs HTML Yayasan Ruang Sejahtera untuk menemukan program, kegiatan, informasi, dan layanan publik.',
-};
+  path: '/peta-situs',
+});
 
 type SitemapLink = { name: string; href: string; description?: string };
 type SitemapSection = { title: string; description: string; icon: typeof Home; links: SitemapLink[] };
@@ -68,16 +70,6 @@ const coreSections: SitemapSection[] = [
     ],
   },
   {
-    title: 'Akun & Keanggotaan',
-    description: 'Akses untuk anggota dan proses keanggotaan.',
-    icon: LayoutGrid,
-    links: [
-      { name: 'Masuk', href: '/masuk' },
-      { name: 'Daftar Menjadi Anggota', href: '/daftar' },
-      { name: 'Portal Akun', href: '/akun' },
-    ],
-  },
-  {
     title: 'Bantuan & Kebijakan',
     description: 'Pencarian informasi dan dokumen kebijakan publik.',
     icon: ShieldCheck,
@@ -92,9 +84,10 @@ const coreSections: SitemapSection[] = [
 ];
 
 export default async function SitemapPage() {
-  const [publishedArticles, publishedActivities] = await Promise.all([
+  const [publishedArticles, publishedActivities, publishedGalleries] = await Promise.all([
     getPublishedArticles(),
     getPublishedActivities(),
+    getPublishedGalleries(),
   ]);
   const publishedLinks: SitemapLink[] = [
     ...publishedArticles.map((item) => ({ name: item.title, href: `/berita/${item.slug}`, description: 'Berita & Cerita' })),

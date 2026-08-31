@@ -8,8 +8,9 @@ import { sampleFinance, sampleFinanceHeadline, sampleStats } from '@/lib/content
 import { getPublishedFinancialReports } from '@/lib/published-content';
 import { formatRupiah } from '@/lib/finance';
 import { accountabilityNavItems } from '@/lib/navigation';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Transparansi', description: 'Laporan dan dokumen transparansi Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = createPageMetadata({ title: 'Transparansi', description: 'Laporan dan dokumen transparansi Yayasan Ruang Sejahtera.', path: '/transparansi' });
 
 const icons = [WalletCards, Landmark, ReceiptText, FileCheck2];
 

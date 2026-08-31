@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { programs } from '@/lib/content';
-import { publishedActivities, publishedArticles, publishedGalleries } from '@/lib/published-content';
+import { getPublishedActivities, getPublishedArticles, getPublishedGalleries } from '@/lib/published-content';
 import { siteConfig } from '@/lib/site';
 
 const staticPaths = [
@@ -28,9 +28,14 @@ const staticPaths = [
   '/disclaimer',
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (!siteConfig.url) return [];
   const base = siteConfig.url.replace(/\/$/, '');
+  const [publishedActivities, publishedArticles, publishedGalleries] = await Promise.all([
+    getPublishedActivities(),
+    getPublishedArticles(),
+    getPublishedGalleries(),
+  ]);
   const dynamicPaths = [
     ...programs.map((program) => `/program/${program.slug}`),
     ...publishedActivities.map((activity) => `/kegiatan/${activity.slug}`),

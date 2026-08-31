@@ -8,8 +8,9 @@ import { SectionNavigation } from '@/components/SectionNavigation';
 import { sampleActivities } from '@/lib/content';
 import { activityNavItems } from '@/lib/navigation';
 import { getPublishedActivities } from '@/lib/published-content';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Kegiatan', description: 'Arsip kegiatan sosial Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = createPageMetadata({ title: 'Kegiatan', description: 'Arsip kegiatan sosial Yayasan Ruang Sejahtera.', path: '/kegiatan' });
 
 export default async function ActivitiesPage() {
   const items = [...sampleActivities, ...sampleActivities.slice(0, 2)];

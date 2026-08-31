@@ -9,11 +9,13 @@ import { TikTokEmbed } from '@/components/TikTokEmbed';
 import { programs, sampleActivities } from '@/lib/content';
 import { tiktokProfileUrl, tiktokVideos } from '@/lib/media';
 import { activityNavItems } from '@/lib/navigation';
-import { publishedGalleries } from '@/lib/published-content';
+import { getPublishedGalleries } from '@/lib/published-content';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Galeri', description: 'Dokumentasi foto dan video kegiatan Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = createPageMetadata({ title: 'Galeri', description: 'Dokumentasi foto dan video kegiatan Yayasan Ruang Sejahtera.', path: '/galeri' });
 
-export default function GalleryPage() {
+export default async function GalleryPage() {
+  const publishedGalleries = await getPublishedGalleries();
   const images = [
     programs[0],
     programs[3],
