@@ -269,6 +269,7 @@ export const programApplications = pgTable('program_applications', {
   reviewedBy: uuid('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
   reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
   reviewNote: text('review_note'),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
   ...timestamps,
 }, (table) => [
   index('program_applications_status_idx').on(table.status, table.createdAt),
