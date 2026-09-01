@@ -5,13 +5,17 @@ import {
   ArrowRight,
   BookOpenText,
   Building2,
+  HandCoins,
+  HeartHandshake,
   FileCheck2,
   Heart,
   Landmark,
+  MapPinned,
   MapPin,
   Quote,
   ShieldCheck,
   Sparkles,
+  UsersRound,
 } from 'lucide-react';
 import { ProgramMark } from '@/components/ProgramMark';
 import { formatRupiah } from '@/lib/finance';
@@ -39,6 +43,8 @@ const accountabilityLinks = [
   { href: '/organisasi', title: 'Organisasi', description: 'Struktur fungsi dan tanggung jawab membantu publik memahami tata kelola.', icon: Building2 },
   { href: '/kebijakan-donasi', title: 'Kebijakan Donasi', description: 'Prinsip penerimaan, penggunaan, dan perlindungan donatur dijelaskan sejak awal.', icon: BookOpenText },
 ] as const;
+
+const impactIcons = [UsersRound, HeartHandshake, MapPinned, HandCoins] as const;
 
 export default async function Home() {
   const [publishedArticles, financialReports, publishedActivities] = await Promise.all([
@@ -100,11 +106,19 @@ export default async function Home() {
       </section>
 
       <section className="trust-signal-band" aria-label="Ringkasan dampak contoh">
-        <div className="shell trust-stat-grid">
-          {sampleStats.map((item) => (
-            <article key={item.label}><strong>{item.value}</strong><span>{item.label}</span><small>{item.note}</small></article>
-          ))}
-        </div>
+        <ul className="shell trust-stat-grid">
+          {sampleStats.map((item, index) => {
+            const Icon = impactIcons[index];
+            return (
+              <li key={item.label}>
+                <span className="trust-stat-icon" aria-hidden="true"><Icon size={22} strokeWidth={1.8} /></span>
+                <strong>{item.value}</strong>
+                <span className="trust-stat-label">{item.label}</span>
+                <small>{item.note}</small>
+              </li>
+            );
+          })}
+        </ul>
       </section>
 
       <section className="trust-section trust-programs" aria-labelledby="program-heading">

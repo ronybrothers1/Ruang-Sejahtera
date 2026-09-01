@@ -61,6 +61,8 @@ check(media.includes('autoplay=1') === false && tiktok.includes('autoplay=0&loop
 
 check(home.includes('aria-label={`Lihat kegiatan: ${activity.title}`}'), 'WCAG 2.4.4: repeated activity links expose a unique purpose');
 check(home.includes("aria-label={`Lihat ${item.isLive ? 'berita' : 'arsip berita contoh'}: ${item.title}`}"), 'WCAG 2.4.4: repeated preview links expose a unique purpose');
+check(home.includes('<ul className="shell trust-stat-grid">'), 'WCAG 1.3.1: homepage impact metrics expose list relationships');
+check(home.includes('className="trust-stat-icon" aria-hidden="true"'), 'WCAG 1.1.1: impact icons remain decorative beside complete text labels');
 check(notFound.includes("title: 'Halaman Tidak Ditemukan'"), 'WCAG 2.4.2: the 404 state has a meaningful page title');
 
 for (const file of [...sourceFiles('app'), ...sourceFiles('components')]) {
