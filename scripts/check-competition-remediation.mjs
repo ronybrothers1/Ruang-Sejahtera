@@ -11,7 +11,6 @@ const membershipPage = await source('app/akun/keanggotaan/page.tsx');
 assert.match(membershipPage, /getCurrentExamAttempt/);
 assert.doesNotMatch(membershipPage, /getOrCreateExamAttempt/);
 assert.match(membershipPage, /intent" value="start/);
-assert.match(membershipPage, /untimedAccommodation/);
 
 const examGuard = await source('components/membership/ExamGuard.tsx');
 for (const blockedHandler of ['onCopy', 'onCut', 'onContextMenu', 'onDragStart']) assert.doesNotMatch(examGuard, new RegExp(blockedHandler));
@@ -58,4 +57,4 @@ const oversizedRequest = new Request('https://example.test/form', {
 });
 await assert.rejects(() => readFormDataWithinLimit(oversizedRequest, 64), RequestBodyTooLargeError);
 
-console.log('Competition remediation audit passed: workflow, media privacy, exam accessibility, and streamed request limits verified.');
+console.log('Competition remediation audit passed: workflow, media privacy, exam start safety, and streamed request limits verified.');

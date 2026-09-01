@@ -24,9 +24,7 @@ export async function POST(request: Request) {
   try {
     const form = await readFormDataWithinLimit(request, 16_384);
     if (String(form.get('intent') || '') === 'start') {
-      await getOrCreateExamAttempt(session.id, {
-        isUntimed: String(form.get('untimedAccommodation') || '') === 'yes',
-      });
+      await getOrCreateExamAttempt(session.id);
       return resultRedirect(request, 'started');
     }
 

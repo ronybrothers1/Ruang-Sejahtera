@@ -50,7 +50,7 @@ export default async function MembershipPage({
   const displayQuestions = examState
     ? getQuestionsForAttempt(examState.questions, examState.attempt.id)
     : [];
-  const deadline = examState && !examState.attempt.isUntimed
+  const deadline = examState
     ? new Date(
         examState.attempt.startedAt.getTime() +
           examState.settings.durationMinutes * 60 * 1000,
@@ -156,7 +156,7 @@ export default async function MembershipPage({
                 <div>
                   <h2 className="font-heading text-2xl font-extrabold">Tes dasar keanggotaan</h2>
                   <p className="mt-2 text-sm leading-6 text-neutral-600">
-                    {displayQuestions.length} pertanyaan · {examState.attempt.isUntimed ? 'tanpa batas waktu' : `${examState.settings.durationMinutes} menit`} · {examRules.pointsPerQuestion} poin per jawaban benar · nilai minimal {examState.settings.passingScore}.
+                    {displayQuestions.length} pertanyaan · {examState.settings.durationMinutes} menit · {examRules.pointsPerQuestion} poin per jawaban benar · nilai minimal {examState.settings.passingScore}.
                     Urutan soal dan pilihan jawaban berbeda pada setiap percobaan.
                   </p>
                 </div>
@@ -208,13 +208,6 @@ export default async function MembershipPage({
             </p>
             <form action="/api/membership/exam" method="post" className="mt-6 space-y-5">
               <input type="hidden" name="intent" value="start" />
-              <label className="flex items-start gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm leading-6">
-                <input name="untimedAccommodation" value="yes" type="checkbox" className="mt-1 size-4 shrink-0" />
-                <span>
-                  <strong>Saya memerlukan akomodasi tanpa batas waktu.</strong>
-                  <span className="mt-1 block text-neutral-600">Pilih bila batas waktu menjadi hambatan aksesibilitas. Jumlah soal dan nilai kelulusan tetap sama.</span>
-                </span>
-              </label>
               <button type="submit" className="button-primary">Mulai tes sekarang</button>
             </form>
           </section>

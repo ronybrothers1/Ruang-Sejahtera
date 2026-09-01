@@ -138,7 +138,6 @@ export const examAttempts = pgTable('exam_attempts', {
   manualScore: integer('manual_score'),
   finalScore: integer('final_score'),
   passed: boolean('passed'),
-  isUntimed: boolean('is_untimed').default(false).notNull(),
   startedAt: timestamp('started_at', { withTimezone: true }).defaultNow().notNull(),
   submittedAt: timestamp('submitted_at', { withTimezone: true }),
   gradedAt: timestamp('graded_at', { withTimezone: true }),

@@ -697,7 +697,7 @@ export async function getCurrentExamAttempt(userId: string): Promise<MemberExamS
 
   const settings = (await db.select().from(examSettings).where(eq(examSettings.id, attempt.settingsId)).limit(1))[0];
   if (!settings) return null;
-  if (!attempt.isUntimed && attempt.startedAt.getTime() + settings.durationMinutes * 60 * 1000 <= Date.now()) return null;
+  if (attempt.startedAt.getTime() + settings.durationMinutes * 60 * 1000 <= Date.now()) return null;
 
   const questions = attempt.questionSnapshot?.length
     ? snapshotToQuestions(attempt.questionSnapshot)
@@ -707,7 +707,7 @@ export async function getCurrentExamAttempt(userId: string): Promise<MemberExamS
   return { settings, questions, attempt };
 }
 
-export async function getOrCreateExamAttempt(userId: string, options: { isUntimed?: boolean } = {}): Promise<MemberExamState> {
+export async function getOrCreateExamAttempt(userId: string): Promise<MemberExamState> {
   const db = getDb();
   const exam = await getOrCreateVersionTwo(userId);
   return db.transaction(async (tx) => {
@@ -718,7 +718,7 @@ export async function getOrCreateExamAttempt(userId: string, options: { isUntime
 
     const now = Date.now();
     const active = attempts.find((attempt) => attempt.status === 'in_progress');
-    if (active && (active.isUntimed || active.startedAt.getTime() + exam.settings.durationMinutes * 60 * 1000 > now)) {
+    if (active && active.startedAt.getTime() + exam.settings.durationMinutes * 60 * 1000 > now) {
       const questions = active.questionSnapshot?.length ? snapshotToQuestions(active.questionSnapshot) : exam.questions;
       if (!active.questionSnapshot?.length) {
         await tx.update(examAttempts).set({ questionSnapshot: toSnapshot(exam.questions), updatedAt: new Date() }).where(eq(examAttempts.id, active.id));
@@ -739,7 +739,6 @@ export async function getOrCreateExamAttempt(userId: string, options: { isUntime
       settingsId: exam.settings.id,
       attemptNumber,
       status: 'in_progress',
-      isUntimed: Boolean(options.isUntimed),
       questionSnapshot: toSnapshot(exam.questions),
     }).returning())[0];
     if (!inserted) throw new Error('EXAM_ATTEMPT_CREATE_FAILED');
@@ -851,7 +850,7 @@ export async function submitMembershipExam(input: {
       ? snapshotToQuestions(attempt.questionSnapshot)
       : await tx.select().from(examQuestions).where(and(eq(examQuestions.settingsId, settings.id), eq(examQuestions.isActive, true))).orderBy(examQuestions.displayOrder);
 
-    if (!attempt.isUntimed && attempt.startedAt.getTime() + settings.durationMinutes * 60 * 1000 <= Date.now()) {
+    if (attempt.startedAt.getTime() + settings.durationMinutes * 60 * 1000 <= Date.now()) {
       await tx.update(examAttempts).set({ status: 'invalidated', updatedAt: new Date() }).where(and(eq(examAttempts.id, attempt.id), eq(examAttempts.status, 'in_progress')));
       throw new Error('EXAM_TIME_EXPIRED');
     }
