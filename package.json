@@ -2,8 +2,9 @@
   "name": "ruang-sejahtera-web",
   "version": "0.2.0",
   "private": true,
+  "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "next dev",
@@ -26,6 +27,7 @@
     "design:audit": "node scripts/check-design-refinement.mjs",
     "auth:audit": "node scripts/check-auth-rbac.mjs",
     "competition:remediation": "node scripts/check-competition-remediation.mjs",
+    "audit:all": "node scripts/check-all.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed-super-admin": "tsx scripts/seed-super-admin.ts"
@@ -44,7 +46,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.1.11",
-    "@types/node": "^22",
+    "@types/node": "^24",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
