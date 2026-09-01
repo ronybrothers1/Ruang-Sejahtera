@@ -31,12 +31,12 @@ export default async function ControlPlaneApprovalPage({ searchParams }: { searc
 
       <main className="mx-auto flex min-h-[calc(100vh-81px)] w-full max-w-6xl items-center justify-center px-4 py-10 sm:px-6">
         <section className="w-full max-w-lg rounded-3xl border border-white/10 bg-white p-7 text-brand-ink shadow-2xl sm:p-9" aria-labelledby="approval-title">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-brand-red"><ShieldCheck size={24} aria-hidden="true" /></div>
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-red/10 text-brand-red"><ShieldCheck size={24} aria-hidden="true" /></div>
           <p className="mt-7 text-xs font-extrabold uppercase tracking-[.16em] text-brand-red">Approval Control Plane</p>
           <h1 id="approval-title" className="mt-3 font-heading text-3xl font-extrabold tracking-tight">Konfirmasi akses administrasi</h1>
           <p className="mt-4 text-sm leading-7 text-neutral-600">MFA Clerk belum aktif pada akun ini. Masukkan kunci approval yang disimpan terpisah untuk membuka Control Plane selama {Math.round(security.approvalTtlSeconds / 60)} menit.</p>
 
-          <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950" role="note">
+          <div className="status-message-warning mt-6 rounded-2xl border p-4 text-sm leading-6" role="note">
             <strong>Mitigasi sementara, bukan pengganti MFA.</strong> Approval terikat ke sesi login ini, tidak disimpan di browser sebagai teks biasa, dan akan kedaluwarsa otomatis.
           </div>
 

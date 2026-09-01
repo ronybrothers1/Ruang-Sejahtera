@@ -44,9 +44,9 @@ export default async function Home() {
   const [publishedArticles, financialReports, publishedActivities] = await Promise.all([
     getPublishedArticles({ limit: 4 }),
     getPublishedFinancialReports({ limit: 1 }),
-    getPublishedActivities({ limit: 3 }),
+    getPublishedActivities({ limit: 4 }),
   ]);
-  const activityItems = publishedActivities.length ? publishedActivities.slice(0, 3).map((activity, index) => ({ slug: activity.slug, date: activity.activityDate, location: activity.locationLabel, title: activity.title, summary: activity.summary, image: activity.imageUrl || sampleActivities[index % sampleActivities.length].image, imageAlt: activity.imageAlt || activity.title, imageLabel: activity.imageUrl ? 'Dokumentasi resmi' : 'Konten resmi' })) : sampleActivities;
+  const activityItems = publishedActivities.length ? publishedActivities.slice(0, 4).map((activity, index) => ({ slug: activity.slug, date: activity.activityDate, location: activity.locationLabel, title: activity.title, summary: activity.summary, image: activity.imageUrl || sampleActivities[index % sampleActivities.length].image, imageAlt: activity.imageAlt || activity.title, imageLabel: activity.imageUrl ? 'Dokumentasi resmi' : 'Konten resmi' })) : sampleActivities;
   const latestReport = financialReports[0] || null;
   const newsItems = publishedArticles.length
     ? publishedArticles.slice(0, 4).map((item, index) => ({
@@ -183,24 +183,29 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="trust-section trust-story-section" aria-labelledby="story-heading">
+      <section className="trust-section trust-editorial-section" aria-labelledby="editorial-heading">
         <div className="shell">
-          <div className="trust-section-heading"><div><span>Cerita dampak</span><h2 id="story-heading">Suara manusia memberi makna pada setiap angka.</h2></div><p>Testimoni contoh mempertahankan struktur halaman hingga cerita asli siap digunakan dengan persetujuan publikasi.</p></div>
-          <div className="trust-testimonial-grid">
-            {sampleTestimonials.map((item) => (
-              <article key={item.name}><Quote size={27} aria-hidden="true" /><blockquote>“{item.quote}”</blockquote><div><span>{item.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}</span><p><strong>{item.name}</strong><small>{item.role} · CONTOH</small></p></div></article>
-            ))}
+          <div className="trust-section-heading">
+            <div><span>Cerita & kabar</span><h2 id="editorial-heading">Dampak terasa lewat suara manusia dan kabar lapangan.</h2></div>
+            <p>Cerita dampak dan pembaruan kegiatan disatukan agar pengunjung dapat memindai perkembangan yayasan tanpa melewati dua bagian yang berulang.</p>
           </div>
-        </div>
-      </section>
-
-      <section className="trust-section trust-news-section" aria-labelledby="news-heading">
-        <div className="shell">
-          <div className="trust-section-heading trust-section-heading-compact"><div><span>Berita & cerita</span><h2 id="news-heading">Kabar dari lapangan.</h2></div><Link href="/berita" className="trust-text-link">Lihat semua berita <ArrowRight size={16} aria-hidden="true" /></Link></div>
-          <div className="trust-news-grid">
-            {newsItems.map((item) => (
-              <article key={item.slug}><div className="trust-news-image"><Image src={item.image} alt={item.imageAlt} fill sizes="(max-width: 680px) 100vw, (max-width: 1024px) 50vw, 25vw" /><span>{item.category}</span></div><div><small>{item.date}{item.isLive ? '' : ' · CONTOH'}</small><h3>{item.title}</h3><Link href={item.isLive ? `/berita/${item.slug}` : `/berita#${item.slug}`} aria-label={`Lihat ${item.isLive ? 'berita' : 'arsip berita contoh'}: ${item.title}`}>{item.isLive ? 'Baca berita' : 'Lihat arsip berita'} <ArrowRight size={14} aria-hidden="true" /></Link></div></article>
-            ))}
+          <div className="trust-editorial-layout">
+            <section className="trust-editorial-stories" aria-labelledby="story-heading">
+              <div className="trust-editorial-subheading"><span>Cerita dampak</span><h3 id="story-heading">Suara manusia di balik angka.</h3><p>Testimoni contoh mempertahankan struktur halaman hingga cerita asli siap digunakan dengan persetujuan publikasi.</p></div>
+              <div className="trust-testimonial-grid">
+                {sampleTestimonials.map((item) => (
+                  <article key={item.name}><Quote size={24} aria-hidden="true" /><blockquote>“{item.quote}”</blockquote><div><span>{item.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}</span><p><strong>{item.name}</strong><small>{item.role} · CONTOH</small></p></div></article>
+                ))}
+              </div>
+            </section>
+            <section className="trust-editorial-news" aria-labelledby="news-heading">
+              <div className="trust-editorial-subheading trust-editorial-news-heading"><div><span>Berita & cerita</span><h3 id="news-heading">Kabar dari lapangan.</h3></div><Link href="/berita" className="trust-text-link">Lihat semua berita <ArrowRight size={16} aria-hidden="true" /></Link></div>
+              <div className="trust-news-grid">
+                {newsItems.map((item) => (
+                  <article key={item.slug}><div className="trust-news-image"><Image src={item.image} alt={item.imageAlt} fill sizes="(max-width: 680px) 100vw, (max-width: 1024px) 50vw, 25vw" /><span>{item.category}</span></div><div><small>{item.date}{item.isLive ? '' : ' · CONTOH'}</small><h4>{item.title}</h4><Link href={item.isLive ? `/berita/${item.slug}` : `/berita#${item.slug}`} aria-label={`Lihat ${item.isLive ? 'berita' : 'arsip berita contoh'}: ${item.title}`}>{item.isLive ? 'Baca berita' : 'Lihat arsip berita'} <ArrowRight size={14} aria-hidden="true" /></Link></div></article>
+                ))}
+              </div>
+            </section>
           </div>
         </div>
       </section>

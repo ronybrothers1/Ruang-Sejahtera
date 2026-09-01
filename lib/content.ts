@@ -4,6 +4,7 @@ export type Program = {
   summary: string;
   focus: string;
   image: string;
+  detailImage?: string;
   imageAlt: string;
   imageLabel: 'DOKUMENTASI' | 'VISUAL CONTOH';
   accent: string;
@@ -52,6 +53,7 @@ export const programs: Program[] = [
     summary: 'Bantuan air bersih untuk masyarakat di wilayah yang terdampak kekeringan.',
     focus: 'Air bersih',
     image: '/media/penyaluran-air-bersih.webp',
+    detailImage: '/media/penyaluran-air-bersih-portrait.webp',
     imageAlt: 'Warga mengisi jeriken saat penyaluran air bersih dari mobil tangki',
     imageLabel: 'DOKUMENTASI',
     accent: '04',

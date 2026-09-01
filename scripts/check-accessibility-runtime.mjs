@@ -19,6 +19,7 @@ const routes = [
   '/cari?q=air',
   '/cari?q=hasil-yang-tidak-ada',
   '/organisasi',
+  '/peta-situs',
   '/aksesibilitas',
 ];
 

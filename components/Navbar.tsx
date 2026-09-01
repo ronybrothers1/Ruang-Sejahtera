@@ -187,11 +187,17 @@ export function Navbar() {
           <Link onClick={closeMenu} href="/cari" aria-current={isCurrent('/cari') ? 'page' : undefined} className={`cta-ghost ${isCurrent('/cari') ? 'is-current' : ''}`}><Search size={18} aria-hidden="true" /> Cari Informasi</Link>
           <Link onClick={closeMenu} href="/kontak" aria-current={isCurrent('/kontak') ? 'page' : undefined} className={`cta-ghost ${isCurrent('/kontak') ? 'is-current' : ''}`}><MessageCircle size={18} aria-hidden="true" /> Kontak Yayasan</Link>
           <div className="mobile-nav-portal">
-            <p className="mobile-nav-portal-title">Akses Portal</p>
-            <Link onClick={closeMenu} href="/admin/login" className="cta-ghost">Super Admin</Link>
-            <Link onClick={closeMenu} href="/masuk?redirect_url=%2Fadmin" className="cta-ghost">Core Manager</Link>
-            <Link onClick={closeMenu} href="/masuk?redirect_url=%2Fakun" className="cta-ghost">Anggota: Masuk</Link>
-            <Link onClick={closeMenu} href="/daftar" className="cta-ghost">Anggota: Daftar</Link>
+            <p className="mobile-nav-portal-title">Masuk & akun</p>
+            <div className="mobile-nav-portal-group">
+              <p>Anggota</p>
+              <Link onClick={closeMenu} href="/masuk?redirect_url=%2Fakun" className="cta-ghost">Masuk</Link>
+              <Link onClick={closeMenu} href="/daftar" className="cta-ghost">Daftar</Link>
+            </div>
+            <div className="mobile-nav-portal-group">
+              <p>Pengelola</p>
+              <Link onClick={closeMenu} href="/masuk?redirect_url=%2Fadmin" className="cta-ghost">Core Manager</Link>
+              <Link onClick={closeMenu} href="/admin/login" className="cta-ghost">Super Admin</Link>
+            </div>
           </div>
           <Link onClick={closeMenu} href="/donasi" aria-current={isCurrent('/donasi') ? 'page' : undefined} className={`cta-red ${isCurrent('/donasi') ? 'is-current' : ''}`}><Heart size={18} aria-hidden="true" /> Cara Mendukung</Link>
         </div>
@@ -255,10 +261,10 @@ export function Navbar() {
                 else desktopTriggerRefs.current.delete(portalMenuName);
               }}
               type="button"
-              aria-label="Akses portal"
+              aria-label="Buka menu masuk dan portal"
               aria-expanded={activeDesktopMenu === portalMenuName}
               aria-controls={activeDesktopMenu === portalMenuName ? menuId(portalMenuName) : undefined}
-              className="nav-search-link"
+              className="nav-portal-trigger"
               onClick={() => {
                 setDesktopMenuPathname(pathname);
                 setOpenDesktopMenu((current) => current === portalMenuName ? null : portalMenuName);
@@ -273,14 +279,21 @@ export function Navbar() {
               }}
             >
               <UserRound size={18} aria-hidden="true" />
+              <span>Masuk</span>
+              <ChevronDown size={14} aria-hidden="true" />
             </button>
             {activeDesktopMenu === portalMenuName ? (
               <div id={menuId(portalMenuName)} className="nav-popover nav-portal-popover" onKeyDown={handlePopoverKeyDown}>
-                <p className="nav-portal-heading">Akses Portal</p>
-                <Link onClick={() => setOpenDesktopMenu(null)} href="/admin/login">Super Admin</Link>
-                <Link onClick={() => setOpenDesktopMenu(null)} href="/masuk?redirect_url=%2Fadmin">Core Manager</Link>
-                <Link onClick={() => setOpenDesktopMenu(null)} href="/masuk?redirect_url=%2Fakun">Anggota: Masuk</Link>
-                <Link onClick={() => setOpenDesktopMenu(null)} href="/daftar">Anggota: Daftar</Link>
+                <div className="nav-portal-group">
+                  <p className="nav-portal-heading">Anggota</p>
+                  <Link onClick={() => setOpenDesktopMenu(null)} href="/masuk?redirect_url=%2Fakun">Masuk anggota</Link>
+                  <Link onClick={() => setOpenDesktopMenu(null)} href="/daftar">Daftar anggota</Link>
+                </div>
+                <div className="nav-portal-group">
+                  <p className="nav-portal-heading">Pengelola</p>
+                  <Link onClick={() => setOpenDesktopMenu(null)} href="/masuk?redirect_url=%2Fadmin">Core Manager</Link>
+                  <Link onClick={() => setOpenDesktopMenu(null)} href="/admin/login">Super Admin</Link>
+                </div>
               </div>
             ) : null}
           </div>

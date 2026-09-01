@@ -13,7 +13,7 @@ import { createPageMetadata } from '@/lib/seo';
 export const metadata: Metadata = createPageMetadata({ title: 'Kegiatan', description: 'Arsip kegiatan sosial Yayasan Ruang Sejahtera.', path: '/kegiatan' });
 
 export default async function ActivitiesPage() {
-  const items = [...sampleActivities, ...sampleActivities.slice(0, 2)];
+  const items = sampleActivities;
   const publishedActivities = await getPublishedActivities();
   return (
     <>
@@ -34,7 +34,7 @@ export default async function ActivitiesPage() {
       <section className="trust-page-section trust-archive-section">
         <div className="shell trust-archive-grid trust-activity-archive">
           {items.map((activity, index) => (
-            <article id={index < sampleActivities.length ? activity.slug : undefined} className={index === 0 ? 'trust-archive-card trust-archive-card-wide' : 'trust-archive-card'} key={`${activity.slug}-${index}`}>
+            <article id={activity.slug} className={index === 0 ? 'trust-archive-card trust-archive-card-wide' : 'trust-archive-card'} key={activity.slug}>
               <div className="trust-archive-image"><Image src={activity.image} alt={activity.imageAlt} fill sizes={index === 0 ? '(max-width: 900px) 100vw, 66vw' : '(max-width: 900px) 100vw, 33vw'} /><span className="preview-chip">{activity.imageLabel}</span></div>
               <div className="trust-archive-copy"><div><time>{activity.date}</time><span><MapPin size={13} aria-hidden="true" /> {activity.location}</span></div><h2>{activity.title}</h2><p>{activity.summary} Dokumentasi, indikator hasil, dan kaitan program akan ditambahkan saat data final tersedia.</p></div>
             </article>
