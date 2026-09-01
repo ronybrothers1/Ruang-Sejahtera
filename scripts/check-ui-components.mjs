@@ -15,6 +15,7 @@ const donationPage = read('app/donasi/page.tsx');
 const searchPage = read('app/cari/page.tsx');
 const pageState = read('components/PageState.tsx');
 const errorPage = read('app/error.tsx');
+const heroCarousel = read('components/HeroGalleryCarousel.tsx');
 
 const checks = [];
 function check(condition, label) {
@@ -73,6 +74,9 @@ check(componentCss.includes(':user-invalid'), 'Touched invalid fields have a sem
 check(componentCss.includes(':focus-visible'), 'Interactive components have explicit keyboard focus parity');
 check(componentCss.includes(':disabled'), 'Buttons have an explicit disabled state contract');
 check(componentCss.includes('@media (prefers-reduced-motion: reduce)'), 'Component focus motion honors reduced-motion preference');
+check(heroCarousel.startsWith("'use client';"), 'Hero carousel keeps interaction inside an explicit client boundary');
+check(heroCarousel.includes('setActiveIndex((current) =>'), 'Hero carousel uses functional state updates for directional navigation');
+check(heroCarousel.includes('pointerStart.current = null'), 'Hero carousel clears transient swipe state after interaction');
 
 for (const file of [...sourceFiles('app'), ...sourceFiles('components')]) {
   const source = read(file);

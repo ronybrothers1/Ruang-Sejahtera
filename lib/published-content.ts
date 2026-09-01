@@ -53,6 +53,9 @@ export type PublishedGallery = {
   title: string;
   summary: string;
   publishedAt: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  imageCaption?: string;
 };
 
 export const publishedActivities: PublishedActivity[] = cmsActivities
@@ -151,12 +154,16 @@ function mapArticle(row: PublishedArticleContent, media: (typeof mediaAssets.$in
   } satisfies PublishedArticle;
 }
 
-function mapGallery(row: PublishedGalleryContent): PublishedGallery {
+function mapGallery(row: PublishedGalleryContent, media: (typeof mediaAssets.$inferSelect)[] = []): PublishedGallery {
+  const image = media.find((item) => isPublishableMedia(item));
   return {
     slug: row.slug,
     title: row.title,
     summary: row.excerpt || '',
     publishedAt: row.publishedAt?.toISOString() || '',
+    imageUrl: image?.externalUrl || undefined,
+    imageAlt: image?.altText,
+    imageCaption: image?.caption || undefined,
   };
 }
 
@@ -304,7 +311,12 @@ export async function getPublishedGalleries(options: { limit?: number } = {}): P
       .orderBy(desc(contentItems.publishedAt));
     const contentRows = options.limit && options.limit > 0 ? await query.limit(options.limit) : await query;
     if (!contentRows.length) return publishedGalleries;
-    return contentRows.map(mapGallery);
+    const media = await getDb().select().from(mediaAssets).where(and(
+      inArray(mediaAssets.contentId, contentRows.map((row) => row.id)),
+      isNull(mediaAssets.deletedAt),
+    ));
+    const groupedMedia = mediaByContentId(media);
+    return contentRows.map((content) => mapGallery(content, groupedMedia.get(content.id) || []));
   } catch {
     return publishedGalleries;
   }
@@ -330,7 +342,12 @@ export const getPublishedGalleryBySlug = cache(async (slug: string): Promise<Pub
       ))
       .limit(1);
     const content = contentRows[0];
-    return content ? mapGallery(content) : null;
+    if (!content) return null;
+    const media = await getDb().select().from(mediaAssets).where(and(
+      eq(mediaAssets.contentId, content.id),
+      isNull(mediaAssets.deletedAt),
+    ));
+    return mapGallery(content, media);
   } catch {
     return null;
   }
