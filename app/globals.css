@@ -2448,6 +2448,107 @@ body {
 .trust-program-card p { flex: 1; margin: .65rem .55rem 0; color: var(--trust-muted); font-size: .76rem; line-height: 1.65; }
 .trust-program-card > strong { display: flex; align-items: center; gap: .32rem; margin: 1rem .55rem 0; color: var(--trust-red-dark); font-size: .69rem; }
 
+/* Homepage program shortcuts use an app-style navigator instead of repeating
+   the documentary card treatment used by the program archive. */
+.trust-program-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: .65rem;
+  margin: 0;
+  padding: clamp(.75rem, 1.5vw, 1.2rem);
+  border: 1px solid var(--trust-line);
+  border-radius: clamp(24px, 3vw, 34px);
+  background: rgba(255,255,255,.84);
+  box-shadow: 0 22px 65px rgba(20,16,14,.07);
+  list-style: none;
+}
+
+.trust-program-shortcuts > li { min-width: 0; }
+
+.trust-program-shortcut {
+  position: relative;
+  display: flex;
+  min-height: 220px;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+  gap: .9rem;
+  padding: 1.2rem .7rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 24px;
+  text-align: center;
+  transition: transform .22s ease, background-color .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+
+.trust-program-shortcut:hover {
+  transform: translateY(-4px);
+  border-color: rgba(215,25,32,.12);
+  background: #faf8f4;
+  box-shadow: 0 12px 30px rgba(20,16,14,.07);
+}
+
+.trust-program-shortcut .program-mark-compact {
+  width: clamp(76px, 7vw, 92px);
+  min-width: clamp(76px, 7vw, 92px);
+  height: clamp(76px, 7vw, 92px);
+  min-height: clamp(76px, 7vw, 92px);
+  border-radius: clamp(22px, 2vw, 28px);
+  box-shadow: 0 15px 28px rgba(20,16,14,.17), inset 0 1px 0 rgba(255,255,255,.16);
+}
+
+.trust-program-shortcut .program-mark-compact > svg {
+  width: clamp(30px, 3vw, 38px);
+  height: clamp(30px, 3vw, 38px);
+  stroke-width: 1.65;
+}
+
+.trust-program-shortcut-copy { display: block; min-width: 0; }
+.trust-program-shortcut-copy > strong {
+  display: block;
+  font: 850 clamp(.83rem, 1.25vw, 1rem)/1.3 var(--font-plus-jakarta);
+  letter-spacing: -.025em;
+  text-wrap: balance;
+}
+.trust-program-shortcut-copy > small {
+  display: block;
+  margin-top: .38rem;
+  color: var(--trust-muted);
+  font-size: clamp(.62rem, .8vw, .7rem);
+  font-weight: 700;
+  line-height: 1.45;
+  text-wrap: balance;
+}
+
+.trust-program-shortcut-action {
+  position: absolute;
+  top: .72rem;
+  right: .72rem;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--trust-paper);
+  color: var(--trust-red-dark);
+  transition: background-color .22s ease, color .22s ease, transform .22s ease;
+}
+
+.trust-program-shortcut:hover .trust-program-shortcut-action {
+  transform: translate(2px, -2px);
+  background: var(--trust-red-dark);
+  color: #fff;
+}
+
+.trust-program-shortcuts-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  margin-top: 1.1rem;
+  padding-inline: .25rem;
+}
+.trust-program-shortcuts-footer > p { color: var(--trust-muted); font-size: .72rem; line-height: 1.6; }
+
 .trust-principle-section { background: var(--trust-paper); }
 .trust-principle-layout {
   display: grid;
@@ -2886,6 +2987,11 @@ body {
   .trust-closing-content { grid-template-columns: 1fr; align-items: start; }
   .trust-program-detail-mark { max-width: 390px; }
   .trust-transparency-empty { grid-column: auto; }
+
+  .trust-program-shortcuts { grid-template-columns: repeat(6, minmax(0,1fr)); }
+  .trust-program-shortcuts > li { grid-column: span 2; }
+  .trust-program-shortcuts > li:nth-child(4) { grid-column: 2 / span 2; }
+  .trust-program-shortcuts > li:nth-child(5) { grid-column: 4 / span 2; }
 }
 
 @media (max-width: 680px) {
@@ -2904,6 +3010,20 @@ body {
   .trust-section,
   .trust-page-section { padding-block: 4.5rem; }
   .trust-programs { padding-top: 6.8rem; }
+  .trust-program-shortcuts { gap: .3rem; padding: .65rem; border-radius: 24px; }
+  .trust-program-shortcut { min-height: 176px; gap: .7rem; padding: .95rem .32rem .75rem; border-radius: 19px; }
+  .trust-program-shortcut .program-mark-compact {
+    width: clamp(64px, 18vw, 76px);
+    min-width: clamp(64px, 18vw, 76px);
+    height: clamp(64px, 18vw, 76px);
+    min-height: clamp(64px, 18vw, 76px);
+    border-radius: 21px;
+  }
+  .trust-program-shortcut .program-mark-compact > svg { width: 29px; height: 29px; }
+  .trust-program-shortcut-copy > strong { font-size: clamp(.72rem, 3.35vw, .86rem); line-height: 1.27; }
+  .trust-program-shortcut-copy > small { margin-top: .28rem; font-size: clamp(.58rem, 2.65vw, .68rem); line-height: 1.35; }
+  .trust-program-shortcut-action { top: .4rem; right: .4rem; width: 26px; height: 26px; }
+  .trust-program-shortcuts-footer { align-items: flex-start; flex-direction: column; }
   .trust-section-heading h2,
   .trust-page-intro h2,
   .trust-principle-intro h2 { font-size: clamp(2rem, 10vw, 3.1rem); }
@@ -2953,9 +3073,19 @@ body {
   .trust-hero-assurance { align-items: start; }
 }
 
+@media (max-width: 360px) {
+  .trust-program-shortcuts { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .trust-program-shortcuts > li,
+  .trust-program-shortcuts > li:nth-child(4),
+  .trust-program-shortcuts > li:nth-child(5) { grid-column: auto; }
+  .trust-program-shortcuts > li:last-child { grid-column: 1 / -1; width: calc(50% - .15rem); justify-self: center; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .trust-button,
   .trust-program-card,
+  .trust-program-shortcut,
+  .trust-program-shortcut-action,
   .trust-program-archive > a,
   .trust-accountability-grid > a,
   .trust-console-list > a { transition: none; }

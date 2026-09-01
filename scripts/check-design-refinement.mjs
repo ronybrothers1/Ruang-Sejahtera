@@ -35,5 +35,11 @@ check((navbar.match(/className="nav-portal-group"/g) ?? []).length === 2, 'Deskt
 check((navbar.match(/className="mobile-nav-portal-group"/g) ?? []).length === 2, 'Mobile portal choices are grouped by audience');
 check(content.includes("detailImage: '/media/penyaluran-air-bersih-portrait.webp'"), 'Air program detail uses the portrait documentary source');
 check(!globals.includes('Mobile footer and portal alignment'), 'Superseded mobile alignment block has been removed');
+check(home.includes('<ul className="trust-program-shortcuts"'), 'Homepage presents programs as a semantic shortcut navigator');
+check(!home.includes('trust-program-grid-photo') && !home.includes('trust-program-card-photo'), 'Homepage program navigator no longer repeats photo cards');
+check(home.includes('programs.map((program)') && home.includes('<ProgramMark slug={program.slug}'), 'Every official program receives its matching icon');
+check(globals.includes('grid-template-columns: repeat(5, minmax(0, 1fr));'), 'Program shortcuts use five equal desktop columns');
+check(globals.includes('.trust-program-shortcuts > li:nth-child(4) { grid-column: 2 / span 2; }'), 'Program shortcuts center the second responsive row');
+check(home.includes('aria-label={`${program.name}: ${program.summary}`}'), 'Program shortcuts expose their full purpose to assistive technology');
 
 console.log(`Design refinement audit passed (${checks.length} contracts).`);
