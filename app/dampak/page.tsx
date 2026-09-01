@@ -5,8 +5,9 @@ import { PreviewNotice } from '@/components/PreviewNotice';
 import { SectionNavigation } from '@/components/SectionNavigation';
 import { sampleStats } from '@/lib/content';
 import { accountabilityNavItems } from '@/lib/navigation';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Dampak', description: 'Data dampak dan metodologi pelaporan Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = createPageMetadata({ title: 'Dampak', description: 'Data dampak dan metodologi pelaporan Yayasan Ruang Sejahtera.', path: '/dampak' });
 
 const evidenceLayers = [
   ['01', 'Input', 'Dana, waktu relawan, logistik, dan sumber daya yang digunakan.', FileSearch],

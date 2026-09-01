@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FileText, Gauge, Settings, ShieldCheck } from 'lucide-react';
+import { ClipboardCheck, FileText, Gauge, Settings, ShieldCheck } from 'lucide-react';
 import type { AdminRole } from '@/lib/models';
 import { can } from '@/lib/auth/permissions';
 
@@ -11,6 +11,7 @@ export function AdminNav({ role }: { role: AdminRole }) {
   const items = [
     { href: '/admin', label: 'Dashboard', icon: Gauge, show: true },
     { href: '/admin/konten', label: 'Konten', icon: FileText, show: can(role, 'content.read') },
+    { href: '/admin/pengajuan', label: 'Pengajuan', icon: ClipboardCheck, show: can(role, 'membership.review') },
     { href: '/admin/transparansi', label: 'Transparansi', icon: ShieldCheck, show: can(role, 'finance.read') || can(role, 'reports.publish') },
     { href: '/admin/sistem', label: 'Sistem', icon: Settings, show: can(role, 'settings.manage') || can(role, 'audit.read') },
   ];

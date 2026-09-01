@@ -4,8 +4,9 @@ import { DocumentLayout } from '@/components/DocumentLayout';
 import { PageHero } from '@/components/PageHero';
 import { SectionNavigation } from '@/components/SectionNavigation';
 import { accountabilityNavItems } from '@/lib/navigation';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Kebijakan Donasi', description: 'Prinsip pencatatan, privasi, dan keamanan donasi Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = createPageMetadata({ title: 'Kebijakan Donasi', description: 'Prinsip pencatatan, privasi, dan keamanan donasi Yayasan Ruang Sejahtera.', path: '/kebijakan-donasi' });
 
 export default function DonationPolicyPage() {
   const sections = [

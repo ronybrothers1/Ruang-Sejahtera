@@ -6,8 +6,9 @@ import { PreviewNotice } from '@/components/PreviewNotice';
 import { SectionNavigation } from '@/components/SectionNavigation';
 import { sampleValues } from '@/lib/content';
 import { aboutNavItems } from '@/lib/navigation';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Nilai Kami', description: 'Prinsip yang menjadi arah Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = createPageMetadata({ title: 'Nilai Kami', description: 'Prinsip yang menjadi arah Yayasan Ruang Sejahtera.', path: '/tentang-kami/nilai' });
 const valueIcons = [HeartHandshake, ShieldCheck, Scale, BarChart3, Accessibility];
 
 export default function ValuesPage() {

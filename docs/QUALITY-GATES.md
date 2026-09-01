@@ -24,7 +24,8 @@ Integrity guard juga memvalidasi tiga registry editorial pada `content/cms/`:
 - slug harus mengikuti format URL aman;
 - publication status harus valid;
 - timestamp dasar dan `lastEditedBy` wajib tersedia;
-- record `review` wajib mempunyai provenance review;
+- record `pending_review` wajib mempunyai provenance pengajuan kurasi;
+- record `revision_required`, `approved`, dan `rejected` wajib mempunyai provenance keputusan kurasi;
 - record `published` wajib mempunyai `publishedAt` dan `publishedBy`;
 - record `archived` wajib mempunyai provenance archive.
 

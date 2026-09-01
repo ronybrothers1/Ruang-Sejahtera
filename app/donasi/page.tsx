@@ -4,10 +4,11 @@ import { ArrowRight, CreditCard, LockKeyhole, MessageCircle, ReceiptText, Shield
 import { DonationPreviewForm } from '@/components/DonationPreviewForm';
 import { PageHero } from '@/components/PageHero';
 import { PreviewNotice } from '@/components/PreviewNotice';
-import { sampleDonationAmounts } from '@/lib/content';
+import { programs, sampleDonationAmounts } from '@/lib/content';
 import { whatsappUrl } from '@/lib/site';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Cara Mendukung', description: 'Informasi donasi dan standar keamanan Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = createPageMetadata({ title: 'Cara Mendukung', description: 'Informasi donasi dan standar keamanan Yayasan Ruang Sejahtera.', path: '/donasi' });
 const safeguards = [[LockKeyhole, 'Data pembayaran sensitif tidak disimpan langsung.'], [CreditCard, 'Metode pembayaran harus berasal dari kanal resmi.'], [ReceiptText, 'Setiap transaksi memiliki referensi dan bukti.']] as const;
 
 export default function DonationPage() {
@@ -21,7 +22,7 @@ export default function DonationPage() {
         <div className="shell trust-donation-preview-layout">
           <div className="trust-donation-card">
             <span>Pilih dukungan</span><h2>Mulai dari niat baik.</h2><p>Gunakan formulir ini untuk menilai pengalaman donasi. Tidak ada data yang dikirim atau pembayaran yang dibuat.</p>
-            <DonationPreviewForm amounts={sampleDonationAmounts} />
+            <DonationPreviewForm amounts={sampleDonationAmounts} programs={programs.map(({ slug, name }) => ({ slug, name }))} />
           </div>
           <aside className="trust-donation-safeguards">
             <ShieldCheck size={34} aria-hidden="true" /><h2>Dirancang aman sejak awal.</h2><p>Ketika pembayaran resmi diaktifkan, transaksi harus melalui gateway tepercaya, memiliki referensi unik, bukti donasi, rekonsiliasi, dan pelaporan.</p>

@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1788099737126,
+      "tag": "0000_initial_auth_rbac",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788100000000,
+      "tag": "0001_program_applications",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788100001000,
+      "tag": "0002_program_applications_soft_delete",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788148126369,
+      "tag": "0003_young_rockslide",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788150000000,
+      "tag": "0004_cms_editor_fields",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { programs } from '@/lib/content';
 import type { CmsActivity, CmsArticle, CmsCollection, CmsGallery, CmsRecord } from '@/lib/cms/types';
+import { richTextPlainLength, sanitizeRichText } from '@/lib/security/rich-text';
+import { parseExternalVideoUrl } from '@/lib/security/external-video';
 
 export class CmsValidationError extends Error {}
 
@@ -23,6 +25,13 @@ function isoDate(form: FormData, key: string) {
   return value;
 }
 
+function richText(form: FormData) {
+  const value = String(form.get('body') || '').trim();
+  if (!value || richTextPlainLength(value) === 0) throw new CmsValidationError('Isi konten wajib diisi.');
+  if (value.length > 30000) throw new CmsValidationError('Isi konten melebihi batas panjang.');
+  return sanitizeRichText(value);
+}
+
 function base(form: FormData, actorId: string) {
   const now = new Date().toISOString();
   return {
@@ -42,7 +51,7 @@ export function parseCreateContent(collection: CmsCollection, form: FormData, ac
       title: text(form, 'title', 160),
       excerpt: text(form, 'excerpt', 420),
       category: text(form, 'category', 80),
-      body: text(form, 'body', 20000),
+      body: richText(form),
     };
     return record;
   }
@@ -57,7 +66,16 @@ export function parseCreateContent(collection: CmsCollection, form: FormData, ac
       activityDate: isoDate(form, 'activityDate'),
       locationLabel: text(form, 'locationLabel', 180),
       programSlug,
-      body: text(form, 'body', 20000),
+      body: richText(form),
+      imageAlt: String(form.get('imageAlt') || '').trim() || undefined,
+      imageCaption: String(form.get('imageCaption') || '').trim() || undefined,
+      video: (() => {
+        const value = String(form.get('videoUrl') || '').trim();
+        if (!value) return undefined;
+        const parsed = parseExternalVideoUrl(value);
+        if (!parsed) throw new CmsValidationError('URL video TikTok atau Instagram tidak valid.');
+        return parsed;
+      })(),
     };
     return record;
   }
@@ -68,6 +86,17 @@ export function parseCreateContent(collection: CmsCollection, form: FormData, ac
     summary: text(form, 'summary', 700),
   };
   return record;
+}
+
+export function parseUpdateContent(collection: CmsCollection, form: FormData, actorId: string, existing: CmsRecord): CmsRecord {
+  const parsed = parseCreateContent(collection, form, actorId);
+  return {
+    ...parsed,
+    id: existing.id,
+    status: existing.status,
+    createdAt: existing.createdAt,
+    updatedAt: new Date().toISOString(),
+  };
 }
 
 export function isCmsCollection(value: string): value is CmsCollection {

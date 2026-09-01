@@ -22,7 +22,7 @@ const cmsFiles = [
   ['activities', 'content/cms/activities.json'],
   ['galleries', 'content/cms/galleries.json'],
 ];
-const validStatuses = new Set(['draft', 'review', 'published', 'archived']);
+const validStatuses = new Set(['draft', 'pending_review', 'revision_required', 'approved', 'rejected', 'published', 'archived']);
 
 async function walk(dir) {
   const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -78,7 +78,10 @@ for (const [collection, file] of cmsFiles) {
     if (typeof record.createdAt !== 'string' || Number.isNaN(Date.parse(record.createdAt))) violations.push(`${file}: valid createdAt required`);
     if (typeof record.updatedAt !== 'string' || Number.isNaN(Date.parse(record.updatedAt))) violations.push(`${file}: valid updatedAt required`);
     if (typeof record.lastEditedBy !== 'string' || !record.lastEditedBy) violations.push(`${file}: lastEditedBy required`);
-    if (record.status === 'review' && (!record.reviewRequestedAt || !record.reviewRequestedBy)) violations.push(`${file}: review provenance required for ${collection}`);
+    if (record.status === 'pending_review' && (!record.reviewRequestedAt || !record.reviewRequestedBy)) violations.push(`${file}: review request provenance required for ${collection}`);
+    if (['revision_required', 'approved', 'rejected'].includes(record.status) && (!record.reviewedAt || !record.reviewedBy)) violations.push(`${file}: review decision provenance required for ${collection}`);
+    if (record.status === 'approved' && (!record.approvedAt || !record.approvedBy)) violations.push(`${file}: approval provenance required for ${collection}`);
+    if (record.status === 'rejected' && (!record.rejectedAt || !record.rejectedBy)) violations.push(`${file}: rejection provenance required for ${collection}`);
     if (record.status === 'published' && (!record.publishedAt || !record.publishedBy)) violations.push(`${file}: publication provenance required for ${collection}`);
     if (record.status === 'archived' && (!record.archivedAt || !record.archivedBy)) violations.push(`${file}: archive provenance required for ${collection}`);
   }

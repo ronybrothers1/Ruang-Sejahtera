@@ -7,7 +7,7 @@ Dokumen ini adalah gerbang rilis, bukan daftar fitur dekoratif. Status `siap pro
 - Tidak ada statistik, kegiatan, penerima manfaat, alamat, legalitas, pengurus, kontak, mitra, rekening, QRIS, laporan, atau status audit yang direkayasa.
 - Data publik berasal dari sumber resmi yang mempunyai pemilik data dan jejak perubahan.
 - Aktivitas, artikel, galeri, laporan, dan impact metrics mempunyai status publikasi eksplisit.
-- Record editorial `review`, `published`, dan `archived` memiliki metadata provenance aktor/waktu yang diwajibkan CI.
+- Record editorial `pending_review`, keputusan kurasi, `published`, dan `archived` memiliki metadata provenance aktor/waktu yang diwajibkan CI.
 - Foto/video pihak rentan mempunyai metadata consent/restriction sebelum dapat menjadi `public`.
 - Empty state digunakan ketika data belum tersedia.
 

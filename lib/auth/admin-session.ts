@@ -1,15 +1,28 @@
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import type { AdminRole } from '@/lib/models';
+import { isBootstrapEnabledForEnvironment, isClerkConfigured, isDatabaseConfigured } from '@/lib/auth/config';
+import { canAccessControlPlane } from '@/lib/auth/permissions';
+import { syncClerkUser } from '@/lib/auth/identity-sync';
+import { findUserByIdentityProviderId } from '@/lib/db/users';
+import { getControlPlaneSecurityStatus, hasValidControlPlaneApproval } from '@/lib/auth/control-plane-gate';
+import type { AdminRole, MembershipStatus } from '@/lib/models';
 
 export const ADMIN_SESSION_COOKIE = 'rs_admin_session';
 const SESSION_TTL_SECONDS = 4 * 60 * 60;
-const roles: AdminRole[] = ['super_admin', 'content_admin', 'finance', 'editor'];
+const roles: AdminRole[] = ['super_admin', 'core_manager', 'member'];
 
 export type AdminSession = {
   id: string;
   role: AdminRole;
+  email?: string;
+  fullName?: string;
+  membershipStatus: MembershipStatus;
+  identityProviderId?: string;
+  sessionId?: string;
+  authMethod: 'clerk' | 'bootstrap';
+  mfaRequired: boolean;
   issuedAt: number;
   expiresAt: number;
 };
@@ -31,7 +44,9 @@ function isRole(value: string): value is AdminRole {
 
 export function getBootstrapAuthStatus() {
   const production = process.env.VERCEL_ENV === 'production';
-  const enabled = process.env.ADMIN_BOOTSTRAP_ENABLED === 'true' && !production;
+  const productionOverride = process.env.ADMIN_BOOTSTRAP_ALLOW_PRODUCTION === 'true';
+  const productionConfirmation = process.env.ADMIN_BOOTSTRAP_PRODUCTION_CONFIRMATION === 'I_UNDERSTAND_BOOTSTRAP_RISK';
+  const enabled = isBootstrapEnabledForEnvironment();
   const role = process.env.ADMIN_BOOTSTRAP_ROLE?.trim() || '';
   const configured = enabled
     && Boolean(process.env.ADMIN_BOOTSTRAP_EMAIL?.trim())
@@ -42,7 +57,7 @@ export function getBootstrapAuthStatus() {
   return {
     enabled,
     configured,
-    productionBlocked: production,
+    productionBlocked: production && (!productionOverride || !productionConfirmation),
   };
 }
 
@@ -106,6 +121,10 @@ function verifyToken(token: string): AdminSession | null {
     return {
       id: payload.sub,
       role: payload.role,
+      fullName: 'Bootstrap administrator',
+      membershipStatus: 'active',
+      authMethod: 'bootstrap',
+      mfaRequired: false,
       issuedAt: payload.iat as number,
       expiresAt: payload.exp as number,
     };
@@ -114,15 +133,95 @@ function verifyToken(token: string): AdminSession | null {
   }
 }
 
-export async function getAdminSession() {
+async function getBootstrapSession() {
   const store = await cookies();
   const token = store.get(ADMIN_SESSION_COOKIE)?.value;
   return token ? verifyToken(token) : null;
 }
 
+async function getClerkSession(): Promise<AdminSession | null> {
+  if (!isClerkConfigured() || !isDatabaseConfigured()) return null;
+  const identitySession = await auth();
+  if (!identitySession.userId || !identitySession.sessionId) return null;
+
+  let profile = await findUserByIdentityProviderId(identitySession.userId);
+  if (!profile) {
+    const identityUser = await currentUser();
+    if (!identityUser) return null;
+    profile = await syncClerkUser(identityUser);
+  } else if (profile.role === 'super_admin' && !profile.twoFactorEnabled) {
+    const identityUser = await currentUser();
+    if (!identityUser) return null;
+    profile = await syncClerkUser(identityUser);
+  }
+  if (!profile.isActive || profile.deletedAt || profile.membershipStatus === 'suspended' || profile.membershipStatus === 'revoked') return null;
+
+  const simpleAdminLogin = getBootstrapAuthStatus().configured;
+  const now = Math.floor(Date.now() / 1000);
+  return {
+    id: profile.id,
+    identityProviderId: identitySession.userId,
+    sessionId: identitySession.sessionId,
+    role: profile.role,
+    email: profile.email,
+    fullName: profile.fullName,
+    membershipStatus: profile.membershipStatus,
+    authMethod: 'clerk',
+    mfaRequired: profile.role === 'super_admin' && !profile.twoFactorEnabled && !simpleAdminLogin,
+    issuedAt: now,
+    expiresAt: now + SESSION_TTL_SECONDS,
+  };
+}
+
+export async function getCurrentUserSession() {
+  let clerkSession: AdminSession | null = null;
+  try {
+    clerkSession = await getClerkSession();
+  } catch (error) {
+    if (!getBootstrapAuthStatus().configured) throw error;
+  }
+  if (clerkSession) return clerkSession;
+  if (process.env.VERCEL_ENV === 'production' && !getBootstrapAuthStatus().configured) return null;
+  return getBootstrapSession();
+}
+
+export const getAdminSession = getCurrentUserSession;
+
+export async function hasControlPlaneAccess(session: AdminSession) {
+  if (!canAccessControlPlane(session.role)) return false;
+  if (!session.mfaRequired) return true;
+
+  const security = getControlPlaneSecurityStatus();
+  return security.mode === 'approval'
+    && security.configured
+    && !security.configurationError
+    && await hasValidControlPlaneApproval(session);
+}
+
+export async function requireUserSession() {
+  const session = await getCurrentUserSession();
+  if (!session) redirect('/masuk?redirect_url=/akun');
+  return session;
+}
+
 export async function requireAdminSession() {
-  const session = await getAdminSession();
+  const session = await getCurrentUserSession();
   if (!session) redirect('/admin/login');
+  if (!canAccessControlPlane(session.role)) redirect('/akun?error=forbidden');
+  if (!(await hasControlPlaneAccess(session))) {
+    const security = getControlPlaneSecurityStatus();
+    if (session.mfaRequired && security.mode === 'approval' && security.configured && !security.configurationError) {
+      redirect('/admin/approval?required=1');
+    }
+    if (session.mfaRequired) redirect('/akun/profil?mfa=required');
+    redirect('/akun?error=forbidden');
+  }
+  return session;
+}
+
+export async function requireSuperAdminSession() {
+  const session = await requireAdminSession();
+  if (session.role !== 'super_admin') redirect('/admin?error=forbidden');
   return session;
 }
 

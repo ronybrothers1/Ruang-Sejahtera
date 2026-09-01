@@ -22,6 +22,7 @@ const publicRoutes = [
   '/kontak',
   '/cari',
   '/organisasi',
+  '/peta-situs',
   '/kebijakan-donasi',
   '/privasi',
   '/ketentuan',
@@ -65,6 +66,10 @@ try {
   const donation = await (await fetch(`${baseUrl}/donasi`)).text();
   assert.match(donation, /data-preview-form/, 'Donation preview renders the guarded form');
   assert.match(donation, /aria-pressed="true"/, 'Donation preview renders one selected amount');
+  assert.equal((donation.match(/name="program"/g) ?? []).length, 5, 'Donation preview renders all five official programs');
+  for (const programName of ['Berbagi Rasa', 'Merakyat', 'REHAT', 'Berbagi Air Bersih', 'Berbagi Masa Depan']) {
+    assert.match(donation, new RegExp(`>${programName}<`), `Donation preview includes ${programName}`);
+  }
   assert.match(donation, /Lanjutkan Pembayaran · SIMULASI/, 'Donation transaction remains explicitly disabled preview content');
 
   const contact = await (await fetch(`${baseUrl}/kontak`)).text();
@@ -87,9 +92,11 @@ try {
   assert.doesNotMatch(repeatedSearch, /Halaman belum dapat dimuat/, 'Repeated search parameters do not enter the runtime error boundary');
 
   assert.match(contact, /Chat WhatsApp Resmi/, 'Contact page renders an active official channel');
-  assert.match(contact, /wa\.me\/6282334030628/, 'Contact page uses the normalized official WhatsApp number');
   assert.match(donation, /Tanya via WhatsApp Resmi/, 'Donation page renders a direct support handoff');
-  assert.match(donation, /wa\.me\/6282334030628/, 'Donation support handoff uses the official WhatsApp number');
+  const contactWhatsApp = contact.match(/wa\.me\/(\d{10,15})/)?.[1];
+  const donationWhatsApp = donation.match(/wa\.me\/(\d{10,15})/)?.[1];
+  assert.ok(contactWhatsApp, 'Contact page exposes a normalized international WhatsApp number');
+  assert.equal(donationWhatsApp, contactWhatsApp, 'Donation and contact handoffs use the same configured WhatsApp number');
 
   console.log(`Production component smoke passed (${publicRoutes.length} routes + donation/contact/search/recovery contracts).`);
 } finally {

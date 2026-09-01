@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { DocumentLayout } from '@/components/DocumentLayout';
 import { PageHero } from '@/components/PageHero';
-export const metadata: Metadata = { title: 'Aksesibilitas', description: 'Komitmen aksesibilitas platform Yayasan Ruang Sejahtera.' };
+import { createPageMetadata } from '@/lib/seo';
+export const metadata: Metadata = createPageMetadata({ title: 'Aksesibilitas', description: 'Komitmen aksesibilitas platform Yayasan Ruang Sejahtera.', path: '/aksesibilitas' });
 export default function AccessibilityPage() {
   const sections = [
     { id: 'baseline', title: 'Baseline', content: 'Struktur semantik, navigasi keyboard, focus state yang terlihat, skip link, dukungan reduced motion, label formulir, teks alternatif, dan kontras warna menjadi bagian dari quality gate.' },

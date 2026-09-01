@@ -1,0 +1,1 @@
+ALTER TABLE "program_applications" ADD COLUMN "deleted_at" timestamp with time zone;

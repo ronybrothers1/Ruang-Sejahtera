@@ -1,5 +1,29 @@
-export type PublicationStatus = 'draft' | 'review' | 'published' | 'archived';
-export type AdminRole = 'super_admin' | 'content_admin' | 'finance' | 'editor';
+export type PublicationStatus =
+  | 'draft'
+  | 'pending_review'
+  | 'revision_required'
+  | 'approved'
+  | 'rejected'
+  | 'published'
+  | 'archived';
+
+export type UserRole = 'super_admin' | 'core_manager' | 'member';
+
+// Compatibility alias for the existing control-plane components.
+export type AdminRole = UserRole;
+
+export type MembershipStatus =
+  | 'registered'
+  | 'email_verified'
+  | 'data_review'
+  | 'exam_eligible'
+  | 'exam_completed'
+  | 'passed'
+  | 'failed'
+  | 'admin_approved'
+  | 'active'
+  | 'suspended'
+  | 'revoked';
 
 export interface BaseRecord {
   id: string;

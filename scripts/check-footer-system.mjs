@@ -22,9 +22,10 @@ check(footer.includes('footer-contact-icon-v9'), 'Footer icons use a fixed cente
 check(!footer.includes('Instagram {socialHandle}') && !footer.includes('TikTok {socialHandle}'), 'Social labels do not repeat platform names');
 check((footer.match(/<span>\{socialHandle\}<\/span>/g) || []).length === 2, 'Instagram and TikTok expose the same concise official handle');
 check(footer.includes('WhatsAppIcon') && footer.includes('https://wa.me/'), 'WhatsApp uses a recognizable icon and direct chat URL');
-check(site.includes("'+62 823-3403-0628'"), 'Official WhatsApp number is configured');
+check(site.includes("'+62822131313'"), 'Official WhatsApp number is configured');
 check(footer.includes("replace(/\\D/g, '')"), 'WhatsApp URL strips display punctuation safely');
 check(footer.includes('aria-label={`WhatsApp ${whatsappNumber}`}'), 'WhatsApp link retains an explicit accessible name');
+check(footer.includes('href="/peta-situs"') && footer.includes('Peta Situs'), 'Footer exposes the human-readable HTML sitemap');
 check(/\.footer-v3 \.footer-contact-link-v9 \{[\s\S]*?align-items: center;[\s\S]*?min-height: 2\.75rem;/.test(footerCss), 'Contact icons and text share a centered 44px row');
 check(/\.footer-v3 \.footer-contact-icon-v9 svg \{[\s\S]*?margin: 0;/.test(footerCss), 'Legacy icon offsets are reset');
 check(/@media \(max-width: 760px\)[\s\S]*?grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/.test(footerCss), 'Mobile navigation columns use an intentional two-column grid');
