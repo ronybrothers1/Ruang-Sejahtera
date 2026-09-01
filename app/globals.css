@@ -2187,8 +2187,8 @@ body {
   overflow: hidden;
   padding-top: 76px;
   background:
-    radial-gradient(circle at 88% 24%, rgba(215,25,32,.22), transparent 28%),
-    linear-gradient(115deg, #070709, #111013 70%, #1c090b);
+    radial-gradient(ellipse 58% 76% at 92% 32%, rgba(126,15,29,.38) 0%, rgba(71,9,18,.16) 48%, transparent 76%),
+    linear-gradient(112deg, #060607 0%, #08080a 62%, #28090f 100%);
   color: #fff;
 }
 

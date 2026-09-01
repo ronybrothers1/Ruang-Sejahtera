@@ -519,7 +519,11 @@
   .page-hero::before,
   .empty-state-trust::after,
   .program-mark::after { display: none; }
-  .trust-hero { background: linear-gradient(155deg,#08080a 0%,#171014 68%,#350b0e 100%); }
+  .trust-hero {
+    background:
+      radial-gradient(ellipse 90% 42% at 94% 90%, rgba(126,15,29,.3) 0%, transparent 72%),
+      linear-gradient(165deg,#060607 0%,#08080a 70%,#28090f 100%);
+  }
   .page-hero { background: linear-gradient(155deg,#09090b,#1b1114 100%); }
   .trust-hero-media,
   .trust-program-console { backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: 0 16px 42px rgba(0,0,0,.25); }

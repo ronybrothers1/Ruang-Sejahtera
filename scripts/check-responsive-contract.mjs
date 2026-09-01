@@ -75,6 +75,10 @@ requireSource(
   /@media \(max-width: 340px\)[\s\S]*?\.trust-stat-grid \{ grid-template-columns: 1fr; \}/.test(responsive),
   'Only very narrow screens may stack impact metrics for readability.',
 );
+requireSource(
+  /@media \(max-width: 680px\)[\s\S]*?\.trust-hero \{[\s\S]*?linear-gradient\(165deg,#060607 0%,#08080a 70%,#28090f 100%\)/.test(responsive),
+  'Mobile hero gradient must keep its dark reading zone and vertical burgundy flow.',
+);
 
 const shellGutter = (width) => Math.min(64, Math.max(32, width * 0.05));
 const shellWidth = (width) => Math.min(1240, width - shellGutter(width));

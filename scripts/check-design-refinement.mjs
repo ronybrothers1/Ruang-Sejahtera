@@ -13,6 +13,7 @@ const navbar = read('components/Navbar.tsx');
 const content = read('lib/content.ts');
 const globals = read('app/globals.css');
 const responsive = read('app/responsive-preview-v8.css');
+const typography = read('app/typography-audit-v6.css');
 
 const checks = [];
 function check(condition, label) {
@@ -46,5 +47,9 @@ check(home.includes('<ul className="shell trust-stat-grid">'), 'Impact summary i
 check((home.match(/item\.value|item\.label|item\.note/g) ?? []).length >= 3, 'Impact summary preserves every value, label, and sample note');
 check(responsive.includes('.trust-stat-grid > li {\n  position: relative;'), 'Impact metrics use independent compact cards');
 check(!responsive.includes('.trust-stat-grid article:nth-child(2)'), 'Legacy table-like impact dividers are removed');
+check(home.includes('<h1 id="home-title">Kepedulian perlu sampai ke tempat yang tepat.</h1>'), 'Homepage hero keeps the original semantic statement');
+check(typography.includes('.trust-home .trust-hero-copy > h1') && typography.includes('text-transform: uppercase;'), 'Homepage statement is capitalized through presentation only');
+check(globals.includes('linear-gradient(112deg, #060607 0%, #08080a 62%, #28090f 100%)'), 'Desktop hero uses a black-dominant burgundy gradient');
+check(responsive.includes('linear-gradient(165deg,#060607 0%,#08080a 70%,#28090f 100%)'), 'Mobile hero preserves the black-dominant gradient with a vertical flow');
 
 console.log(`Design refinement audit passed (${checks.length} contracts).`);
