@@ -113,18 +113,29 @@ export default async function Home() {
             <div><span>Program utama</span><h2 id="program-heading">Lima jalur bantuan, satu arah kepedulian.</h2></div>
             <p>Setiap program memberi pintu masuk yang jelas bagi kebutuhan yang berbeda, dengan identitas visual yang tetap konsisten dan mudah dikenali.</p>
           </div>
-          <div className="trust-program-grid trust-program-grid-photo">
+          <ul className="trust-program-shortcuts" aria-label="Pilihan program Ruang Sejahtera">
             {programs.map((program) => (
-              <Link href={`/program/${program.slug}`} key={program.slug} className="trust-program-card trust-program-card-photo">
-                <div className="trust-card-image">
-                  <Image src={program.image} alt={program.imageAlt} fill sizes="(max-width: 680px) 38vw, (max-width: 1024px) 50vw, 33vw" />
+              <li key={program.slug}>
+                <Link
+                  href={`/program/${program.slug}`}
+                  className="trust-program-shortcut"
+                  aria-label={`${program.name}: ${program.summary}`}
+                >
                   <ProgramMark slug={program.slug} accent={program.accent} compact />
-                  <span className="preview-chip">{program.imageLabel}</span>
-                </div>
-                <span>{program.focus}</span><h3>{program.name}</h3><p>{program.summary}</p>
-                <strong>Pelajari program <ArrowRight size={15} aria-hidden="true" /></strong>
-              </Link>
+                  <span className="trust-program-shortcut-copy">
+                    <strong>{program.name}</strong>
+                    <small>{program.focus}</small>
+                  </span>
+                  <span className="trust-program-shortcut-action" aria-hidden="true">
+                    <ArrowRight size={15} />
+                  </span>
+                </Link>
+              </li>
             ))}
+          </ul>
+          <div className="trust-program-shortcuts-footer">
+            <p>Pilih ikon untuk melihat tujuan, sasaran, dan cara kerja setiap program.</p>
+            <Link href="/program" className="trust-text-link">Lihat rincian semua program <ArrowRight size={16} aria-hidden="true" /></Link>
           </div>
         </div>
       </section>

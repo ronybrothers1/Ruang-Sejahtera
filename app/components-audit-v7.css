@@ -27,6 +27,7 @@
 
 :is(
   .trust-program-card,
+  .trust-program-shortcut,
   .published-content-card,
   .trust-search-results-grid > a,
   .content-continuation-grid a,
@@ -37,6 +38,7 @@
 }
 
 .trust-program-card:focus-visible { transform: translateY(-6px); }
+.trust-program-shortcut:focus-visible { transform: translateY(-4px); }
 :is(.published-content-card, .trust-search-results-grid > a):focus-visible { transform: translateY(-3px); }
 .trust-accountability-grid > a:focus-visible {
   background: rgba(255,255,255,.065);
@@ -146,6 +148,7 @@
 @media (prefers-reduced-motion: reduce) {
   :is(
     .trust-program-card,
+    .trust-program-shortcut,
     .published-content-card,
     .trust-search-results-grid > a,
     .trust-accountability-grid > a

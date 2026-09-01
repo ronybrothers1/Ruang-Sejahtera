@@ -52,6 +52,14 @@ requireSource(
   /@media \(max-width: 680px\)[\s\S]*?:root \{ --public-navigation-height: 86px; \}/.test(responsive),
   'Mobile navigation offset must stay synchronized with the 86px mobile header.',
 );
+requireSource(
+  /@media \(max-width: 900px\)[\s\S]*?\.trust-program-shortcuts \{ grid-template-columns: repeat\(6, minmax\(0,1fr\)\); \}/.test(globals),
+  'Tablet program shortcuts must form a centered three-plus-two layout.',
+);
+requireSource(
+  /@media \(max-width: 360px\)[\s\S]*?\.trust-program-shortcuts \{ grid-template-columns: repeat\(2, minmax\(0,1fr\)\); \}/.test(globals),
+  'Very narrow program shortcuts must fall back to two readable columns.',
+);
 
 const shellGutter = (width) => Math.min(64, Math.max(32, width * 0.05));
 const shellWidth = (width) => Math.min(1240, width - shellGutter(width));
