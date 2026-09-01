@@ -103,7 +103,7 @@ export default async function SitemapPage() {
       <PageHero eyebrow="Peta Situs" title="Temukan informasi yang Anda perlukan." description="Peta situs ini merangkum halaman publik Yayasan Ruang Sejahtera berdasarkan kelompok informasi agar mudah dipindai dan ditelusuri." />
       <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: 'Peta Situs' }]} />
 
-      <main className="sitemap-page">
+      <div className="sitemap-page">
         <section className="sitemap-intro" aria-labelledby="sitemap-intro-heading">
           <div className="shell sitemap-intro-inner">
             <div>
@@ -152,7 +152,7 @@ export default async function SitemapPage() {
             </div>
           </div>
         </section>
-      </main>
+      </div>
     </>
   );
 }

@@ -100,7 +100,7 @@ export default function OrganizationPage() {
       <SectionNavigation label="Jelajahi Tentang Kami" items={aboutNavItems} currentHref="/organisasi" />
       <PreviewNotice label="Keterangan data">Data nama dan jabatan mengikuti struktur yang ditetapkan. Foto personel dan nama koordinator kecamatan yang belum tersedia ditampilkan sebagai placeholder.</PreviewNotice>
 
-      <main className="organization-page">
+      <div className="organization-page">
         <section className="organization-section organization-governance" aria-labelledby="organization-structure-heading">
           <div className="shell">
             <div className="organization-section-heading">
@@ -226,7 +226,7 @@ export default function OrganizationPage() {
             <p className="organization-placeholder-note"><UsersRound size={17} aria-hidden="true" /> Foto personel menggunakan placeholder seragam. Nama koordinator kecamatan akan diisi setelah data resmi tersedia.</p>
           </div>
         </section>
-      </main>
+      </div>
     </>
   );
 }

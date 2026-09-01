@@ -34,8 +34,8 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
       <section className="trust-page-section">
         <div className="shell trust-program-detail">
           <div className="trust-program-detail-mark">
-            <div className="trust-program-detail-photo">
-              <Image src={program.image} alt={program.imageAlt} fill priority sizes="(max-width: 900px) 100vw, 32vw" />
+            <div className={`trust-program-detail-photo trust-program-detail-photo-${program.slug}`}>
+              <Image src={program.detailImage || program.image} alt={program.imageAlt} fill priority sizes="(max-width: 900px) 100vw, 32vw" />
               <ProgramMark slug={program.slug} accent={program.accent} compact />
               <span className="preview-chip">{program.imageLabel}</span>
             </div>

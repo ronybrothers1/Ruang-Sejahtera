@@ -1,6 +1,6 @@
 const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 const productionSiteUrl = process.env.VERCEL_ENV === 'production'
-  ? 'https://ruang-sejahtera-iota.vercel.app'
+  ? 'https://www.ruangsejahtera.web.id'
   : null;
 
 export const siteConfig = {

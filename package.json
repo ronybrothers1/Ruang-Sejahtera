@@ -23,6 +23,7 @@
     "accessibility:runtime": "node scripts/check-accessibility-runtime.mjs",
     "components:runtime": "node scripts/check-component-runtime.mjs",
     "performance:audit": "node scripts/check-performance.mjs",
+    "design:audit": "node scripts/check-design-refinement.mjs",
     "auth:audit": "node scripts/check-auth-rbac.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/migrate.ts",

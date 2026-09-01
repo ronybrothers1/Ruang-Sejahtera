@@ -1343,3 +1343,198 @@
   }
   .trust-hero-media { max-width: none; }
 }
+
+/* ==========================================================================
+   DESIGN REFINEMENT — clearer hierarchy, shorter journeys and varied context
+   ========================================================================== */
+
+.page-hero {
+  --page-hero-accent: rgba(190, 27, 35, .52);
+  --page-hero-eyebrow: #ff9fa3;
+  background: linear-gradient(118deg, #09090b 0%, #151316 66%, #211013 100%);
+}
+
+.page-hero::before {
+  width: 38rem;
+  height: 38rem;
+  right: -13rem;
+  top: -23rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, var(--page-hero-accent), transparent 69%);
+  filter: none;
+  opacity: 1;
+}
+
+.page-hero-grid { opacity: .15; }
+.page-hero .eyebrow { color: var(--page-hero-eyebrow) !important; }
+.page-hero-inner { padding-block: clamp(2.75rem, 4.25vw, 4.1rem); }
+.page-hero .page-hero-inner > p:last-child { margin-top: .95rem; }
+
+.page-hero[data-variant="program"] {
+  --page-hero-accent: rgba(214, 44, 23, .5);
+  --page-hero-eyebrow: #ffad91;
+}
+
+.page-hero[data-variant="editorial"] {
+  --page-hero-accent: rgba(39, 111, 134, .48);
+  --page-hero-eyebrow: #98d9e5;
+}
+
+.page-hero[data-variant="accountability"] {
+  --page-hero-accent: rgba(145, 110, 38, .46);
+  --page-hero-eyebrow: #f2cf82;
+}
+
+.page-hero[data-variant="institution"] {
+  --page-hero-accent: rgba(134, 28, 59, .55);
+  --page-hero-eyebrow: #f3a0b7;
+}
+
+.page-hero[data-variant="support"] {
+  --page-hero-accent: rgba(180, 43, 78, .52);
+  --page-hero-eyebrow: #ffabc0;
+}
+
+.page-hero[data-variant="utility"] {
+  --page-hero-accent: rgba(104, 100, 106, .4);
+  --page-hero-eyebrow: #d0cbd1;
+}
+
+.trust-home .trust-section { padding-block: clamp(4.35rem, 5.8vw, 5.9rem); }
+.trust-home .trust-programs { padding-top: clamp(4.75rem, 6.2vw, 6.25rem); }
+.trust-hero-layout-rich {
+  min-height: 650px;
+  padding-block: clamp(3.65rem, 5.25vw, 5rem);
+}
+.trust-activity-card-featured .trust-activity-image { min-height: 320px; }
+.trust-closing-photo { min-height: 460px; }
+.trust-closing-content { padding-block: clamp(4rem, 5.7vw, 5.25rem); }
+
+.trust-editorial-section {
+  background:
+    radial-gradient(circle at 100% 0, rgba(215, 25, 32, .07), transparent 30rem),
+    var(--trust-paper);
+}
+
+.trust-editorial-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, .76fr) minmax(0, 1.24fr);
+  gap: clamp(1rem, 2.2vw, 1.75rem);
+  align-items: start;
+}
+
+.trust-editorial-stories,
+.trust-editorial-news {
+  min-width: 0;
+  border-radius: 26px;
+}
+
+.trust-editorial-stories {
+  padding: clamp(1.25rem, 2.3vw, 1.8rem);
+  background: #111114;
+  color: #fff;
+}
+
+.trust-editorial-news {
+  padding: clamp(1.25rem, 2.3vw, 1.8rem);
+  border: 1px solid var(--trust-line);
+  background: #fff;
+}
+
+.trust-editorial-subheading { margin-bottom: 1.25rem; }
+.trust-editorial-subheading > span,
+.trust-editorial-subheading > div > span {
+  color: var(--trust-red-dark);
+  font-size: .62rem;
+  font-weight: 850;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.trust-editorial-subheading h3 {
+  margin-top: .45rem;
+  font: 850 clamp(1.45rem, 2.35vw, 2.15rem)/1.08 var(--font-plus-jakarta);
+  letter-spacing: -.04em;
+}
+.trust-editorial-subheading > p {
+  max-width: 54ch;
+  margin-top: .65rem;
+  color: var(--trust-muted);
+  font-size: .78rem;
+  line-height: 1.65;
+}
+.trust-editorial-stories .trust-editorial-subheading > span { color: #ff8d92; }
+.trust-editorial-stories .trust-editorial-subheading > p { color: #aaa6a4; }
+
+.trust-editorial-news-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.trust-editorial-news-heading .trust-text-link { flex: 0 0 auto; margin: 0 0 .2rem; }
+
+.trust-editorial-stories .trust-testimonial-grid {
+  grid-template-columns: 1fr;
+  gap: .7rem;
+}
+.trust-editorial-stories .trust-testimonial-grid article,
+.trust-editorial-stories .trust-testimonial-grid article:last-child {
+  min-height: 0;
+  padding: 1.1rem;
+  border-color: rgba(255,255,255,.09);
+  border-radius: 16px;
+  background: #1b1b1f;
+}
+.trust-editorial-stories .trust-testimonial-grid blockquote {
+  margin-top: .7rem;
+  color: #f5f3f2;
+  font-size: .9rem;
+  line-height: 1.55;
+}
+.trust-editorial-stories .trust-testimonial-grid article > div { margin-top: .85rem; }
+.trust-editorial-stories .trust-testimonial-grid p strong { color: #fff; }
+.trust-editorial-stories .trust-testimonial-grid p small { color: #aaa6a4; }
+
+.trust-editorial-news .trust-news-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.trust-editorial-news .trust-news-grid article { border-radius: 16px; background: var(--trust-paper-soft); }
+.trust-editorial-news .trust-news-image { min-height: 158px; }
+.trust-news-grid h4 {
+  min-height: 3.8em;
+  margin-top: .55rem;
+  font: 850 .94rem/1.28 var(--font-plus-jakarta);
+  letter-spacing: -.025em;
+}
+
+@media (max-width: 1120px) {
+  .page-hero-inner { padding-block: 2.65rem 3.15rem; }
+  .trust-editorial-layout { grid-template-columns: 1fr; }
+  .trust-editorial-stories .trust-testimonial-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 900px) {
+  .trust-hero-layout-rich { min-height: auto; }
+}
+
+@media (max-width: 680px) {
+  .page-hero-inner { padding-block: 2.45rem 2.8rem; }
+  .page-hero .page-hero-inner > p:last-child { margin-top: .8rem; }
+  .trust-home .trust-section { padding-block: 3.75rem; }
+  .trust-home .trust-programs { padding-top: 4.15rem; }
+  .trust-hero-layout-rich { padding-block: 3rem 4.35rem; }
+  .trust-activity-card-featured .trust-activity-image { min-height: 220px; }
+  .trust-editorial-stories,
+  .trust-editorial-news { padding: 1rem; border-radius: 20px; }
+  .trust-editorial-news-heading { align-items: start; flex-direction: column; }
+  .trust-editorial-news-heading .trust-text-link { margin: 0; }
+  .trust-editorial-stories .trust-testimonial-grid,
+  .trust-editorial-news .trust-news-grid { grid-template-columns: 1fr; }
+  .trust-editorial-news .trust-news-image { min-height: 190px; }
+  .trust-news-grid h4 { min-height: 0; }
+  .trust-closing-photo { min-height: 420px; }
+  .trust-closing-content { padding-block: 3.75rem; }
+}
+
+@media (max-width: 680px) and (max-height: 560px) and (orientation: landscape) {
+  .page-hero-inner { padding-block: 1.9rem 2.15rem; }
+  .trust-closing-photo { min-height: 350px; }
+}
