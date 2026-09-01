@@ -53,6 +53,11 @@
 }
 
 /* Rich homepage hero */
+.trust-home .trust-hero-copy > h1 {
+  max-inline-size: min(11.75em, 100%);
+  color: #fff;
+}
+
 .trust-hero-layout-rich {
   grid-template-columns: minmax(0, 1fr) minmax(420px, .76fr);
   gap: clamp(3rem, 6vw, 6.5rem);

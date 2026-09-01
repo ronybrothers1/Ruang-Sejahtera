@@ -5,6 +5,7 @@ import { requireAdminSession } from '@/lib/auth/admin-session';
 import { listCmsRecords } from '@/lib/cms/store';
 import { programs } from '@/lib/content';
 import { RichTextEditor } from '@/components/RichTextEditor';
+import { MediaConsentFields } from '@/components/cms/MediaConsentFields';
 
 export default async function EditContentPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await requireAdminSession();
@@ -41,10 +42,12 @@ export default async function EditContentPage({ params }: { params: Promise<{ id
         {isArticle ? <>
         <label className="block text-sm font-bold">Teks alternatif gambar <span className="font-normal text-neutral-500">(isi bila mengganti gambar)</span><input name="imageAlt" maxLength={160} placeholder="Contoh: Relawan membagikan paket pangan" className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label>
         <label className="block text-sm font-bold">Keterangan gambar <span className="font-normal text-neutral-500">(opsional)</span><input name="imageCaption" maxLength={240} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label>
+        <MediaConsentFields />
         <label className="block text-sm font-bold">Ringkasan<input name="excerpt" required maxLength={420} defaultValue={record.excerpt} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label>
         <label className="block text-sm font-bold">Isi<RichTextEditor name="body" defaultValue={record.body} /></label>
         </> : <>
           <div className="grid gap-5 md:grid-cols-2"><label className="text-sm font-bold">Teks alternatif foto<input name="imageAlt" maxLength={160} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label><label className="text-sm font-bold">Keterangan foto<input name="imageCaption" maxLength={240} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label></div>
+          <MediaConsentFields />
           <label className="block text-sm font-bold">Isi<RichTextEditor name="body" defaultValue={record.body} /></label>
         </>}
         <div className="flex flex-wrap gap-3 border-t border-neutral-100 pt-6"><button type="submit" className="button-primary">Simpan sebagai Draft</button><Link href="/admin/konten" className="button-secondary">Batal</Link></div>

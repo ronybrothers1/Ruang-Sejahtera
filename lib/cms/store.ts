@@ -1,11 +1,11 @@
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
 import { isDatabaseConfigured } from '@/lib/auth/config';
 import { getDb } from '@/lib/db';
 import { auditLogs, contentItems, contentReviews, contentRevisions, mediaAssets } from '@/lib/db/schema';
 import { canTransitionPublication } from '@/lib/cms/workflow';
 import type { CmsCollection, CmsMediaInput, CmsRecord } from '@/lib/cms/types';
 import type { AdminRole, PublicationStatus } from '@/lib/models';
-import { isBlobStorageConfigured } from '@/lib/security/image-upload';
+import { deleteStoredImage, isBlobStorageConfigured, promoteStoredImage, type StoredImage } from '@/lib/security/image-upload';
 import { parseExternalVideoUrl } from '@/lib/security/external-video';
 
 export type CmsMutation = {
@@ -79,7 +79,55 @@ async function attachMedia(db: CmsDatabase, contentId: string, media: CmsMediaIn
     visibility: media.visibility,
     malwareScanStatus: media.malwareScanStatus,
     consentStatus: media.consentStatus,
+    containsVulnerablePerson: media.containsVulnerablePerson,
   });
+}
+
+type PreparedMediaPromotion = {
+  id: string;
+  previousObjectKey: string;
+  promoted: StoredImage;
+};
+
+async function prepareMediaForPublication(contentId: string) {
+  const db = getDb();
+  const media = await db.select().from(mediaAssets)
+    .where(and(eq(mediaAssets.contentId, contentId), isNull(mediaAssets.deletedAt)));
+  const promotions: PreparedMediaPromotion[] = [];
+  const visibilityOnlyIds: string[] = [];
+
+  try {
+    for (const item of media) {
+      if (item.consentStatus !== 'confirmed' && item.consentStatus !== 'not_required') throw new Error('MEDIA_CONSENT_REQUIRED');
+      if (item.containsVulnerablePerson && item.consentStatus !== 'confirmed') throw new Error('MEDIA_VULNERABLE_CONSENT_REQUIRED');
+      if (item.type === 'external_video') {
+        if (item.malwareScanStatus !== 'url_validated' || !item.externalUrl) throw new Error('MEDIA_VALIDATION_REQUIRED');
+        if (item.visibility !== 'public') visibilityOnlyIds.push(item.id);
+        continue;
+      }
+      if (item.type !== 'image') continue;
+      if (item.malwareScanStatus !== 'signature_validated') throw new Error('MEDIA_VALIDATION_REQUIRED');
+      if (item.visibility === 'public' && item.externalUrl) continue;
+      if (!item.objectKey || !item.mimeType || !['image/jpeg', 'image/png', 'image/webp'].includes(item.mimeType) || !item.byteSize) {
+        throw new Error('MEDIA_PRIVATE_SOURCE_INVALID');
+      }
+      const promoted = await promoteStoredImage({
+        ownerId: item.ownerId,
+        objectKey: item.objectKey,
+        externalUrl: null,
+        mimeType: item.mimeType as StoredImage['mimeType'],
+        byteSize: item.byteSize,
+        width: item.width,
+        height: item.height,
+        visibility: 'private',
+      });
+      promotions.push({ id: item.id, previousObjectKey: item.objectKey, promoted });
+    }
+    return { promotions, visibilityOnlyIds };
+  } catch (error) {
+    await Promise.allSettled(promotions.map((item) => deleteStoredImage(item.promoted.objectKey)));
+    throw error;
+  }
 }
 
 export async function persistCmsMutation(mutation: CmsMutation): Promise<void> {
@@ -158,6 +206,9 @@ export async function persistCmsMutation(mutation: CmsMutation): Promise<void> {
 
   const toStatus = record.status as PublicationStatus;
   if (!canTransitionPublication(actorRole, existing.status, toStatus)) throw new Error('PUBLICATION_TRANSITION_NOT_ALLOWED');
+  const preparedMedia = toStatus === 'published'
+    ? await prepareMediaForPublication(record.id)
+    : { promotions: [], visibilityOnlyIds: [] };
   const now = new Date();
   const updates: Partial<typeof contentItems.$inferInsert> = { status: toStatus, updatedAt: now };
   if (toStatus === 'pending_review') updates.reviewRequestedAt = now;
@@ -170,27 +221,60 @@ export async function persistCmsMutation(mutation: CmsMutation): Promise<void> {
     updates.publishedBy = record.lastEditedBy;
   }
   if (toStatus === 'archived') updates.archivedAt = now;
-  await db.transaction(async (tx) => {
-    await tx.update(contentItems).set(updates).where(eq(contentItems.id, record.id));
-    await tx.insert(contentReviews).values({
-      contentId: record.id,
-      reviewerId: record.lastEditedBy,
-      fromStatus: existing.status,
-      toStatus,
-      note: null,
+  try {
+    await db.transaction(async (tx) => {
+      for (const media of preparedMedia.promotions) {
+        await tx.update(mediaAssets).set({
+          objectKey: media.promoted.objectKey,
+          externalUrl: media.promoted.externalUrl,
+          byteSize: media.promoted.byteSize,
+          width: media.promoted.width,
+          height: media.promoted.height,
+          visibility: 'public',
+          updatedAt: now,
+        }).where(and(eq(mediaAssets.id, media.id), isNull(mediaAssets.deletedAt)));
+      }
+      for (const mediaId of preparedMedia.visibilityOnlyIds) {
+        await tx.update(mediaAssets).set({ visibility: 'public', updatedAt: now })
+          .where(and(eq(mediaAssets.id, mediaId), isNull(mediaAssets.deletedAt)));
+      }
+      const updatedContent = await tx.update(contentItems).set(updates)
+        .where(and(eq(contentItems.id, record.id), eq(contentItems.status, existing.status)))
+        .returning({ id: contentItems.id });
+      if (!updatedContent[0]) throw new Error('PUBLICATION_TRANSITION_CONFLICT');
+      await tx.insert(contentReviews).values({
+        contentId: record.id,
+        reviewerId: record.lastEditedBy,
+        fromStatus: existing.status,
+        toStatus,
+        note: record.reviewNote?.trim() || null,
+      });
+      await writeAudit(tx, record.lastEditedBy, actorRole, 'content.status_changed', record.id, { collection: mutation.collection, from: existing.status, to: toStatus });
     });
-    await writeAudit(tx, record.lastEditedBy, actorRole, 'content.status_changed', record.id, { collection: mutation.collection, from: existing.status, to: toStatus });
-  });
+  } catch (error) {
+    await Promise.allSettled(preparedMedia.promotions.map((item) => deleteStoredImage(item.promoted.objectKey)));
+    throw error;
+  }
+  await Promise.allSettled(preparedMedia.promotions.map((item) => deleteStoredImage(item.previousObjectKey)));
 }
 
 export async function listCmsRecords(): Promise<CmsRecord[]> {
   if (!isDatabaseConfigured()) return [];
-  const rows = await getDb()
+  const db = getDb();
+  const rows = await db
     .select({ content: contentItems, media: mediaAssets })
     .from(contentItems)
     .leftJoin(mediaAssets, and(eq(mediaAssets.contentId, contentItems.id), isNull(mediaAssets.deletedAt)))
     .where(isNull(contentItems.deletedAt))
     .orderBy(desc(contentItems.createdAt));
+  const contentIds = [...new Set(rows.map((row) => row.content.id))];
+  const reviews = contentIds.length
+    ? await db.select().from(contentReviews).where(inArray(contentReviews.contentId, contentIds)).orderBy(desc(contentReviews.createdAt))
+    : [];
+  const latestReview = new Map<string, typeof reviews[number]>();
+  for (const review of reviews) {
+    if (!latestReview.has(review.contentId)) latestReview.set(review.contentId, review);
+  }
 
   const grouped = new Map<string, { content: typeof rows[number]['content']; media: NonNullable<typeof rows[number]['media']>[] }>();
   for (const row of rows) {
@@ -200,6 +284,7 @@ export async function listCmsRecords(): Promise<CmsRecord[]> {
   }
 
   return Array.from(grouped.values()).map(({ content: row, media }) => {
+    const review = latestReview.get(row.id);
     const base = {
       id: row.id,
       slug: row.slug,
@@ -207,6 +292,9 @@ export async function listCmsRecords(): Promise<CmsRecord[]> {
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
       lastEditedBy: row.ownerId,
+      reviewNote: review?.note || undefined,
+      reviewedAt: review?.createdAt.toISOString(),
+      reviewedBy: review?.reviewerId,
     };
 
     if (row.type === 'article') {

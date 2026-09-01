@@ -6,7 +6,7 @@ import {
   getBootstrapAuthStatus,
   verifyBootstrapAccessKey,
 } from '@/lib/auth/admin-session';
-import { hasAllowedFormContentType, isDeclaredBodyWithinLimit } from '@/lib/security/request-limits';
+import { hasAllowedFormContentType, readFormDataWithinLimit, RequestBodyTooLargeError } from '@/lib/security/request-limits';
 import { isSameOriginRequest } from '@/lib/security/same-origin';
 import { checkAdminLoginRateLimit, clearAdminLoginFailures, recordAdminLoginFailure } from '@/lib/security/admin-login-rate-limit';
 
@@ -18,9 +18,6 @@ export async function POST(request: Request) {
   }
   if (!hasAllowedFormContentType(request)) {
     return NextResponse.json({ error: 'Content-Type tidak didukung.' }, { status: 415 });
-  }
-  if (!isDeclaredBodyWithinLimit(request, 8_192)) {
-    return NextResponse.json({ error: 'Payload terlalu besar.' }, { status: 413 });
   }
 
   if (!getBootstrapAuthStatus().configured) {
@@ -34,7 +31,13 @@ export async function POST(request: Request) {
     return response;
   }
 
-  const form = await request.formData();
+  let form: FormData;
+  try {
+    form = await readFormDataWithinLimit(request, 8_192);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) return NextResponse.json({ error: 'Payload terlalu besar.' }, { status: 413 });
+    return NextResponse.json({ error: 'Formulir tidak valid.' }, { status: 400 });
+  }
   const accessKey = String(form.get('accessKey') || '');
   if (accessKey.length > 512 || !verifyBootstrapAccessKey(accessKey)) {
     await recordAdminLoginFailure(request);

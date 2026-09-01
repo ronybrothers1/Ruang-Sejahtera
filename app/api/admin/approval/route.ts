@@ -7,7 +7,7 @@ import {
   verifyControlPlaneApprovalKey,
 } from '@/lib/auth/control-plane-gate';
 import { getAdminSession } from '@/lib/auth/admin-session';
-import { hasAllowedFormContentType, isDeclaredBodyWithinLimit } from '@/lib/security/request-limits';
+import { hasAllowedFormContentType, readFormDataWithinLimit, RequestBodyTooLargeError } from '@/lib/security/request-limits';
 import { isSameOriginRequest } from '@/lib/security/same-origin';
 
 export const dynamic = 'force-dynamic';
@@ -18,9 +18,6 @@ export async function POST(request: Request) {
   }
   if (!hasAllowedFormContentType(request)) {
     return NextResponse.json({ error: 'Content-Type tidak didukung.' }, { status: 415 });
-  }
-  if (!isDeclaredBodyWithinLimit(request, 8_192)) {
-    return NextResponse.json({ error: 'Payload terlalu besar.' }, { status: 413 });
   }
 
   const session = await getAdminSession();
@@ -33,7 +30,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Approval sementara belum dikonfigurasi.' }, { status: 503 });
   }
 
-  const form = await request.formData();
+  let form: FormData;
+  try {
+    form = await readFormDataWithinLimit(request, 8_192);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) return NextResponse.json({ error: 'Payload terlalu besar.' }, { status: 413 });
+    return NextResponse.json({ error: 'Formulir tidak valid.' }, { status: 400 });
+  }
   const approvalKey = String(form.get('approvalKey') || '');
   if (approvalKey.length > 512 || !verifyControlPlaneApprovalKey(approvalKey)) {
     return NextResponse.redirect(new URL('/admin/approval?error=invalid', request.url), 303);

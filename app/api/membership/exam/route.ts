@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getAdminSession } from '@/lib/auth/admin-session';
 import { isDatabaseConfigured } from '@/lib/auth/config';
-import { submitMembershipExam } from '@/lib/membership';
-import { hasAllowedFormContentType, isDeclaredBodyWithinLimit } from '@/lib/security/request-limits';
+import { getOrCreateExamAttempt, submitMembershipExam } from '@/lib/membership';
+import { hasAllowedFormContentType, readFormDataWithinLimit, RequestBodyTooLargeError } from '@/lib/security/request-limits';
 import { isSameOriginRequest } from '@/lib/security/same-origin';
 
 export const dynamic = 'force-dynamic';
@@ -14,7 +14,6 @@ function resultRedirect(request: Request, result: string) {
 export async function POST(request: Request) {
   if (!isSameOriginRequest(request)) return NextResponse.json({ error: 'Permintaan ditolak.' }, { status: 403 });
   if (!hasAllowedFormContentType(request)) return NextResponse.json({ error: 'Content-Type tidak didukung.' }, { status: 415 });
-  if (!isDeclaredBodyWithinLimit(request, 16_384)) return NextResponse.json({ error: 'Payload terlalu besar.' }, { status: 413 });
   if (!isDatabaseConfigured()) return resultRedirect(request, 'error');
 
   const session = await getAdminSession();
@@ -23,7 +22,12 @@ export async function POST(request: Request) {
   }
 
   try {
-    const form = await request.formData();
+    const form = await readFormDataWithinLimit(request, 16_384);
+    if (String(form.get('intent') || '') === 'start') {
+      await getOrCreateExamAttempt(session.id);
+      return resultRedirect(request, 'started');
+    }
+
     const attemptId = String(form.get('attemptId') || '');
     if (!attemptId) return resultRedirect(request, 'error');
 
@@ -41,6 +45,7 @@ export async function POST(request: Request) {
     });
     return resultRedirect(request, result.passed ? 'passed' : 'failed');
   } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) return NextResponse.json({ error: 'Payload terlalu besar.' }, { status: 413 });
     const reason = error instanceof Error ? error.message : '';
     if (reason === 'EXAM_TIME_EXPIRED') return resultRedirect(request, 'expired');
     if (reason === 'EXAM_WEEKLY_LIMIT') return resultRedirect(request, 'limit');

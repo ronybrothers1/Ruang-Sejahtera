@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { del, put } from '@vercel/blob';
+import { del, get, put } from '@vercel/blob';
+import sharp from 'sharp';
 
 export const MAX_IMAGE_BYTES = 2_000_000;
 export const MAX_IMAGE_PIXELS = 25_000_000;
@@ -91,17 +92,37 @@ export async function validateImageFile(file: File, maxBytes = MAX_IMAGE_BYTES):
   const mimeType = inspectImage(bytes, file.type);
   if (!mimeType) throw new Error('IMAGE_SIGNATURE_INVALID');
 
-  const dimensions = mimeType === 'image/png'
+  const sourceDimensions = mimeType === 'image/png'
     ? pngDimensions(bytes)
     : mimeType === 'image/jpeg'
       ? jpegDimensions(bytes)
       : webpDimensions(bytes);
-  if (!dimensions) throw new Error('IMAGE_DIMENSIONS_INVALID');
-  if (!dimensions.width || !dimensions.height || dimensions.width > MAX_IMAGE_DIMENSION || dimensions.height > MAX_IMAGE_DIMENSION || dimensions.width * dimensions.height > MAX_IMAGE_PIXELS) {
+  if (!sourceDimensions) throw new Error('IMAGE_DIMENSIONS_INVALID');
+  if (!sourceDimensions.width || !sourceDimensions.height || sourceDimensions.width > MAX_IMAGE_DIMENSION || sourceDimensions.height > MAX_IMAGE_DIMENSION || sourceDimensions.width * sourceDimensions.height > MAX_IMAGE_PIXELS) {
     throw new Error('IMAGE_DIMENSIONS_INVALID');
   }
 
-  return { bytes, mimeType, byteSize: bytes.length, width: dimensions.width, height: dimensions.height };
+  try {
+    const pipeline = sharp(bytes, { failOn: 'warning', limitInputPixels: MAX_IMAGE_PIXELS }).rotate();
+    const sanitizedBytes = mimeType === 'image/jpeg'
+      ? await pipeline.jpeg({ quality: 88, mozjpeg: true }).toBuffer()
+      : mimeType === 'image/png'
+        ? await pipeline.png({ compressionLevel: 9 }).toBuffer()
+        : await pipeline.webp({ quality: 88 }).toBuffer();
+    if (sanitizedBytes.length <= 0 || sanitizedBytes.length > maxBytes) throw new Error('IMAGE_FILE_INVALID');
+    const metadata = await sharp(sanitizedBytes, { limitInputPixels: MAX_IMAGE_PIXELS }).metadata();
+    if (!metadata.width || !metadata.height) throw new Error('IMAGE_DIMENSIONS_INVALID');
+    return {
+      bytes: sanitizedBytes,
+      mimeType,
+      byteSize: sanitizedBytes.length,
+      width: metadata.width,
+      height: metadata.height,
+    };
+  } catch (error) {
+    if (error instanceof Error && ['IMAGE_FILE_INVALID', 'IMAGE_DIMENSIONS_INVALID'].includes(error.message)) throw error;
+    throw new Error('IMAGE_PROCESSING_FAILED');
+  }
 }
 
 export function isBlobStorageConfigured() {
@@ -136,4 +157,25 @@ export async function storeValidatedImage(input: {
 export async function deleteStoredImage(objectKey: string | null | undefined) {
   if (!objectKey || !isBlobStorageConfigured()) return;
   await del(objectKey);
+}
+
+export async function promoteStoredImage(input: StoredImage & { ownerId: string }) {
+  if (input.visibility !== 'private') return input;
+  if (!isBlobStorageConfigured()) throw new Error('MEDIA_STORAGE_NOT_CONFIGURED');
+  const blob = await get(input.objectKey, { access: 'private', useCache: false });
+  if (!blob || blob.statusCode !== 200 || !blob.stream) throw new Error('MEDIA_PRIVATE_SOURCE_NOT_FOUND');
+  const bytes = Buffer.from(await new Response(blob.stream).arrayBuffer());
+  if (bytes.length !== input.byteSize || bytes.length > MAX_IMAGE_BYTES) throw new Error('MEDIA_PRIVATE_SOURCE_INVALID');
+  if (inspectImage(bytes, input.mimeType) !== input.mimeType) throw new Error('MEDIA_PRIVATE_SOURCE_INVALID');
+  return storeValidatedImage({
+    ownerId: input.ownerId,
+    visibility: 'public',
+    image: {
+      bytes,
+      mimeType: input.mimeType,
+      byteSize: input.byteSize,
+      width: input.width,
+      height: input.height,
+    },
+  });
 }

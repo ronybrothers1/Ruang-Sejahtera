@@ -7,8 +7,8 @@ import { requireUserSession } from '@/lib/auth/admin-session';
 import { findUserByIdentityProviderId } from '@/lib/db/users';
 import {
   countWeeklyExamAttempts,
-  getActiveExam,
-  getOrCreateExamAttempt,
+  examRules,
+  getCurrentExamAttempt,
   getQuestionsForAttempt,
   hasPassedExam,
 } from '@/lib/membership';
@@ -36,21 +36,16 @@ export default async function MembershipPage({
   const profile = await findUserByIdentityProviderId(session.identityProviderId);
   if (!profile) return null;
 
-  const exam = await getActiveExam(profile.id);
-  const passed = await hasPassedExam(profile.id);
-  const attemptsUsed = await countWeeklyExamAttempts(profile.id);
-  const { result } = await searchParams;
+  const [passed, attemptsUsed, currentAttempt, { result }] = await Promise.all([
+    hasPassedExam(profile.id),
+    countWeeklyExamAttempts(profile.id),
+    getCurrentExamAttempt(profile.id),
+    searchParams,
+  ]);
 
-  let examState: Awaited<ReturnType<typeof getOrCreateExamAttempt>> | null = null;
-  let examUnavailable = false;
-
-  if (!passed && attemptsUsed < exam.settings.maximumAttempts) {
-    try {
-      examState = await getOrCreateExamAttempt(profile.id);
-    } catch (error) {
-      examUnavailable = error instanceof Error && error.message === 'EXAM_WEEKLY_LIMIT';
-    }
-  }
+  const examState = passed ? null : currentAttempt;
+  const rules = examState?.settings || examRules;
+  const attemptLimitReached = attemptsUsed >= rules.maximumAttempts;
 
   const displayQuestions = examState
     ? getQuestionsForAttempt(examState.questions, examState.attempt.id)
@@ -60,7 +55,7 @@ export default async function MembershipPage({
         examState.attempt.startedAt.getTime() +
           examState.settings.durationMinutes * 60 * 1000,
       ).toISOString()
-    : '';
+    : null;
 
   return (
     <div className="min-h-screen bg-neutral-100 text-brand-ink">
@@ -106,7 +101,7 @@ export default async function MembershipPage({
             Waktu ujian habis. Percobaan ini tidak lulus dan tetap dihitung sebagai satu kesempatan.
           </div>
         ) : null}
-        {result === 'limit' || examUnavailable ? (
+        {result === 'limit' ? (
           <div role="alert" className="status-message-warning mt-7 rounded-xl border p-4 text-sm font-semibold">
             Maksimal 2 percobaan dalam 7 hari sudah tercapai. Silakan mencoba kembali setelah periode tersebut.
           </div>
@@ -124,15 +119,15 @@ export default async function MembershipPage({
           </div>
           <div className="rounded-2xl border border-neutral-200 bg-white p-5">
             <p className="text-xs font-extrabold uppercase tracking-[.12em] text-neutral-500">Nilai lulus</p>
-            <p className="mt-3 font-heading text-xl font-extrabold">{exam.settings.passingScore}/100</p>
+            <p className="mt-3 font-heading text-xl font-extrabold">{rules.passingScore}/100</p>
           </div>
           <div className="rounded-2xl border border-neutral-200 bg-white p-5">
             <p className="text-xs font-extrabold uppercase tracking-[.12em] text-neutral-500">Kesempatan</p>
-            <p className="mt-3 font-heading text-xl font-extrabold">{attemptsUsed}/{exam.settings.maximumAttempts}</p>
+            <p className="mt-3 font-heading text-xl font-extrabold">{attemptsUsed}/{rules.maximumAttempts}</p>
           </div>
           <div className="rounded-2xl border border-neutral-200 bg-white p-5">
             <p className="text-xs font-extrabold uppercase tracking-[.12em] text-neutral-500">Durasi</p>
-            <p className="mt-3 font-heading text-xl font-extrabold">{exam.settings.durationMinutes} menit</p>
+            <p className="mt-3 font-heading text-xl font-extrabold">{rules.durationMinutes} menit</p>
           </div>
         </section>
 
@@ -161,7 +156,7 @@ export default async function MembershipPage({
                 <div>
                   <h2 className="font-heading text-2xl font-extrabold">Tes dasar keanggotaan</h2>
                   <p className="mt-2 text-sm leading-6 text-neutral-600">
-                    50 pertanyaan · 120 menit · 2 poin per jawaban benar · nilai minimal 75.
+                    {displayQuestions.length} pertanyaan · {examState.settings.durationMinutes} menit · {examRules.pointsPerQuestion} poin per jawaban benar · nilai minimal {examState.settings.passingScore}.
                     Urutan soal dan pilihan jawaban berbeda pada setiap percobaan.
                   </p>
                 </div>
@@ -195,13 +190,26 @@ export default async function MembershipPage({
               </button>
             </form>
           </ExamGuard>
-        ) : (
+        ) : attemptLimitReached ? (
           <section className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-6">
             <LockKeyhole className="text-amber-700" size={23} />
             <h2 className="mt-4 font-heading text-2xl font-extrabold">Kesempatan tes sudah habis.</h2>
             <p className="mt-3 text-sm leading-6 text-neutral-700">
               Maksimal 2 percobaan dalam 7 hari sudah digunakan. Anda dapat mencoba kembali setelah periode tersebut.
             </p>
+          </section>
+        ) : (
+          <section className="mt-8 rounded-2xl border border-neutral-200 bg-white p-6 md:p-8" aria-labelledby="exam-start-heading">
+            <ClipboardCheck className="text-brand-red" size={25} aria-hidden="true" />
+            <h2 id="exam-start-heading" className="mt-4 font-heading text-2xl font-extrabold">Mulai saat Anda benar-benar siap.</h2>
+            <p className="mt-3 text-sm leading-6 text-neutral-700">
+              Membuka halaman ini tidak lagi memulai percobaan. Waktu baru berjalan setelah tombol di bawah ditekan.
+              Siapkan koneksi yang stabil dan alokasikan waktu hingga {rules.durationMinutes} menit.
+            </p>
+            <form action="/api/membership/exam" method="post" className="mt-6 space-y-5">
+              <input type="hidden" name="intent" value="start" />
+              <button type="submit" className="button-primary">Mulai tes sekarang</button>
+            </form>
           </section>
         )}
       </main>

@@ -285,10 +285,8 @@ textarea::placeholder {
 /* The homepage statement is visually emphatic without changing the source
    sentence that assistive technology and search engines receive. */
 .trust-home .trust-hero-copy > h1 {
-  max-inline-size: min(11.75em, 100%);
-  color: #fff;
   font-size: clamp(2.875rem, 4.75vw, 5.1rem);
-  font-weight: 850 !important;
+  font-weight: var(--type-weight-extrabold) !important;
   line-height: .96;
   letter-spacing: -.05em;
   text-transform: uppercase;
