@@ -44,6 +44,10 @@ check(!donationPage.includes('<form'), 'Donation preview has no unguarded raw fo
 check(donationForm.includes('aria-pressed={selected}'), 'Donation amount exposes selected state to assistive technology');
 check(donationForm.includes('setSelectedAmount(amount)'), 'Donation amount selection updates from user input');
 check(donationForm.includes('setSelectedAmount(null)'), 'Custom donation amount clears the preset selection');
+check(donationForm.includes('programs.map((program)'), 'Donation program choices render from the shared program registry');
+check(donationForm.includes('value={program.slug}'), 'Donation program values use stable official slugs');
+check(donationPage.includes('programs={programs.map'), 'Donation page supplies every official program to the preview form');
+check(!donationForm.includes('value="kemanusiaan"'), 'Legacy generic donation choices are removed');
 check(componentCss.includes('button[aria-pressed="true"]'), 'Pressed donation amount has a tokenized visual state');
 check(componentCss.includes('label:has(input:checked)'), 'Checked donation program has a visible label state');
 

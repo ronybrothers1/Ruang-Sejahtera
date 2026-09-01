@@ -66,6 +66,10 @@ try {
   const donation = await (await fetch(`${baseUrl}/donasi`)).text();
   assert.match(donation, /data-preview-form/, 'Donation preview renders the guarded form');
   assert.match(donation, /aria-pressed="true"/, 'Donation preview renders one selected amount');
+  assert.equal((donation.match(/name="program"/g) ?? []).length, 5, 'Donation preview renders all five official programs');
+  for (const programName of ['Berbagi Rasa', 'Merakyat', 'REHAT', 'Berbagi Air Bersih', 'Berbagi Masa Depan']) {
+    assert.match(donation, new RegExp(`>${programName}<`), `Donation preview includes ${programName}`);
+  }
   assert.match(donation, /Lanjutkan Pembayaran · SIMULASI/, 'Donation transaction remains explicitly disabled preview content');
 
   const contact = await (await fetch(`${baseUrl}/kontak`)).text();
