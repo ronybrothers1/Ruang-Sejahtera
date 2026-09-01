@@ -592,7 +592,7 @@ textarea::placeholder {
   letter-spacing: 0.02em;
 }
 
-.trust-stat-grid span,
+.trust-stat-label,
 .trust-impact-stat-grid h2,
 .trust-transparency-metrics span,
 .trust-finance-bars > div > div:first-child,

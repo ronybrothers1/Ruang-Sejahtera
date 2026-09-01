@@ -6,6 +6,9 @@ const globals = fs.readFileSync(path.join(root, 'app/globals.css'), 'utf8');
 const responsive = fs.readFileSync(path.join(root, 'app/responsive-preview-v8.css'), 'utf8');
 const home = fs.readFileSync(path.join(root, 'app/page.tsx'), 'utf8');
 const navbar = fs.readFileSync(path.join(root, 'components/Navbar.tsx'), 'utf8');
+const standardMobileStart = responsive.indexOf('@media (max-width: 420px)');
+const veryNarrowStart = responsive.indexOf('@media (max-width: 340px)');
+const standardMobileBlock = responsive.slice(standardMobileStart, veryNarrowStart);
 
 const failures = [];
 const requireSource = (condition, message) => {
@@ -59,6 +62,18 @@ requireSource(
 requireSource(
   /@media \(max-width: 360px\)[\s\S]*?\.trust-program-shortcuts \{ grid-template-columns: repeat\(2, minmax\(0,1fr\)\); \}/.test(globals),
   'Very narrow program shortcuts must fall back to two readable columns.',
+);
+requireSource(
+  /@media \(max-width: 900px\)[\s\S]*?\.trust-stat-grid \{ grid-template-columns: repeat\(2,minmax\(0,1fr\)\); \}/.test(responsive),
+  'Impact metrics must form a two-by-two grid on tablets and phones.',
+);
+requireSource(
+  standardMobileStart >= 0 && veryNarrowStart > standardMobileStart && !standardMobileBlock.includes('.trust-stat-grid { grid-template-columns: 1fr; }'),
+  'Standard mobile widths must not collapse impact metrics into a tall single column.',
+);
+requireSource(
+  /@media \(max-width: 340px\)[\s\S]*?\.trust-stat-grid \{ grid-template-columns: 1fr; \}/.test(responsive),
+  'Only very narrow screens may stack impact metrics for readability.',
 );
 
 const shellGutter = (width) => Math.min(64, Math.max(32, width * 0.05));

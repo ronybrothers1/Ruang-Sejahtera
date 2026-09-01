@@ -41,5 +41,10 @@ check(home.includes('programs.map((program)') && home.includes('<ProgramMark slu
 check(globals.includes('grid-template-columns: repeat(5, minmax(0, 1fr));'), 'Program shortcuts use five equal desktop columns');
 check(globals.includes('.trust-program-shortcuts > li:nth-child(4) { grid-column: 2 / span 2; }'), 'Program shortcuts center the second responsive row');
 check(home.includes('aria-label={`${program.name}: ${program.summary}`}'), 'Program shortcuts expose their full purpose to assistive technology');
+check(home.includes('const impactIcons = [UsersRound, HeartHandshake, MapPinned, HandCoins]'), 'Impact summary uses four purpose-specific icons');
+check(home.includes('<ul className="shell trust-stat-grid">'), 'Impact summary is exposed as a semantic list');
+check((home.match(/item\.value|item\.label|item\.note/g) ?? []).length >= 3, 'Impact summary preserves every value, label, and sample note');
+check(responsive.includes('.trust-stat-grid > li {\n  position: relative;'), 'Impact metrics use independent compact cards');
+check(!responsive.includes('.trust-stat-grid article:nth-child(2)'), 'Legacy table-like impact dividers are removed');
 
 console.log(`Design refinement audit passed (${checks.length} contracts).`);
