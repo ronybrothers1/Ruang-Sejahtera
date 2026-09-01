@@ -17,9 +17,10 @@ import {
   Sparkles,
   UsersRound,
 } from 'lucide-react';
+import { HeroGalleryCarousel, type HeroGallerySlide } from '@/components/HeroGalleryCarousel';
 import { ProgramMark } from '@/components/ProgramMark';
 import { formatRupiah } from '@/lib/finance';
-import { getPublishedActivities, getPublishedArticles, getPublishedFinancialReports } from '@/lib/published-content';
+import { getPublishedActivities, getPublishedArticles, getPublishedFinancialReports, getPublishedGalleries } from '@/lib/published-content';
 import { createPageMetadata } from '@/lib/seo';
 import {
   programs,
@@ -45,12 +46,41 @@ const accountabilityLinks = [
 ] as const;
 
 const impactIcons = [UsersRound, HeartHandshake, MapPinned, HandCoins] as const;
+const heroDateFormatter = new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' });
+const heroProgramOrder = [3, 0, 4, 1, 2] as const;
+const fallbackHeroSlides: HeroGallerySlide[] = heroProgramOrder.map((index) => {
+  const program = programs[index];
+  return {
+    id: `program-${program.slug}`,
+    image: program.image,
+    imageAlt: program.imageAlt,
+    imageLabel: program.imageLabel,
+    eyebrow: 'Fokus program',
+    title: program.name,
+    meta: program.focus,
+  };
+});
+
+function formatHeroDate(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : heroDateFormatter.format(date);
+}
+
+function selectHeroSlides(slides: HeroGallerySlide[]) {
+  const seenImages = new Set<string>();
+  return slides.filter((slide) => {
+    if (seenImages.has(slide.image)) return false;
+    seenImages.add(slide.image);
+    return true;
+  }).slice(0, 5);
+}
 
 export default async function Home() {
-  const [publishedArticles, financialReports, publishedActivities] = await Promise.all([
+  const [publishedArticles, financialReports, publishedActivities, publishedGalleries] = await Promise.all([
     getPublishedArticles({ limit: 4 }),
     getPublishedFinancialReports({ limit: 1 }),
-    getPublishedActivities({ limit: 4 }),
+    getPublishedActivities({ limit: 5 }),
+    getPublishedGalleries({ limit: 5 }),
   ]);
   const activityItems = publishedActivities.length ? publishedActivities.slice(0, 4).map((activity, index) => ({ slug: activity.slug, date: activity.activityDate, location: activity.locationLabel, title: activity.title, summary: activity.summary, image: activity.imageUrl || sampleActivities[index % sampleActivities.length].image, imageAlt: activity.imageAlt || activity.title, imageLabel: activity.imageUrl ? 'Dokumentasi resmi' : 'Konten resmi' })) : sampleActivities;
   const latestReport = financialReports[0] || null;
@@ -65,6 +95,25 @@ export default async function Home() {
         isLive: true,
       }))
     : sampleNews.map((item) => ({ ...item, isLive: false }));
+  const officialGallerySlides: HeroGallerySlide[] = publishedGalleries.flatMap((gallery) => gallery.imageUrl ? [{
+    id: `gallery-${gallery.slug}`,
+    image: gallery.imageUrl,
+    imageAlt: gallery.imageAlt || gallery.title,
+    imageLabel: 'Dokumentasi resmi',
+    eyebrow: 'Dokumentasi terbaru',
+    title: gallery.title,
+    meta: gallery.publishedAt ? formatHeroDate(gallery.publishedAt) : undefined,
+  }] : []);
+  const officialActivitySlides: HeroGallerySlide[] = publishedActivities.flatMap((activity) => activity.imageUrl ? [{
+    id: `activity-${activity.slug}`,
+    image: activity.imageUrl,
+    imageAlt: activity.imageAlt || activity.title,
+    imageLabel: 'Dokumentasi resmi',
+    eyebrow: 'Kegiatan terbaru',
+    title: activity.title,
+    meta: [activity.locationLabel, activity.activityDate ? formatHeroDate(activity.activityDate) : ''].filter(Boolean).join(' · '),
+  }] : []);
+  const heroSlides = selectHeroSlides([...officialGallerySlides, ...officialActivitySlides, ...fallbackHeroSlides]);
   const financeItems = latestReport ? [
     { label: 'Total penerimaan', value: 100, amount: formatRupiah(latestReport.totalIncome) },
     { label: 'Total penyaluran', value: latestReport.totalIncome > 0 ? Math.min(100, Math.round((latestReport.totalDisbursement / latestReport.totalIncome) * 100)) : 0, amount: formatRupiah(latestReport.totalDisbursement) },
@@ -78,29 +127,23 @@ export default async function Home() {
         <div className="shell trust-hero-layout trust-hero-layout-rich">
           <div className="trust-hero-copy">
             <span className="trust-kicker"><Sparkles size={15} aria-hidden="true" /> Gerakan sosial & kemanusiaan</span>
-            <h1 id="home-title">Kepedulian perlu sampai ke tempat yang tepat.</h1>
+            <h1 id="home-title">
+              <span className="trust-hero-title-line">Kepedulian perlu</span>{' '}
+              <span className="trust-hero-title-line">sampai ke tempat</span>{' '}
+              <span className="trust-hero-title-line">yang tepat<span className="trust-hero-title-dot">.</span></span>
+            </h1>
             <p>Yayasan Ruang Sejahtera menghubungkan kepedulian publik dengan kebutuhan dasar, usaha rakyat, hunian layak, air bersih, dan pendidikan.</p>
             <div className="trust-actions">
               <Link href="/program" className="trust-button trust-button-primary">Kenali Program <ArrowRight size={18} aria-hidden="true" /></Link>
               <Link href="/donasi" className="trust-button trust-button-secondary"><Heart size={18} aria-hidden="true" /> Cara Mendukung</Link>
             </div>
-            <div className="trust-hero-assurance">
-              <ShieldCheck size={20} aria-hidden="true" />
-              <p><strong>Preview lengkap untuk evaluasi desain.</strong> Foto dan angka bertanda “contoh” akan diganti dengan dokumentasi serta data resmi saat materi final tersedia.</p>
-            </div>
           </div>
 
-          <div className="trust-hero-media" aria-label="Kolase foto program contoh">
-            <div className="trust-hero-main-image">
-              <Image src={programs[3].image} alt={programs[3].imageAlt} fill priority sizes="(max-width: 900px) 100vw, 42vw" />
-              <span className="preview-chip">{programs[3].imageLabel}</span>
-              <div className="trust-hero-image-caption"><small>Fokus program</small><strong>Air bersih untuk kebutuhan mendesak</strong></div>
-            </div>
-            <div className="trust-hero-mini-grid">
-              <div><Image src={programs[0].image} alt={programs[0].imageAlt} fill sizes="(max-width: 900px) 50vw, 20vw" /></div>
-              <div><Image src={programs[4].image} alt={programs[4].imageAlt} fill sizes="(max-width: 900px) 50vw, 20vw" /></div>
-            </div>
-            <Link href="/galeri" className="trust-hero-gallery-link">Lihat galeri preview <ArrowRight size={15} aria-hidden="true" /></Link>
+          <HeroGalleryCarousel slides={heroSlides} />
+
+          <div className="trust-hero-assurance">
+            <ShieldCheck size={20} aria-hidden="true" />
+            <p><strong>Preview lengkap untuk evaluasi desain.</strong> Foto dan angka bertanda “contoh” akan diganti dengan dokumentasi serta data resmi saat materi final tersedia.</p>
           </div>
         </div>
       </section>

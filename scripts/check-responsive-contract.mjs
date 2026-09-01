@@ -79,6 +79,18 @@ requireSource(
   /@media \(max-width: 680px\)[\s\S]*?\.trust-hero \{[\s\S]*?linear-gradient\(165deg,#060607 0%,#08080a 70%,#28090f 100%\)/.test(responsive),
   'Mobile hero gradient must keep its dark reading zone and vertical burgundy flow.',
 );
+requireSource(
+  /@media \(max-width: 900px\)[\s\S]*?grid-template-areas:[\s\S]*?"copy"[\s\S]*?"media"[\s\S]*?"assurance"/.test(responsive),
+  'Stacked hero must place documentary evidence before the assurance note.',
+);
+requireSource(
+  /@media \(max-width: 680px\)[\s\S]*?\.trust-hero-carousel-stage \{[\s\S]*?aspect-ratio: 16 \/ 10;/.test(responsive),
+  'Mobile carousel must reserve a stable documentary aspect ratio.',
+);
+requireSource(
+  responsive.includes('.trust-hero-carousel-controls button {\n  display: grid;') && responsive.includes('min-height: 44px;'),
+  'Carousel navigation must preserve 44px touch targets.',
+);
 
 const shellGutter = (width) => Math.min(64, Math.max(32, width * 0.05));
 const shellWidth = (width) => Math.min(1240, width - shellGutter(width));
