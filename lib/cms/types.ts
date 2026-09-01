@@ -73,6 +73,7 @@ export type CmsMediaInput = {
   caption?: string;
   visibility: 'private' | 'public';
   consentStatus: 'confirmed' | 'restricted' | 'not_required';
+  containsVulnerablePerson: boolean;
   malwareScanStatus: 'signature_validated' | 'url_validated';
 };
 

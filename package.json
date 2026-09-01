@@ -25,6 +25,7 @@
     "performance:audit": "node scripts/check-performance.mjs",
     "design:audit": "node scripts/check-design-refinement.mjs",
     "auth:audit": "node scripts/check-auth-rbac.mjs",
+    "competition:remediation": "node scripts/check-competition-remediation.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed-super-admin": "tsx scripts/seed-super-admin.ts"
@@ -38,7 +39,8 @@
     "next": "16.3.3",
     "qrcode": "^1.5.4",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "sharp": "0.35.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.1.11",

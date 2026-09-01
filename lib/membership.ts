@@ -1,5 +1,5 @@
 import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
-import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, count, desc, eq, gte, inArray, isNull, sql } from 'drizzle-orm';
 import { getDb } from '@/lib/db';
 import {
   examAnswers,
@@ -617,16 +617,23 @@ async function getOrCreateVersionTwo(createdBy: string) {
 
   if (!settings) throw new Error('EXAM_SETTINGS_CREATE_FAILED');
 
-  await db.update(examSettings).set({ isActive: false }).where(eq(examSettings.isActive, true));
-  const refreshed = (await db.update(examSettings).set({
-    passingScore: EXAM_PASSING_SCORE,
-    durationMinutes: EXAM_DURATION_MINUTES,
-    maximumAttempts: EXAM_MAXIMUM_ATTEMPTS,
-    retryDelayDays: EXAM_RETRY_WINDOW_DAYS,
-    isActive: true,
-    updatedAt: new Date(),
-  }).where(eq(examSettings.id, settings.id)).returning())[0];
-  settings = refreshed || settings;
+  const settingsNeedRefresh = !settings.isActive
+    || settings.passingScore !== EXAM_PASSING_SCORE
+    || settings.durationMinutes !== EXAM_DURATION_MINUTES
+    || settings.maximumAttempts !== EXAM_MAXIMUM_ATTEMPTS
+    || settings.retryDelayDays !== EXAM_RETRY_WINDOW_DAYS;
+  if (settingsNeedRefresh) {
+    await db.update(examSettings).set({ isActive: false }).where(eq(examSettings.isActive, true));
+    const refreshed = (await db.update(examSettings).set({
+      passingScore: EXAM_PASSING_SCORE,
+      durationMinutes: EXAM_DURATION_MINUTES,
+      maximumAttempts: EXAM_MAXIMUM_ATTEMPTS,
+      retryDelayDays: EXAM_RETRY_WINDOW_DAYS,
+      isActive: true,
+      updatedAt: new Date(),
+    }).where(eq(examSettings.id, settings.id)).returning())[0];
+    settings = refreshed || settings;
+  }
 
   let questions = await db.select().from(examQuestions)
     .where(and(eq(examQuestions.settingsId, settings.id), eq(examQuestions.isActive, true)))
@@ -673,19 +680,36 @@ async function getOrCreateVersionTwo(createdBy: string) {
   return { settings, questions };
 }
 
-export async function getActiveExam(createdBy: string): Promise<ActiveExam> {
-  return getOrCreateVersionTwo(createdBy);
-}
-
 export async function countWeeklyExamAttempts(userId: string) {
-  const since = Date.now() - EXAM_RETRY_WINDOW_DAYS * 24 * 60 * 60 * 1000;
-  const attempts = await getDb().select().from(examAttempts).where(eq(examAttempts.userId, userId));
-  return attempts.filter((attempt) => attempt.createdAt.getTime() >= since).length;
+  const since = new Date(Date.now() - EXAM_RETRY_WINDOW_DAYS * 24 * 60 * 60 * 1000);
+  const result = await getDb().select({ value: count() }).from(examAttempts)
+    .where(and(eq(examAttempts.userId, userId), gte(examAttempts.createdAt, since)));
+  return result[0]?.value || 0;
 }
 
-export async function getOrCreateExamAttempt(userId: string): Promise<MemberExamState> {
+export async function getCurrentExamAttempt(userId: string): Promise<MemberExamState | null> {
   const db = getDb();
-  const exam = await getActiveExam(userId);
+  const attempt = (await db.select().from(examAttempts)
+    .where(and(eq(examAttempts.userId, userId), eq(examAttempts.status, 'in_progress')))
+    .orderBy(desc(examAttempts.createdAt))
+    .limit(1))[0];
+  if (!attempt) return null;
+
+  const settings = (await db.select().from(examSettings).where(eq(examSettings.id, attempt.settingsId)).limit(1))[0];
+  if (!settings) return null;
+  if (!attempt.isUntimed && attempt.startedAt.getTime() + settings.durationMinutes * 60 * 1000 <= Date.now()) return null;
+
+  const questions = attempt.questionSnapshot?.length
+    ? snapshotToQuestions(attempt.questionSnapshot)
+    : await db.select().from(examQuestions)
+      .where(and(eq(examQuestions.settingsId, settings.id), eq(examQuestions.isActive, true)))
+      .orderBy(examQuestions.displayOrder);
+  return { settings, questions, attempt };
+}
+
+export async function getOrCreateExamAttempt(userId: string, options: { isUntimed?: boolean } = {}): Promise<MemberExamState> {
+  const db = getDb();
+  const exam = await getOrCreateVersionTwo(userId);
   return db.transaction(async (tx) => {
     await tx.execute(sql`SELECT id FROM users WHERE id = ${userId} FOR UPDATE`);
     const attempts = await tx.select().from(examAttempts)
@@ -694,7 +718,7 @@ export async function getOrCreateExamAttempt(userId: string): Promise<MemberExam
 
     const now = Date.now();
     const active = attempts.find((attempt) => attempt.status === 'in_progress');
-    if (active && active.startedAt.getTime() + exam.settings.durationMinutes * 60 * 1000 > now) {
+    if (active && (active.isUntimed || active.startedAt.getTime() + exam.settings.durationMinutes * 60 * 1000 > now)) {
       const questions = active.questionSnapshot?.length ? snapshotToQuestions(active.questionSnapshot) : exam.questions;
       if (!active.questionSnapshot?.length) {
         await tx.update(examAttempts).set({ questionSnapshot: toSnapshot(exam.questions), updatedAt: new Date() }).where(eq(examAttempts.id, active.id));
@@ -715,6 +739,7 @@ export async function getOrCreateExamAttempt(userId: string): Promise<MemberExam
       settingsId: exam.settings.id,
       attemptNumber,
       status: 'in_progress',
+      isUntimed: Boolean(options.isUntimed),
       questionSnapshot: toSnapshot(exam.questions),
     }).returning())[0];
     if (!inserted) throw new Error('EXAM_ATTEMPT_CREATE_FAILED');
@@ -826,7 +851,7 @@ export async function submitMembershipExam(input: {
       ? snapshotToQuestions(attempt.questionSnapshot)
       : await tx.select().from(examQuestions).where(and(eq(examQuestions.settingsId, settings.id), eq(examQuestions.isActive, true))).orderBy(examQuestions.displayOrder);
 
-    if (attempt.startedAt.getTime() + settings.durationMinutes * 60 * 1000 <= Date.now()) {
+    if (!attempt.isUntimed && attempt.startedAt.getTime() + settings.durationMinutes * 60 * 1000 <= Date.now()) {
       await tx.update(examAttempts).set({ status: 'invalidated', updatedAt: new Date() }).where(and(eq(examAttempts.id, attempt.id), eq(examAttempts.status, 'in_progress')));
       throw new Error('EXAM_TIME_EXPIRED');
     }

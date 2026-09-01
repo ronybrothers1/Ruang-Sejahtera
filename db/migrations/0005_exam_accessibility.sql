@@ -1,0 +1,1 @@
+ALTER TABLE "exam_attempts" ADD COLUMN "is_untimed" boolean DEFAULT false NOT NULL;

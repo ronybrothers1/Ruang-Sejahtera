@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 import { getDb } from '@/lib/db';
 import type { AdminRole } from '@/lib/models';
 import { auditLogs, mediaAssets, programApplications } from '@/lib/db/schema';
@@ -139,6 +139,107 @@ export async function getProgramApplication(id: string) {
   return rows[0] ? record(rows[0]) : null;
 }
 
+export async function getProgramApplicationForApplicant(input: { applicantUserId: string; programSlug: string }) {
+  const rows = await getDb().select().from(programApplications)
+    .where(and(
+      eq(programApplications.applicantUserId, input.applicantUserId),
+      eq(programApplications.programSlug, input.programSlug),
+      isNull(programApplications.deletedAt),
+    ))
+    .limit(1);
+  return rows[0] ? record(rows[0]) : null;
+}
+
+export async function resubmitProgramApplication(input: {
+  id: string;
+  applicantUserId: string;
+  programSlug: string;
+  beneficiaryName: string;
+  beneficiaryIdentity: string;
+  phone: string;
+  address: Record<string, string>;
+  details: Record<string, string>;
+  existingPhotoMedia?: {
+    objectKey: string;
+    mimeType: string;
+    byteSize: number;
+    width: number | null;
+    height: number | null;
+  };
+  existingPhotoAlt: string;
+}) {
+  const db = getDb();
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`SELECT id FROM program_applications WHERE id = ${input.id} FOR UPDATE`);
+    const existing = (await tx.select().from(programApplications).where(and(
+      eq(programApplications.id, input.id),
+      eq(programApplications.applicantUserId, input.applicantUserId),
+      eq(programApplications.programSlug, input.programSlug),
+      isNull(programApplications.deletedAt),
+    )).limit(1))[0];
+    if (!existing) throw new Error('APPLICATION_NOT_FOUND');
+    if (existing.status !== 'revision_required') throw new Error('APPLICATION_RESUBMIT_NOT_ALLOWED');
+
+    let mediaId = existing.existingPhotoMediaId;
+    let replacedObjectKey: string | null = null;
+    if (input.existingPhotoMedia) {
+      if (existing.existingPhotoMediaId) {
+        const previousMedia = (await tx.select({ objectKey: mediaAssets.objectKey }).from(mediaAssets)
+          .where(eq(mediaAssets.id, existing.existingPhotoMediaId)).limit(1))[0];
+        replacedObjectKey = previousMedia?.objectKey || null;
+        await tx.update(mediaAssets).set({ deletedAt: new Date(), updatedAt: new Date() })
+          .where(eq(mediaAssets.id, existing.existingPhotoMediaId));
+      }
+      const media = (await tx.insert(mediaAssets).values({
+        ownerId: input.applicantUserId,
+        objectKey: input.existingPhotoMedia.objectKey,
+        type: 'image',
+        mimeType: input.existingPhotoMedia.mimeType,
+        byteSize: input.existingPhotoMedia.byteSize,
+        width: input.existingPhotoMedia.width,
+        height: input.existingPhotoMedia.height,
+        altText: input.existingPhotoAlt,
+        consentStatus: 'confirmed',
+        visibility: 'private',
+        malwareScanStatus: 'signature_validated',
+      }).returning())[0];
+      mediaId = media?.id || null;
+      if (!mediaId) throw new Error('MEDIA_RECORD_CREATE_FAILED');
+    }
+
+    const updated = (await tx.update(programApplications).set({
+      beneficiaryName: input.beneficiaryName,
+      beneficiaryIdentity: input.beneficiaryIdentity,
+      phone: input.phone,
+      address: input.address,
+      details: input.details,
+      existingPhotoMediaId: mediaId,
+      existingPhotoAlt: input.existingPhotoAlt,
+      status: 'submitted',
+      reviewedBy: null,
+      reviewedAt: null,
+      updatedAt: new Date(),
+    }).where(and(
+      eq(programApplications.id, input.id),
+      eq(programApplications.applicantUserId, input.applicantUserId),
+      eq(programApplications.programSlug, input.programSlug),
+      eq(programApplications.status, 'revision_required'),
+      isNull(programApplications.deletedAt),
+    )).returning())[0];
+    if (!updated) throw new Error('APPLICATION_RESUBMIT_CONFLICT');
+
+    await tx.insert(auditLogs).values({
+      actorUserId: input.applicantUserId,
+      actorRole: 'member',
+      action: 'program_application.resubmitted',
+      resourceType: 'program_application',
+      resourceId: input.id,
+      metadata: { programSlug: existing.programSlug, replacedPhoto: Boolean(input.existingPhotoMedia) },
+    });
+    return { application: record(updated), replacedObjectKey };
+  });
+}
+
 export async function reviewProgramApplication(input: {
   id: string;
   reviewerUserId: string;
@@ -146,16 +247,35 @@ export async function reviewProgramApplication(input: {
   status: Exclude<ApplicationStatus, 'submitted'>;
   reviewNote?: string;
 }) {
-  if (input.reviewNote && input.reviewNote.length > 1000) throw new Error('APPLICATION_NOTE_INVALID');
+  const note = input.reviewNote?.trim() || '';
+  if (note.length > 1000) throw new Error('APPLICATION_NOTE_INVALID');
+  if ((input.status === 'revision_required' || input.status === 'rejected') && !note) throw new Error('APPLICATION_NOTE_REQUIRED');
   const db = getDb();
   return db.transaction(async (tx) => {
+    await tx.execute(sql`SELECT id FROM program_applications WHERE id = ${input.id} FOR UPDATE`);
+    const existing = (await tx.select().from(programApplications)
+      .where(and(eq(programApplications.id, input.id), isNull(programApplications.deletedAt))).limit(1))[0];
+    if (!existing) throw new Error('APPLICATION_NOT_FOUND');
+    const allowedTransitions: Record<ApplicationStatus, ApplicationStatus[]> = {
+      submitted: ['under_review', 'revision_required', 'approved', 'rejected'],
+      under_review: ['revision_required', 'approved', 'rejected'],
+      revision_required: [],
+      approved: [],
+      rejected: [],
+    };
+    if (!allowedTransitions[existing.status].includes(input.status)) throw new Error('APPLICATION_TRANSITION_NOT_ALLOWED');
+
     const updated = await tx.update(programApplications).set({
       status: input.status,
       reviewedBy: input.reviewerUserId,
       reviewedAt: new Date(),
-      reviewNote: input.reviewNote?.trim() || null,
+      reviewNote: note || null,
       updatedAt: new Date(),
-    }).where(and(eq(programApplications.id, input.id), isNull(programApplications.deletedAt))).returning();
+    }).where(and(
+      eq(programApplications.id, input.id),
+      eq(programApplications.status, existing.status),
+      isNull(programApplications.deletedAt),
+    )).returning();
     const application = updated[0];
     if (!application) throw new Error('APPLICATION_NOT_FOUND');
     await tx.insert(auditLogs).values({
@@ -164,7 +284,7 @@ export async function reviewProgramApplication(input: {
       action: `program_application.${input.status}`,
       resourceType: 'program_application',
       resourceId: input.id,
-      metadata: { status: input.status },
+      metadata: { fromStatus: existing.status, status: input.status },
     });
     return record(application);
   });

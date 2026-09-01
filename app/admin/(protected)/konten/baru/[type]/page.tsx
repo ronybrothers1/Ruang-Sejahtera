@@ -6,6 +6,7 @@ import { getCmsWriteStatus } from '@/lib/cms/store';
 import { programs } from '@/lib/content';
 import type { CmsCollection } from '@/lib/cms/types';
 import { RichTextEditor } from '@/components/RichTextEditor';
+import { MediaConsentFields } from '@/components/cms/MediaConsentFields';
 
 const typeMap: Record<string, { label: string; collection: CmsCollection }> = {
   berita: { label: 'Berita', collection: 'articles' },
@@ -45,6 +46,7 @@ export default async function NewContentPage({ params }: { params: Promise<{ typ
           </div>
           <label className="block text-sm font-bold">Teks alternatif gambar<input name="imageAlt" required maxLength={160} placeholder="Contoh: Relawan membagikan paket pangan" className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /><span className="mt-2 block text-xs font-normal text-neutral-500">Deskripsi singkat agar gambar tetap dapat dipahami.</span></label>
           <label className="block text-sm font-bold">Keterangan gambar <span className="font-normal text-neutral-500">(opsional)</span><input name="imageCaption" maxLength={240} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label>
+          <MediaConsentFields required />
           <label className="block text-sm font-bold">Ringkasan<input name="excerpt" required maxLength={420} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label>
           <label className="block text-sm font-bold">Isi<RichTextEditor name="body" /></label>
         </> : null}
@@ -58,6 +60,7 @@ export default async function NewContentPage({ params }: { params: Promise<{ typ
             <label className="text-sm font-bold">URL video TikTok/Instagram <span className="font-normal text-neutral-500">(opsional)</span><input name="videoUrl" type="url" placeholder="https://www.tiktok.com/@.../video/..." className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /><span className="mt-2 block text-xs font-normal text-neutral-500">Video akan ditampilkan sebagai embed dari URL HTTPS yang valid.</span></label>
           </div>
           <div className="grid gap-5 md:grid-cols-2"><label className="text-sm font-bold">Teks alternatif foto <span className="font-normal text-neutral-500">(wajib jika foto dipilih)</span><input name="imageAlt" maxLength={160} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label><label className="text-sm font-bold">Keterangan foto <span className="font-normal text-neutral-500">(opsional)</span><input name="imageCaption" maxLength={240} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label></div>
+          <MediaConsentFields />
           <label className="block text-sm font-bold">Isi<RichTextEditor name="body" /></label>
         </> : null}
 

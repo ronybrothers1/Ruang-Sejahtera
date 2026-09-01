@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { isDatabaseConfigured } from '@/lib/auth/config';
 import { requireSuperAdminSession } from '@/lib/auth/admin-session';
 import { createCoreManager, findUserByEmail } from '@/lib/db/users';
-import { hasAllowedFormContentType, isDeclaredBodyWithinLimit } from '@/lib/security/request-limits';
+import { hasAllowedFormContentType, readFormDataWithinLimit, RequestBodyTooLargeError } from '@/lib/security/request-limits';
 import { isSameOriginRequest } from '@/lib/security/same-origin';
 
 export const dynamic = 'force-dynamic';
@@ -20,15 +20,12 @@ export async function POST(request: Request) {
   if (!hasAllowedFormContentType(request)) {
     return NextResponse.json({ error: 'Content-Type tidak didukung.' }, { status: 415 });
   }
-  if (!isDeclaredBodyWithinLimit(request, 8_192)) {
-    return NextResponse.json({ error: 'Payload terlalu besar.' }, { status: 413 });
-  }
 
   const session = await requireSuperAdminSession();
   if (!isDatabaseConfigured()) return redirectToSystem(request, 'database');
 
   try {
-    const form = await request.formData();
+    const form = await readFormDataWithinLimit(request, 8_192);
     const fullName = String(form.get('fullName') || '');
     const email = String(form.get('email') || '');
 
@@ -42,6 +39,7 @@ export async function POST(request: Request) {
     await createCoreManager({ fullName, email, actorUserId });
     return redirectToSystem(request, 'created');
   } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) return NextResponse.json({ error: 'Payload terlalu besar.' }, { status: 413 });
     const reason = error instanceof Error ? error.message : '';
     const status = reason === 'CORE_MANAGER_INPUT_INVALID'
       ? 'invalid'

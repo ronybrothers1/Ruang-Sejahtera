@@ -5,6 +5,7 @@ import { findUserByIdentityProviderId } from '@/lib/db/users';
 import { getCmsWriteStatus } from '@/lib/cms/store';
 import { hasPassedExam } from '@/lib/membership';
 import { RichTextEditor } from '@/components/RichTextEditor';
+import { MediaConsentFields } from '@/components/cms/MediaConsentFields';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +22,7 @@ export default async function MemberNewsPage() {
   return (
     <div className="min-h-screen bg-neutral-100 px-4 py-8 text-brand-ink md:px-6 md:py-12">
       <main className="mx-auto w-full max-w-4xl">
-        <Link href="/akun" className="text-sm font-bold text-brand-red">← Kembali ke akun</Link>
+        <Link href="/akun/konten" className="text-sm font-bold text-brand-red">← Kembali ke konten saya</Link>
         <p className="eyebrow mt-7">Konten anggota</p>
         <h1 className="mt-3 font-heading text-4xl font-extrabold tracking-tight">Kirim berita untuk dikurasi.</h1>
         <p className="mt-4 max-w-2xl leading-7 text-neutral-600">Berita yang Anda kirim masuk sebagai draft dan akan diperiksa melalui alur kurasi. Berita belum langsung tampil di website publik.</p>
@@ -47,6 +48,7 @@ export default async function MemberNewsPage() {
             <label className="block text-sm font-bold">Gambar berita<input name="imageFile" type="file" required accept="image/jpeg,image/png,image/webp" className="mt-2 block min-h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 py-3 font-normal file:mr-3 file:rounded-lg file:border-0 file:bg-neutral-100 file:px-3 file:py-2 file:font-semibold" /><span className="mt-2 block text-xs font-normal text-neutral-500">JPG, PNG, atau WEBP, maksimal 2 MB.</span></label>
             <label className="block text-sm font-bold">Teks alternatif gambar<input name="imageAlt" required maxLength={160} placeholder="Contoh: Relawan membagikan bantuan" className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label>
             <label className="block text-sm font-bold">Keterangan gambar <span className="font-normal text-neutral-500">(opsional)</span><input name="imageCaption" maxLength={240} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label>
+            <MediaConsentFields required />
             <label className="block text-sm font-bold">Ringkasan<input name="excerpt" required maxLength={420} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label>
             <label className="block text-sm font-bold">Isi<RichTextEditor name="body" /></label>
             <button type="submit" className="button-primary">Simpan berita sebagai draft</button>

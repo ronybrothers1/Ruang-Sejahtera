@@ -5,7 +5,7 @@ import { findUserByEmail, seedInitialSuperAdmin } from '@/lib/db/users';
 import type { AdminSession } from '@/lib/auth/admin-session';
 import { archiveFinancialReport, createFinancialReport, publishFinancialReport, updateFinancialReport } from '@/lib/finance';
 import { isDatabaseConfigured } from '@/lib/auth/config';
-import { hasAllowedFormContentType, isDeclaredBodyWithinLimit } from '@/lib/security/request-limits';
+import { hasAllowedFormContentType, readFormDataWithinLimit, RequestBodyTooLargeError } from '@/lib/security/request-limits';
 import { isSameOriginRequest } from '@/lib/security/same-origin';
 
 export const dynamic = 'force-dynamic';
@@ -47,7 +47,6 @@ function redirectWith(request: Request, query: string) {
 export async function POST(request: Request) {
   if (!isSameOriginRequest(request)) return NextResponse.json({ error: 'Permintaan ditolak.' }, { status: 403 });
   if (!hasAllowedFormContentType(request)) return NextResponse.json({ error: 'Content-Type tidak didukung.' }, { status: 415 });
-  if (!isDeclaredBodyWithinLimit(request, 100_000)) return NextResponse.json({ error: 'Payload terlalu besar.' }, { status: 413 });
   if (!isDatabaseConfigured()) return redirectWith(request, 'error=database');
 
   const session = await getAdminSession();
@@ -55,7 +54,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Akses Super Admin diperlukan.' }, { status: 403 });
   }
 
-  const form = await request.formData();
+  let form: FormData;
+  try {
+    form = await readFormDataWithinLimit(request, 100_000);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) return NextResponse.json({ error: 'Payload terlalu besar.' }, { status: 413 });
+    return redirectWith(request, 'error=form');
+  }
   const intent = String(form.get('intent') || '');
 
   try {
