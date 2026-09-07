@@ -16,7 +16,8 @@ export type AdminSession = {
   membershipStatus: MembershipStatus;
   identityProviderId: string;
   sessionId: string;
-  authMethod: 'clerk';
+  /** Runtime Phase 1 sessions are Clerk-only. The legacy union is temporary type compatibility for older endpoint code. */
+  authMethod: 'clerk' | 'bootstrap';
   /** Kept for backward-compatible UI contracts. MFA is not an application access gate. */
   mfaRequired: false;
   issuedAt: number;
