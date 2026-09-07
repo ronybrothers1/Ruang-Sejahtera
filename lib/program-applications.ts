@@ -1,6 +1,7 @@
 import { and, desc, eq, isNull } from 'drizzle-orm';
 import { getDb } from '@/lib/db';
 import type { AdminRole } from '@/lib/models';
+import { programs } from '@/lib/db/program-schema';
 import { auditLogs, mediaAssets, programApplications } from '@/lib/db/schema';
 
 export type ApplicationStatus = 'submitted' | 'under_review' | 'revision_required' | 'approved' | 'rejected';
@@ -67,6 +68,12 @@ export async function createProgramApplication(input: {
 }) {
   const db = getDb();
   return db.transaction(async (tx) => {
+    const activeProgram = await tx.select({ slug: programs.slug })
+      .from(programs)
+      .where(and(eq(programs.slug, input.programSlug), eq(programs.isActive, true)))
+      .limit(1);
+    if (!activeProgram[0]) throw new Error('PROGRAM_NOT_AVAILABLE');
+
     const existing = await tx.select({ id: programApplications.id })
       .from(programApplications)
       .where(and(
