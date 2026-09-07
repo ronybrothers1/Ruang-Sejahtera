@@ -1,22 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getAdminSession, hasControlPlaneAccess } from '@/lib/auth/admin-session';
 import { can } from '@/lib/auth/permissions';
-import { findUserByEmail, seedInitialSuperAdmin } from '@/lib/db/users';
 import { getProgramApplication, reviewProgramApplication, type ApplicationStatus } from '@/lib/program-applications';
-import type { AdminSession } from '@/lib/auth/admin-session';
 import { hasAllowedFormContentType, isDeclaredBodyWithinLimit } from '@/lib/security/request-limits';
 import { isSameOriginRequest } from '@/lib/security/same-origin';
 
 export const dynamic = 'force-dynamic';
-
-async function resolveActorId(session: AdminSession) {
-  if (session.authMethod !== 'bootstrap') return session.id;
-  const email = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase() || '';
-  const existing = email ? await findUserByEmail(email) : null;
-  if (existing?.role === 'super_admin' && existing.isActive && !existing.deletedAt) return existing.id;
-  const admin = await seedInitialSuperAdmin({ email, fullName: 'Super Admin Ruang Sejahtera' });
-  return admin.id;
-}
 
 export async function POST(request: Request) {
   if (!isSameOriginRequest(request)) return NextResponse.json({ error: 'Permintaan ditolak.' }, { status: 403 });
@@ -37,10 +26,9 @@ export async function POST(request: Request) {
   try {
     const existing = await getProgramApplication(id);
     if (!existing) return NextResponse.json({ error: 'Pengajuan tidak ditemukan.' }, { status: 404 });
-    const reviewerUserId = await resolveActorId(session);
     await reviewProgramApplication({
       id,
-      reviewerUserId,
+      reviewerUserId: session.id,
       reviewerRole: session.role,
       status,
       reviewNote: String(form.get('reviewNote') || '').trim(),
