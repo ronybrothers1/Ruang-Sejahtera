@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUserSession } from '@/lib/auth/admin-session';
+import { findActiveProgramBySlug } from '@/lib/db/programs';
 import { createProgramApplication } from '@/lib/program-applications';
-import { programs } from '@/lib/content';
 import { hasAllowedFormContentType, isDeclaredBodyWithinLimit } from '@/lib/security/request-limits';
 import { isSameOriginRequest } from '@/lib/security/same-origin';
 import { deleteStoredImage, storeValidatedImage, validateImageFile } from '@/lib/security/image-upload';
 
 export const dynamic = 'force-dynamic';
 
-const detailFields = ['familyCount', 'condition', 'needDescription', 'businessType', 'businessDuration', 'currentCondition', 'assistanceNeed', 'houseCondition', 'occupants', 'damageDescription', 'waterSource', 'affectedFamilies', 'crisisDuration', 'schoolLevel', 'studentCount', 'educationNeed'] as const;
+const detailFields = ['familyCount', 'condition', 'needDescription', 'currentCondition', 'assistanceNeed', 'houseCondition', 'occupants', 'damageDescription', 'waterSource', 'affectedFamilies', 'crisisDuration', 'schoolLevel', 'studentCount', 'educationNeed', 'healthNeed', 'careLocation'] as const;
 
 function value(form: FormData, key: string, max: number) {
   const result = String(form.get(key) || '').trim();
@@ -31,7 +31,8 @@ export async function POST(request: Request) {
 
   const form = await request.formData();
   const programSlug = String(form.get('programSlug') || '').trim();
-  if (!programs.some((program) => program.slug === programSlug)) return redirectWith(request, 'error=program');
+  const program = programSlug ? await findActiveProgramBySlug(programSlug) : null;
+  if (!program) return redirectWith(request, 'error=program');
   if (String(form.get('photoConsent') || '') !== 'yes') return redirectWith(request, 'error=consent', programSlug);
 
   const photo = form.get('existingPhoto');
@@ -68,6 +69,7 @@ export async function POST(request: Request) {
   } catch (error) {
     await deleteStoredImage(objectKey);
     if (error instanceof Error && error.message === 'APPLICATION_ALREADY_EXISTS') return redirectWith(request, 'error=exists', programSlug);
+    if (error instanceof Error && error.message === 'PROGRAM_NOT_AVAILABLE') return redirectWith(request, 'error=program');
     if (error instanceof Error && error.message === 'APPLICATION_FIELD_INVALID') return redirectWith(request, 'error=field', programSlug);
     if (error instanceof Error && ['IMAGE_FILE_INVALID', 'IMAGE_TYPE_INVALID', 'IMAGE_SIGNATURE_INVALID', 'IMAGE_DIMENSIONS_INVALID'].includes(error.message)) return redirectWith(request, 'error=photo-format', programSlug);
     return redirectWith(request, 'error=save', programSlug);
