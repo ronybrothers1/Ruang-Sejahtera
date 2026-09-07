@@ -1,12 +1,12 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse, type NextFetchEvent, type NextRequest } from 'next/server';
-import { isBootstrapEnabledForEnvironment, isClerkConfigured } from '@/lib/auth/config';
+import { isClerkConfigured } from '@/lib/auth/config';
 
 const isAccountRoute = createRouteMatcher(['/akun(.*)']);
 const isAdminRoute = createRouteMatcher(['/admin(.*)', '/api/admin(.*)']);
-const isPublicAdminAuthRoute = createRouteMatcher(['/admin/login', '/api/admin/session', '/api/admin/logout']);
+const isPublicAdminAuthRoute = createRouteMatcher(['/admin/login']);
 
-const productionIdentityMiddleware = clerkMiddleware(async (auth, request) => {
+const identityMiddleware = clerkMiddleware(async (auth, request) => {
   if (isAccountRoute(request) || (isAdminRoute(request) && !isPublicAdminAuthRoute(request))) {
     await auth.protect();
   }
@@ -14,10 +14,7 @@ const productionIdentityMiddleware = clerkMiddleware(async (auth, request) => {
 
 export default function proxy(request: NextRequest, event: NextFetchEvent) {
   if (!isClerkConfigured()) return NextResponse.next();
-  const bootstrapCookiePresent = Boolean(request.cookies.get('rs_admin_session')?.value);
-  if (isBootstrapEnabledForEnvironment() && isAdminRoute(request)
-    && (isPublicAdminAuthRoute(request) || bootstrapCookiePresent)) return NextResponse.next();
-  return productionIdentityMiddleware(request, event);
+  return identityMiddleware(request, event);
 }
 
 export const config = {

@@ -18,7 +18,7 @@ export default async function ProtectedAdminLayout({ children }: Readonly<{ chil
           <AdminNav role={session.role} />
           <div className="flex items-center gap-3">
             <Link href="/" className="button-secondary">Lihat Website</Link>
-            <SessionLogout authMethod={session.authMethod} />
+            <SessionLogout />
           </div>
         </div>
       </header>

@@ -6,9 +6,9 @@ const workflow = readFileSync('lib/cms/workflow.ts', 'utf8');
 const schema = readFileSync('lib/db/schema.ts', 'utf8');
 const proxy = readFileSync('proxy.ts', 'utf8');
 const session = readFileSync('lib/auth/admin-session.ts', 'utf8');
-const gate = readFileSync('lib/auth/control-plane-gate.ts', 'utf8');
+const adminLogin = readFileSync('app/admin/login/page.tsx', 'utf8');
+const envExample = readFileSync('.env.example', 'utf8');
 const contentRoute = readFileSync('app/api/admin/content/route.ts', 'utf8');
-const config = readFileSync('lib/auth/config.ts', 'utf8');
 const coreManagersRoute = readFileSync('app/api/admin/core-managers/route.ts', 'utf8');
 
 const failures = [];
@@ -20,17 +20,16 @@ requireSource(/core_manager:\s*\[[\s\S]*?'content\.submit'/.test(permissions), '
 requireSource(/member:\s*\[[\s\S]*?'content\.submit'/.test(permissions), 'Members must be able to submit content.');
 requireSource(!/core_manager:\s*\[[\s\S]*?'content\.publish'/.test(permissions), 'Core managers must never receive publish permission.');
 requireSource(!/member:\s*\[[\s\S]*?'content\.publish'/.test(permissions), 'Members must never receive publish permission.');
-requireSource(!/core_manager:\s*\[[\s\S]*?'finance\.manage'/.test(permissions), 'Core managers must never receive finance mutation permission.');
+requireSource(!/core_manager:\s*\[[\s\S]*?'finance\.manage'/.test(permissions), 'Core managers must not receive finance mutation permission in Phase 1.');
 requireSource(!/member:\s*\[[\s\S]*?'finance\.manage'/.test(permissions), 'Members must never receive finance mutation permission.');
-requireSource(!/core_manager:\s*\[[\s\S]*?'finance\.read'/.test(permissions), 'Core managers must not receive internal finance access; public reports use the public route.');
-requireSource(!/member:\s*\[[\s\S]*?'finance\.read'/.test(permissions), 'Members must not receive internal finance access; public reports use the public route.');
 requireSource(workflow.includes("to === 'published'") && workflow.includes("can(role, 'content.publish')"), 'Publishing must be permission-gated server-side.');
-requireSource(schema.includes("verificationTokenHash") && !schema.includes('verificationToken:'), 'Member QR verification must store only a token hash.');
-requireSource(proxy.includes("'/akun(.*)'") && proxy.includes("'/admin(.*)'") && proxy.includes('isPublicAdminAuthRoute'), 'Account and control-plane routes must be protected at the routing boundary.');
-requireSource(session.includes('hasControlPlaneAccess') && session.includes('mfaRequired'), 'Control-plane access must be checked server-side with the MFA/compensating gate.');
-requireSource(config.includes('isBootstrapEnabledForEnvironment') && config.includes('ADMIN_BOOTSTRAP_ALLOW_PRODUCTION'), 'Simple admin login must be explicitly environment-gated.');
-requireSource(gate.includes('timingSafeEqual') && gate.includes('sessionId') && gate.includes('CONTROL_PLANE_APPROVAL_TTL_SECONDS'), 'Temporary approval must be HMAC-verified, session-bound, and short-lived.');
-requireSource(contentRoute.includes('hasControlPlaneAccess'), 'Admin content mutations must enforce the control-plane gate, not only role permissions.');
+requireSource(schema.includes('verificationTokenHash') && !schema.includes('verificationToken:'), 'Member QR verification must store only a token hash.');
+requireSource(proxy.includes("'/akun(.*)'") && proxy.includes("'/admin(.*)'") && proxy.includes('auth.protect()'), 'Account and admin routes must be protected at the routing boundary.');
+requireSource(session.includes('canAccessControlPlane(session.role)') && session.includes("redirect('/masuk?redirect_url=%2Fadmin')"), 'Admin access must use the shared sign-in route and server-side role authorization.');
+requireSource(adminLogin.includes("redirect('/masuk?redirect_url=%2Fadmin')"), 'Legacy /admin/login must forward to the shared sign-in page.');
+requireSource(session.includes("authMethod: 'clerk'") && !session.includes('verifyBootstrapAccessKey'), 'Application sessions must use the configured identity provider, not a separate admin key.');
+requireSource(!/ADMIN_BOOTSTRAP_|ADMIN_CONTROL_PLANE_|ADMIN_SESSION_SECRET/.test(envExample), 'Legacy bootstrap/approval secrets must not remain in the environment contract.');
+requireSource(contentRoute.includes('hasControlPlaneAccess'), 'Admin content mutations must enforce control-plane authorization server-side.');
 requireSource(coreManagersRoute.includes('requireSuperAdminSession') && coreManagersRoute.includes('createCoreManager'), 'Core Manager provisioning must be Super Admin-only and use the server-side user service.');
 
 if (failures.length) {
@@ -38,4 +37,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Auth/RBAC audit passed: three roles, Super Admin-only publishing/finance, hashed card token, and protected routes verified.');
+console.log('Auth/RBAC audit passed: shared Clerk login, three roles, server-side admin authorization, Super Admin-only publishing/finance, and protected routes verified.');

@@ -23,8 +23,8 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
   return (
     <AuthShell
       eyebrow="Akun Ruang Sejahtera"
-      title="Satu akun untuk berkontribusi dengan tertib."
-      description="Masuk untuk mengelola profil, mengikuti proses keanggotaan, mengirim berita atau kegiatan, dan memantau hasil kurasi."
+      title="Masuk dengan cepat dan aman."
+      description="Gunakan email atau username dan password akun Anda. Setelah berhasil, sistem langsung membawa Anda ke halaman sesuai hak akses tanpa kunci tambahan atau approval berlapis."
     >
       {status.clerk && status.database ? (
         <SignIn
@@ -38,7 +38,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
         <section className="w-full max-w-md rounded-3xl border border-neutral-200 bg-white p-7 shadow-xl" role="status">
           <p className="text-xs font-extrabold uppercase tracking-[.16em] text-brand-red">Belum diaktifkan</p>
           <h1 className="mt-4 font-heading text-3xl font-extrabold tracking-tight">Layanan akun sedang disiapkan.</h1>
-          <p className="mt-4 text-sm leading-7 text-neutral-600">Form login akan aktif setelah identity provider dan database production terhubung. Website publik tetap dapat digunakan seperti biasa.</p>
+          <p className="mt-4 text-sm leading-7 text-neutral-600">Form login akan aktif setelah Clerk dan database production terhubung. Website publik tetap dapat digunakan seperti biasa.</p>
         </section>
       )}
     </AuthShell>
