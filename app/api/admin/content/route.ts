@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getAdminSession, hasControlPlaneAccess } from '@/lib/auth/admin-session';
 import { can, canAccessControlPlane, canEditContent } from '@/lib/auth/permissions';
-import { findUserByEmail, seedInitialSuperAdmin } from '@/lib/db/users';
 import { hasPassedExam } from '@/lib/membership';
 import { getCmsWriteStatus, listCmsRecords, persistCmsMutation } from '@/lib/cms/store';
 import { CmsValidationError, isCmsCollection, parseCreateContent, parseUpdateContent } from '@/lib/cms/validation';
 import { canTransitionPublication } from '@/lib/cms/workflow';
-import type { AdminSession } from '@/lib/auth/admin-session';
 import type { CmsMediaInput, CmsRecord } from '@/lib/cms/types';
 import { publicationStatuses } from '@/lib/cms/types';
 import type { PublicationStatus } from '@/lib/models';
@@ -16,16 +14,6 @@ import { deleteStoredImage, storeValidatedImage, validateImageFile } from '@/lib
 import { parseExternalVideoUrl } from '@/lib/security/external-video';
 
 export const dynamic = 'force-dynamic';
-
-async function resolveActorId(session: AdminSession) {
-  if (session.authMethod !== 'bootstrap') return session.id;
-  const email = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase() || '';
-  if (!email) throw new Error('BOOTSTRAP_EMAIL_NOT_CONFIGURED');
-  const existing = await findUserByEmail(email);
-  if (existing?.role === 'super_admin' && existing.isActive && !existing.deletedAt) return existing.id;
-  const admin = await seedInitialSuperAdmin({ email, fullName: 'Super Admin Ruang Sejahtera' });
-  return admin.id;
-}
 
 async function readArticleImage(form: FormData, ownerId: string): Promise<CmsMediaInput> {
   const value = form.get('imageFile');
@@ -117,7 +105,7 @@ export async function POST(request: Request) {
 
   let uploadedObjectKeys: string[] = [];
   try {
-    const actorId = await resolveActorId(session);
+    const actorId = session.id;
 
     if (intent === 'create') {
       if (session.role === 'member') {
@@ -125,7 +113,7 @@ export async function POST(request: Request) {
           return NextResponse.json({ error: 'Anggota harus lulus tes sebelum mengirim berita.' }, { status: 403 });
         }
       } else if (!canAccessControlPlane(session.role) || !(await hasControlPlaneAccess(session))) {
-        return NextResponse.json({ error: 'Akses control plane belum disetujui.' }, { status: 403 });
+        return NextResponse.json({ error: 'Akses panel administrasi tidak diizinkan.' }, { status: 403 });
       }
       if (!can(session.role, 'content.create')) return NextResponse.json({ error: 'Tidak memiliki izin.' }, { status: 403 });
       const record = parseCreateContent(collectionValue, form, actorId);
@@ -137,7 +125,7 @@ export async function POST(request: Request) {
     }
 
     if (!canAccessControlPlane(session.role) || !(await hasControlPlaneAccess(session))) {
-      return NextResponse.json({ error: 'Akses control plane belum disetujui.' }, { status: 403 });
+      return NextResponse.json({ error: 'Akses panel administrasi tidak diizinkan.' }, { status: 403 });
     }
     const id = String(form.get('id') || '').trim();
     const records = await listCmsRecords();
