@@ -1,17 +1,14 @@
 import Link from 'next/link';
 import { rolePermissions } from '@/lib/auth/permissions';
-import { getBootstrapAuthStatus, requireSuperAdminSession } from '@/lib/auth/admin-session';
+import { requireSuperAdminSession } from '@/lib/auth/admin-session';
 import { getIdentityStatus } from '@/lib/auth/config';
-import { getControlPlaneSecurityStatus } from '@/lib/auth/control-plane-gate';
 import { getCmsWriteStatus } from '@/lib/cms/store';
 import { listCoreManagers } from '@/lib/db/users';
 
 export default async function AdminSystemPage({ searchParams }: { searchParams: Promise<{ manager?: string }> }) {
   const session = await requireSuperAdminSession();
   const { manager } = await searchParams;
-  const auth = getBootstrapAuthStatus();
   const identity = getIdentityStatus();
-  const security = getControlPlaneSecurityStatus();
   const cms = getCmsWriteStatus();
   const coreManagers = identity.database ? await listCoreManagers() : [];
 
@@ -31,13 +28,12 @@ export default async function AdminSystemPage({ searchParams }: { searchParams: 
         <section className="rounded-2xl border border-neutral-200 bg-white p-6">
           <h2 className="font-heading text-xl font-extrabold">Autentikasi</h2>
           <dl className="mt-5 space-y-3 text-sm">
+            <div className="flex justify-between gap-4"><dt>Jalur login</dt><dd className="font-bold">/masuk</dd></div>
             <div className="flex justify-between gap-4"><dt>Identity provider</dt><dd className="font-bold">{identity.clerk ? 'configured' : 'disabled'}</dd></div>
             <div className="flex justify-between gap-4"><dt>Database</dt><dd className="font-bold">{identity.database ? 'configured' : 'disabled'}</dd></div>
-            <div className="flex justify-between gap-4"><dt>Webhook identity</dt><dd className="font-bold">{identity.productionReady ? 'configured' : 'disabled'}</dd></div>
-            <div className="flex justify-between gap-4"><dt>Login Super Admin</dt><dd className="font-bold">{auth.configured ? 'simple login aktif' : 'disabled'}</dd></div>
-            <div className="flex justify-between gap-4"><dt>Control Plane gate</dt><dd className="font-bold">{auth.configured ? 'login sederhana sementara' : security.mode === 'approval' ? 'approval sementara' : 'MFA'}</dd></div>
+            <div className="flex justify-between gap-4"><dt>Webhook identity</dt><dd className="font-bold">{identity.productionReady ? 'configured' : 'belum lengkap'}</dd></div>
           </dl>
-          <p className="mt-5 text-sm leading-7 text-neutral-600">{auth.configured ? 'Login sederhana sedang dipakai untuk tahap pembangunan. Matikan flag bootstrap dan aktifkan pengamanan final sebelum website dinyatakan siap produksi.' : security.mode === 'approval' ? 'MFA belum tersedia pada provider saat ini. Approval sementara hanya menjadi lapisan kompensasi dan terikat ke sesi.' : 'MFA diwajibkan pada Super Admin sebelum Control Plane dapat dibuka.'}</p>
+          <p className="mt-5 text-sm leading-7 text-neutral-600">Super Admin, Core Manager, dan Anggota menggunakan login akun yang sama. Perbedaan akses ditentukan otomatis oleh role di server setelah pengguna berhasil masuk.</p>
         </section>
 
         <section className="rounded-2xl border border-neutral-200 bg-white p-6">
