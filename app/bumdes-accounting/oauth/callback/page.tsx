@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
-const CANARY_URL = 'https://script.google.com/macros/s/AKfycbzd-rm09OoqAHumfF8quLu9jsiggRxjYn6bs7kKXlULydBYINQyuHusyJIjUThYEwUi/exec';
-const ALLOWED_PARAMS = ['code', 'state', 'scope', 'authuser', 'prompt', 'error', 'error_description'];
+const CALLBACK_TYPE = 'BUMDES_GOOGLE_OIDC_CALLBACK';
+const ALLOWED_PARAMS = ['code', 'state', 'scope', 'authuser', 'prompt', 'error', 'error_description'] as const;
 
 export default function BumdesAccountingOAuthCallbackPage() {
   const [message, setMessage] = useState('Menyelesaikan login Google...');
@@ -11,19 +11,32 @@ export default function BumdesAccountingOAuthCallbackPage() {
   useEffect(() => {
     try {
       const current = new URL(window.location.href);
-      const target = new URL(CANARY_URL);
+      const payload: Record<string, string> = { type: CALLBACK_TYPE };
 
       for (const key of ALLOWED_PARAMS) {
         const value = current.searchParams.get(key);
-        if (value) target.searchParams.set(key, value);
+        if (value) payload[key] = value;
       }
 
-      if (!target.searchParams.has('code') && !target.searchParams.has('error')) {
+      if (!payload.code && !payload.error) {
         setMessage('Callback Google tidak membawa hasil autentikasi. Silakan kembali ke aplikasi dan login ulang.');
         return;
       }
 
-      window.location.replace(target.toString());
+      if (!window.opener || window.opener.closed) {
+        setMessage('Jendela aplikasi asal tidak tersedia. Tutup halaman ini lalu ulangi login dari aplikasi.');
+        return;
+      }
+
+      // The opener is the sandboxed Apps Script HTML iframe, whose googleusercontent
+      // origin is generated dynamically. The opener validates this page's fixed
+      // ruangsejahtera.web.id origin before accepting the one-time OAuth result.
+      window.opener.postMessage(payload, '*');
+      setMessage('Login Google diterima. Jendela ini akan ditutup otomatis.');
+
+      window.setTimeout(() => {
+        window.close();
+      }, 250);
     } catch {
       setMessage('Callback Google tidak dapat diproses. Silakan kembali ke aplikasi dan login ulang.');
     }
