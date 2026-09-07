@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { isDatabaseConfigured } from '@/lib/auth/config';
 import { requireSuperAdminSession } from '@/lib/auth/admin-session';
-import { createCoreManager, findUserByEmail } from '@/lib/db/users';
+import { createCoreManager } from '@/lib/db/users';
 import { hasAllowedFormContentType, isDeclaredBodyWithinLimit } from '@/lib/security/request-limits';
 import { isSameOriginRequest } from '@/lib/security/same-origin';
 
@@ -32,14 +32,7 @@ export async function POST(request: Request) {
     const fullName = String(form.get('fullName') || '');
     const email = String(form.get('email') || '');
 
-    let actorUserId: string | null = session.authMethod === 'clerk' ? session.id : null;
-    if (session.authMethod === 'bootstrap') {
-      const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim() || '';
-      const bootstrapUser = bootstrapEmail ? await findUserByEmail(bootstrapEmail) : null;
-      actorUserId = bootstrapUser?.role === 'super_admin' ? bootstrapUser.id : null;
-    }
-
-    await createCoreManager({ fullName, email, actorUserId });
+    await createCoreManager({ fullName, email, actorUserId: session.id });
     return redirectToSystem(request, 'created');
   } catch (error) {
     const reason = error instanceof Error ? error.message : '';
