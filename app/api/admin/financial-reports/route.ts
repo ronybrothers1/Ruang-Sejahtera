@@ -1,24 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getAdminSession, hasControlPlaneAccess } from '@/lib/auth/admin-session';
 import { can } from '@/lib/auth/permissions';
-import { findUserByEmail, seedInitialSuperAdmin } from '@/lib/db/users';
-import type { AdminSession } from '@/lib/auth/admin-session';
 import { archiveFinancialReport, createFinancialReport, publishFinancialReport, updateFinancialReport } from '@/lib/finance';
 import { isDatabaseConfigured } from '@/lib/auth/config';
 import { hasAllowedFormContentType, isDeclaredBodyWithinLimit } from '@/lib/security/request-limits';
 import { isSameOriginRequest } from '@/lib/security/same-origin';
 
 export const dynamic = 'force-dynamic';
-
-async function resolveActorId(session: AdminSession) {
-  if (session.authMethod !== 'bootstrap') return session.id;
-  const email = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase() || '';
-  if (!email) throw new Error('BOOTSTRAP_EMAIL_NOT_CONFIGURED');
-  const existing = await findUserByEmail(email);
-  if (existing?.role === 'super_admin' && existing.isActive && !existing.deletedAt) return existing.id;
-  const admin = await seedInitialSuperAdmin({ email, fullName: 'Super Admin Ruang Sejahtera' });
-  return admin.id;
-}
 
 function positiveInteger(form: FormData, key: string) {
   const raw = String(form.get(key) || '').trim();
@@ -59,7 +47,7 @@ export async function POST(request: Request) {
   const intent = String(form.get('intent') || '');
 
   try {
-    const actorUserId = await resolveActorId(session);
+    const actorUserId = session.id;
     if (intent === 'create') {
       const report = await createFinancialReport({ ...reportInput(form), actorUserId });
       return redirectWith(request, `saved=${report.id}`);
