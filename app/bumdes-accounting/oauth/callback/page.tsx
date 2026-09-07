@@ -1,42 +1,41 @@
-'use client';
+import { redirect } from 'next/navigation';
 
-import { useEffect } from 'react';
-
-const CALLBACK_TYPE = 'BUMDES_GOOGLE_OIDC_CALLBACK';
+const CANARY_URL = 'https://script.google.com/macros/s/AKfycbz8hvrwqvDS4H55srRP14IpgSKHHG_WQdNtCI6qCvAmcS4w7uYye-Qoz9-TVr01WIA9/exec';
 const ALLOWED_PARAMS = ['code', 'state', 'scope', 'authuser', 'prompt', 'error', 'error_description'] as const;
 
-export default function BumdesAccountingOAuthCallbackPage() {
-  useEffect(() => {
-    try {
-      const current = new URL(window.location.href);
-      const payload: Record<string, string> = { type: CALLBACK_TYPE };
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-      for (const key of ALLOWED_PARAMS) {
-        const value = current.searchParams.get(key);
-        if (value) payload[key] = value;
-      }
+export const dynamic = 'force-dynamic';
 
-      if ((!payload.code && !payload.error) || !window.opener || window.opener.closed) {
-        return;
-      }
+export default async function BumdesAccountingOAuthCallbackPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const incoming = await searchParams;
+  const outgoing = new URLSearchParams();
 
-      // The opener is the sandboxed Apps Script HTML iframe. Its googleusercontent
-      // origin is generated dynamically, so the opener validates this page's fixed
-      // ruangsejahtera.web.id origin before accepting the one-time OAuth result.
-      window.opener.postMessage(payload, '*');
-      window.setTimeout(() => window.close(), 250);
-    } catch {
-      // Fail closed. No token or credential is stored on this page.
-    }
-  }, []);
+  for (const key of ALLOWED_PARAMS) {
+    const raw = incoming[key];
+    const value = Array.isArray(raw) ? raw[0] : raw;
+    if (value) outgoing.set(key, value);
+  }
+
+  const hasCode = outgoing.has('code');
+  const hasError = outgoing.has('error');
+  const hasState = outgoing.has('state');
+
+  if (hasState && hasCode !== hasError) {
+    redirect(`${CANARY_URL}?${outgoing.toString()}`);
+  }
 
   return (
     <main style={{ minHeight: '70vh', display: 'grid', placeItems: 'center', padding: '48px 24px' }}>
       <section style={{ maxWidth: 680 }}>
         <p style={{ fontWeight: 700, letterSpacing: '0.04em' }}>BUM DESA ACCOUNTING</p>
-        <h1>Menyelesaikan login</h1>
-        <p>Memproses hasil login Google dan mengembalikannya ke aplikasi.</p>
-        <p>Halaman ini tidak menyimpan token Google atau kredensial pengguna.</p>
+        <h1>Callback login tidak lengkap</h1>
+        <p>Google tidak mengirimkan kombinasi parameter OAuth yang dapat diproses dengan aman.</p>
+        <p>Silakan kembali ke BUM Desa Accounting dan mulai proses login kembali.</p>
       </section>
     </main>
   );
