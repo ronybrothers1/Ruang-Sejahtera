@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
 
-const CANARY_URL = 'https://script.google.com/macros/s/AKfycbz8hvrwqvDS4H55srRP14IpgSKHHG_WQdNtCI6qCvAmcS4w7uYye-Qoz9-TVr01WIA9/exec';
+const CANARY_URL =
+  'https://script.google.com/macros/s/AKfycbz8hvrwqvDS4H55srR' +
+  'P14IpgSKHHG_WQdNtCI6qCvAmcS4w7uYye-Qoz9-TVr01WIA9/exec';
 const ALLOWED_PARAMS = ['code', 'state', 'scope', 'authuser', 'prompt', 'error', 'error_description'] as const;
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
