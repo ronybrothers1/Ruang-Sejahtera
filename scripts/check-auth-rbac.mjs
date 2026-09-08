@@ -8,6 +8,9 @@ const proxy = readFileSync('proxy.ts', 'utf8');
 const session = readFileSync('lib/auth/admin-session.ts', 'utf8');
 const sessionAudit = readFileSync('lib/auth/session-audit.ts', 'utf8');
 const clerkWebhook = readFileSync('app/api/webhooks/clerk/route.ts', 'utf8');
+const signInPage = readFileSync('app/masuk/[[...sign-in]]/page.tsx', 'utf8');
+const signUpPage = readFileSync('app/daftar/[[...sign-up]]/page.tsx', 'utf8');
+const authRedirectPage = readFileSync('app/auth/redirect/page.tsx', 'utf8');
 const adminLogin = readFileSync('app/admin/login/page.tsx', 'utf8');
 const envExample = readFileSync('.env.example', 'utf8');
 const contentRoute = readFileSync('app/api/admin/content/route.ts', 'utf8');
@@ -46,10 +49,18 @@ requireSource(
     && sessionAudit.includes('auditLogs.resourceId'),
   'Session audit must cover login/logout/revocation, retry when identity sync lags, and suppress duplicate deliveries.',
 );
+requireSource(
+  signInPage.includes("'/auth/redirect'")
+    && signUpPage.includes('forceRedirectUrl="/auth/redirect"')
+    && authRedirectPage.includes("canAccessControlPlane(session.role) ? '/admin' : '/akun'")
+    && envExample.includes('NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/auth/redirect')
+    && envExample.includes('NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/auth/redirect'),
+  'Generic sign-in/sign-up completion must resolve the application destination from the server-side role.',
+);
 
 if (failures.length) {
   console.error(`Auth/RBAC audit failed (${failures.length}):\n${failures.map((item) => `- ${item}`).join('\n')}`);
   process.exit(1);
 }
 
-console.log('Auth/RBAC audit passed: shared Clerk login, three roles, server-side admin authorization, session lifecycle auditing, Super Admin-only publishing/finance, and protected routes verified.');
+console.log('Auth/RBAC audit passed: shared Clerk login, role-aware redirects, three roles, server-side admin authorization, session lifecycle auditing, Super Admin-only publishing/finance, and protected routes verified.');
