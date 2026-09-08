@@ -74,7 +74,7 @@ Salin `.env.example` ke environment deployment. Jangan commit secret.
 ## Tahap produksi berikutnya
 
 1. Hubungkan Clerk dan Neon ke project Vercel, jalankan migrasi, seed Super Admin, konfigurasi webhook, lalu verifikasi lifecycle session serta redirect role end-to-end.
-2. Implementasikan formulir data anggota, ujian, penilaian manusia, approval, dan kartu anggota dari schema yang tersedia.
+2. Verifikasi alur keanggotaan, ujian, kartu anggota, dan pengajuan lima program terhadap database hasil migrasi.
 3. Hubungkan workflow kurasi ke persistence adapter PostgreSQL dan audit log immutable.
 4. Migrasi data kegiatan, berita, galeri dan dokumentasi asli melalui workflow publikasi.
 5. Konfigurasi domain resmi, kontak, legalitas, organisasi, dan akun sosial.
