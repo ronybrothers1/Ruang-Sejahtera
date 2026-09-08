@@ -17,6 +17,13 @@ const stagingOnlyChecks = [
   ['hardcoded public rupiah amount outside staging preview', /Rp\s*[0-9][0-9.,]*/i],
   ['known sample identity outside staging preview', /Siti Aisyah|Maria L\. Kolo|Slamet Riyadi/i],
 ];
+const officialProgramSlugs = [
+  'berbagi-rasa',
+  'rehat',
+  'berbagi-air-bersih',
+  'berbagi-masa-depan',
+  'bantuan-kesehatan',
+];
 const cmsFiles = [
   ['articles', 'content/cms/articles.json'],
   ['activities', 'content/cms/activities.json'],
@@ -52,6 +59,14 @@ for (const root of roots) {
     }
   }
 }
+
+const publicProgramCatalog = await fs.readFile(stagingPreviewFile, 'utf8');
+const programMigration = await fs.readFile('db/migrations/0005_program_catalog.sql', 'utf8');
+for (const slug of officialProgramSlugs) {
+  if (!publicProgramCatalog.includes(`slug: '${slug}'`)) violations.push(`${stagingPreviewFile}: official program slug missing: ${slug}`);
+  if (!programMigration.includes(`('${slug}',`)) violations.push(`db/migrations/0005_program_catalog.sql: official program seed missing: ${slug}`);
+}
+if (publicProgramCatalog.includes("slug: 'merakyat'")) violations.push(`${stagingPreviewFile}: retired Merakyat program must not remain in the public catalog`);
 
 for (const [collection, file] of cmsFiles) {
   let records;
@@ -92,4 +107,4 @@ if (violations.length) {
   process.exit(1);
 }
 
-console.log('Public-content integrity guard passed. Preview data is isolated and explicitly marked; production content checks passed.');
+console.log('Public-content integrity guard passed. Preview data is isolated, the official five-program catalog is consistent, and production content checks passed.');
