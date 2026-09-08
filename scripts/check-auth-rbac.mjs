@@ -4,6 +4,7 @@ const permissions = readFileSync('lib/auth/permissions.ts', 'utf8');
 const models = readFileSync('lib/models.ts', 'utf8');
 const workflow = readFileSync('lib/cms/workflow.ts', 'utf8');
 const schema = readFileSync('lib/db/schema.ts', 'utf8');
+const users = readFileSync('lib/db/users.ts', 'utf8');
 const proxy = readFileSync('proxy.ts', 'utf8');
 const session = readFileSync('lib/auth/admin-session.ts', 'utf8');
 const sessionAudit = readFileSync('lib/auth/session-audit.ts', 'utf8');
@@ -50,6 +51,14 @@ requireSource(
   'Session audit must cover login/logout/revocation, retry when identity sync lags, and suppress duplicate deliveries.',
 );
 requireSource(
+  users.includes("action: 'identity.user_deleted'")
+    && users.includes('identityProviderIdHash')
+    && users.includes("createHash('sha256')")
+    && sessionAudit.includes("eq(auditLogs.action, 'identity.user_deleted')")
+    && sessionAudit.includes('identityWasDeleted'),
+  'Identity deletion must be audit-logged with a hash and terminate later session-event retries safely.',
+);
+requireSource(
   signInPage.includes("'/auth/redirect'")
     && signUpPage.includes('forceRedirectUrl="/auth/redirect"')
     && authRedirectPage.includes("canAccessControlPlane(session.role) ? '/admin' : '/akun'")
@@ -63,4 +72,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Auth/RBAC audit passed: shared Clerk login, role-aware redirects, three roles, server-side admin authorization, session lifecycle auditing, Super Admin-only publishing/finance, and protected routes verified.');
+console.log('Auth/RBAC audit passed: shared Clerk login, role-aware redirects, three roles, server-side admin authorization, lifecycle/deletion auditing, Super Admin-only publishing/finance, and protected routes verified.');
