@@ -6,6 +6,8 @@ const workflow = readFileSync('lib/cms/workflow.ts', 'utf8');
 const schema = readFileSync('lib/db/schema.ts', 'utf8');
 const proxy = readFileSync('proxy.ts', 'utf8');
 const session = readFileSync('lib/auth/admin-session.ts', 'utf8');
+const sessionAudit = readFileSync('lib/auth/session-audit.ts', 'utf8');
+const clerkWebhook = readFileSync('app/api/webhooks/clerk/route.ts', 'utf8');
 const adminLogin = readFileSync('app/admin/login/page.tsx', 'utf8');
 const envExample = readFileSync('.env.example', 'utf8');
 const contentRoute = readFileSync('app/api/admin/content/route.ts', 'utf8');
@@ -31,10 +33,23 @@ requireSource(session.includes("authMethod: 'clerk'") && !session.includes('veri
 requireSource(!/ADMIN_BOOTSTRAP_|ADMIN_CONTROL_PLANE_|ADMIN_SESSION_SECRET/.test(envExample), 'Legacy bootstrap/approval secrets must not remain in the environment contract.');
 requireSource(contentRoute.includes('hasControlPlaneAccess'), 'Admin content mutations must enforce control-plane authorization server-side.');
 requireSource(coreManagersRoute.includes('requireSuperAdminSession') && coreManagersRoute.includes('createCoreManager'), 'Core Manager provisioning must be Super Admin-only and use the server-side user service.');
+requireSource(
+  ['session.created', 'session.ended', 'session.revoked'].every((eventType) => clerkWebhook.includes(eventType))
+    && clerkWebhook.includes('auditIdentitySession'),
+  'Clerk session lifecycle events must be written to the application audit trail.',
+);
+requireSource(
+  sessionAudit.includes("'identity.login'")
+    && sessionAudit.includes("'identity.logout'")
+    && sessionAudit.includes("'identity.session_revoked'")
+    && sessionAudit.includes('SESSION_AUDIT_USER_NOT_SYNCED')
+    && sessionAudit.includes('auditLogs.resourceId'),
+  'Session audit must cover login/logout/revocation, retry when identity sync lags, and suppress duplicate deliveries.',
+);
 
 if (failures.length) {
   console.error(`Auth/RBAC audit failed (${failures.length}):\n${failures.map((item) => `- ${item}`).join('\n')}`);
   process.exit(1);
 }
 
-console.log('Auth/RBAC audit passed: shared Clerk login, three roles, server-side admin authorization, Super Admin-only publishing/finance, and protected routes verified.');
+console.log('Auth/RBAC audit passed: shared Clerk login, three roles, server-side admin authorization, session lifecycle auditing, Super Admin-only publishing/finance, and protected routes verified.');
