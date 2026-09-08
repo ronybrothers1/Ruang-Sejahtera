@@ -18,7 +18,9 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
   const session = await getCurrentUserSession();
   if (session) redirect(canAccessControlPlane(session.role) ? '/admin' : '/akun');
   const { redirect_url: redirectUrl } = await searchParams;
-  const destination = safeInternalRedirect(redirectUrl);
+  const destination = redirectUrl
+    ? safeInternalRedirect(redirectUrl, '/auth/redirect')
+    : '/auth/redirect';
 
   return (
     <AuthShell
