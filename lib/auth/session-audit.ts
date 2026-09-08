@@ -1,9 +1,27 @@
-import { and, eq } from 'drizzle-orm';
+import { createHash } from 'node:crypto';
+import { and, eq, sql } from 'drizzle-orm';
 import { getDb } from '@/lib/db';
 import { auditLogs } from '@/lib/db/schema';
 import { findUserByIdentityProviderId } from '@/lib/db/users';
 
 export type IdentitySessionAuditAction = 'identity.login' | 'identity.logout' | 'identity.session_revoked';
+
+function identityProviderIdHash(value: string) {
+  return createHash('sha256').update(value).digest('hex');
+}
+
+async function identityWasDeleted(identityProviderId: string) {
+  const hash = identityProviderIdHash(identityProviderId);
+  const rows = await getDb().select({ id: auditLogs.id })
+    .from(auditLogs)
+    .where(and(
+      eq(auditLogs.action, 'identity.user_deleted'),
+      eq(auditLogs.resourceType, 'user'),
+      sql`${auditLogs.metadata}->>'identityProviderIdHash' = ${hash}`,
+    ))
+    .limit(1);
+  return Boolean(rows[0]);
+}
 
 export async function auditIdentitySession(input: {
   identityProviderId: string;
@@ -12,10 +30,13 @@ export async function auditIdentitySession(input: {
 }) {
   const user = await findUserByIdentityProviderId(input.identityProviderId);
   if (!user) {
-    // Clerk webhook delivery is asynchronous and event order is not guaranteed.
-    // Failing here lets the webhook endpoint return 503 so Clerk can retry after
-    // the user.created/user.updated event (or synchronous session sync) persists
-    // the application user.
+    // A terminal session event may legitimately arrive after Clerk's user.deleted
+    // event has already unlinked the external identity. The deletion audit proves
+    // that this identity was known and intentionally removed, so no retry is needed.
+    if (input.action !== 'identity.login' && await identityWasDeleted(input.identityProviderId)) return;
+
+    // Otherwise the most likely cause is webhook ordering: ask Clerk to retry after
+    // user.created/user.updated (or synchronous session sync) persists the user.
     throw new Error('SESSION_AUDIT_USER_NOT_SYNCED');
   }
 
