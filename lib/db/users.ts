@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { and, eq, isNull } from 'drizzle-orm';
 import type { MembershipStatus, UserRole } from '@/lib/models';
 import { getDb } from '@/lib/db';
@@ -24,6 +25,10 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function normalizeEmail(value: string) {
   return value.trim().toLowerCase();
+}
+
+function identityProviderIdHash(value: string) {
+  return createHash('sha256').update(value).digest('hex');
 }
 
 function nextVerifiedStatus(role: UserRole, current: MembershipStatus, emailVerified: boolean): MembershipStatus {
@@ -115,13 +120,28 @@ export async function deactivateIdentityUser(identityProviderId: string) {
   const db = getDb();
   const existing = await findUserByIdentityProviderId(identityProviderId);
   if (!existing) return null;
-  const deactivated = await db.update(users).set({
-    isActive: false,
-    identityProviderId: null,
-    deletedAt: new Date(),
-    updatedAt: new Date(),
-  }).where(eq(users.id, existing.id)).returning();
-  return deactivated[0] || null;
+
+  return db.transaction(async (tx) => {
+    await tx.insert(auditLogs).values({
+      actorUserId: existing.id,
+      actorRole: existing.role,
+      action: 'identity.user_deleted',
+      resourceType: 'user',
+      resourceId: existing.id,
+      metadata: {
+        provider: 'clerk',
+        identityProviderIdHash: identityProviderIdHash(identityProviderId),
+      },
+    });
+
+    const deactivated = await tx.update(users).set({
+      isActive: false,
+      identityProviderId: null,
+      deletedAt: new Date(),
+      updatedAt: new Date(),
+    }).where(eq(users.id, existing.id)).returning();
+    return deactivated[0] || null;
+  });
 }
 
 export async function seedInitialSuperAdmin(input: { email: string; fullName: string }) {
