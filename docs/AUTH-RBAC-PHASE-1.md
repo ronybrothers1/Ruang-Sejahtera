@@ -25,8 +25,9 @@ MFA may still be offered as an optional identity-provider feature in the future,
 - Clerk provides registration, sign-in, password recovery, sessions, and identity lifecycle.
 - Neon PostgreSQL is the application source of truth for role, membership status, content ownership, review state, finance authority, and audit logs.
 - Clerk identity IDs are foreign identity references only. Application role is never accepted from client-editable metadata.
-- Clerk webhooks are signature-verified before synchronizing a profile.
+- Clerk webhooks are signature-verified before synchronizing a profile or writing session lifecycle events.
 - A signed-in identity missing from PostgreSQL is synchronized server-side from the verified Clerk backend user record.
+- Login, logout, and administrative session revocation are written to the application audit trail from Clerk session events. Duplicate webhook deliveries are ignored, and a session event received before its user record exists returns a retryable server error rather than losing the audit entry.
 
 ## Role invariants
 
@@ -89,10 +90,11 @@ The seed creates the PostgreSQL profile without storing a password. The owner th
 2. Configure Neon `DATABASE_URL`.
 3. Configure Clerk paths `/masuk`, `/daftar`, and `/akun`.
 4. Enable the desired sign-in identifiers in Clerk. Email/password is required; username may also be enabled for convenience.
-5. Add the Clerk webhook `/api/webhooks/clerk` for `user.created`, `user.updated`, and `user.deleted`.
-6. Apply `npm run db:migrate` to the production database.
-7. Run the controlled Super Admin seed once.
-8. Verify sign-in, password recovery, logout, role redirect, member rejection from `/admin`, and Super Admin/Core Manager access on a preview deployment.
+5. Add the Clerk webhook `/api/webhooks/clerk` and subscribe to `user.created`, `user.updated`, `user.deleted`, `session.created`, `session.ended`, and `session.revoked`.
+6. Store the endpoint signing secret as `CLERK_WEBHOOK_SIGNING_SECRET` in the matching Vercel environment.
+7. Apply `npm run db:migrate` explicitly to the intended database. Migration is deliberately not part of the generic Vercel build command so preview deployments cannot silently mutate a production database.
+8. Run the controlled Super Admin seed once.
+9. Verify sign-in, password recovery, logout, role redirect, member rejection from `/admin`, Super Admin/Core Manager access, and session audit entries on a preview deployment.
 
 ## Environment policy
 
@@ -114,4 +116,4 @@ This reduces both operational friction and unnecessary authentication code while
 - `npm run auth:audit`
 - `npm run build`
 
-Production activation is not complete until provider credentials, migration, webhook delivery, and browser login flow have been verified on a Vercel preview deployment.
+Production activation is not complete until provider credentials, migration, webhook delivery, session audit delivery, and browser login flow have been verified on a Vercel preview deployment.
