@@ -2,17 +2,17 @@ import {
   Droplets,
   GraduationCap,
   HandHeart,
+  HeartPulse,
   Home,
-  Store,
   type LucideIcon,
 } from 'lucide-react';
 
 const programIcons: Record<string, LucideIcon> = {
   'berbagi-rasa': HandHeart,
-  merakyat: Store,
   rehat: Home,
   'berbagi-air-bersih': Droplets,
   'berbagi-masa-depan': GraduationCap,
+  'bantuan-kesehatan': HeartPulse,
 };
 
 export function ProgramMark({
