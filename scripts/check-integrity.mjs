@@ -17,12 +17,19 @@ const stagingOnlyChecks = [
   ['hardcoded public rupiah amount outside staging preview', /Rp\s*[0-9][0-9.,]*/i],
   ['known sample identity outside staging preview', /Siti Aisyah|Maria L\. Kolo|Slamet Riyadi/i],
 ];
+const officialProgramSlugs = [
+  'berbagi-rasa',
+  'rehat',
+  'berbagi-air-bersih',
+  'berbagi-masa-depan',
+  'bantuan-kesehatan',
+];
 const cmsFiles = [
   ['articles', 'content/cms/articles.json'],
   ['activities', 'content/cms/activities.json'],
   ['galleries', 'content/cms/galleries.json'],
 ];
-const validStatuses = new Set(['draft', 'review', 'published', 'archived']);
+const validStatuses = new Set(['draft', 'pending_review', 'revision_required', 'approved', 'rejected', 'published', 'archived']);
 
 async function walk(dir) {
   const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -53,6 +60,14 @@ for (const root of roots) {
   }
 }
 
+const publicProgramCatalog = await fs.readFile(stagingPreviewFile, 'utf8');
+const programMigration = await fs.readFile('db/migrations/0005_program_catalog.sql', 'utf8');
+for (const slug of officialProgramSlugs) {
+  if (!publicProgramCatalog.includes(`slug: '${slug}'`)) violations.push(`${stagingPreviewFile}: official program slug missing: ${slug}`);
+  if (!programMigration.includes(`('${slug}',`)) violations.push(`db/migrations/0005_program_catalog.sql: official program seed missing: ${slug}`);
+}
+if (publicProgramCatalog.includes("slug: 'merakyat'")) violations.push(`${stagingPreviewFile}: retired Merakyat program must not remain in the public catalog`);
+
 for (const [collection, file] of cmsFiles) {
   let records;
   try {
@@ -78,7 +93,10 @@ for (const [collection, file] of cmsFiles) {
     if (typeof record.createdAt !== 'string' || Number.isNaN(Date.parse(record.createdAt))) violations.push(`${file}: valid createdAt required`);
     if (typeof record.updatedAt !== 'string' || Number.isNaN(Date.parse(record.updatedAt))) violations.push(`${file}: valid updatedAt required`);
     if (typeof record.lastEditedBy !== 'string' || !record.lastEditedBy) violations.push(`${file}: lastEditedBy required`);
-    if (record.status === 'review' && (!record.reviewRequestedAt || !record.reviewRequestedBy)) violations.push(`${file}: review provenance required for ${collection}`);
+    if (record.status === 'pending_review' && (!record.reviewRequestedAt || !record.reviewRequestedBy)) violations.push(`${file}: review request provenance required for ${collection}`);
+    if (['revision_required', 'approved', 'rejected'].includes(record.status) && (!record.reviewedAt || !record.reviewedBy)) violations.push(`${file}: review decision provenance required for ${collection}`);
+    if (record.status === 'approved' && (!record.approvedAt || !record.approvedBy)) violations.push(`${file}: approval provenance required for ${collection}`);
+    if (record.status === 'rejected' && (!record.rejectedAt || !record.rejectedBy)) violations.push(`${file}: rejection provenance required for ${collection}`);
     if (record.status === 'published' && (!record.publishedAt || !record.publishedBy)) violations.push(`${file}: publication provenance required for ${collection}`);
     if (record.status === 'archived' && (!record.archivedAt || !record.archivedBy)) violations.push(`${file}: archive provenance required for ${collection}`);
   }
@@ -89,4 +107,4 @@ if (violations.length) {
   process.exit(1);
 }
 
-console.log('Public-content integrity guard passed. Preview data is isolated and explicitly marked; production content checks passed.');
+console.log('Public-content integrity guard passed. Preview data is isolated, the official five-program catalog is consistent, and production content checks passed.');

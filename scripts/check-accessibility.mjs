@@ -11,6 +11,7 @@ const pageState = read('components/PageState.tsx');
 const tiktok = read('components/TikTokEmbed.tsx');
 const gallery = read('app/galeri/page.tsx');
 const home = read('app/page.tsx');
+const heroCarousel = read('components/HeroGalleryCarousel.tsx');
 const adminLogin = read('app/admin/login/page.tsx');
 const notFound = read('app/not-found.tsx');
 const globalCss = read('app/globals.css');
@@ -60,7 +61,13 @@ check(gallery.includes('aria-label="Buka profil TikTok resmi @ruangsejahtera.idn
 check(media.includes('autoplay=1') === false && tiktok.includes('autoplay=0&loop=0'), 'WCAG 1.4.2/2.2.2: embedded media does not autoplay or loop');
 
 check(home.includes('aria-label={`Lihat kegiatan: ${activity.title}`}'), 'WCAG 2.4.4: repeated activity links expose a unique purpose');
-check(home.includes('aria-label={`Lihat preview berita: ${item.title}`}'), 'WCAG 2.4.4: repeated preview links expose a unique purpose');
+check(home.includes("aria-label={`Lihat ${item.isLive ? 'berita' : 'arsip berita contoh'}: ${item.title}`}"), 'WCAG 2.4.4: repeated preview links expose a unique purpose');
+check(home.includes('<ul className="shell trust-stat-grid">'), 'WCAG 1.3.1: homepage impact metrics expose list relationships');
+check(home.includes('className="trust-stat-icon" aria-hidden="true"'), 'WCAG 1.1.1: impact icons remain decorative beside complete text labels');
+check(heroCarousel.includes('aria-roledescription="carousel"') && heroCarousel.includes('aria-roledescription="slide"'), 'WCAG 1.3.1/4.1.2: documentary carousel and slide semantics are exposed');
+check(heroCarousel.includes('aria-live="polite"') && heroCarousel.includes('aria-atomic="true"'), 'WCAG 4.1.3: changed documentary captions are announced politely');
+check(heroCarousel.includes('type="button"') && heroCarousel.includes('aria-label="Tampilkan dokumentasi sebelumnya"') && heroCarousel.includes('aria-label="Tampilkan dokumentasi berikutnya"'), 'WCAG 2.1.1/2.4.6: carousel controls are keyboard-operable and named');
+check(heroCarousel.includes("event.key === 'ArrowLeft'") && heroCarousel.includes("event.key === 'ArrowRight'"), 'WCAG 2.1.1: carousel supports directional keyboard operation');
 check(notFound.includes("title: 'Halaman Tidak Ditemukan'"), 'WCAG 2.4.2: the 404 state has a meaningful page title');
 
 for (const file of [...sourceFiles('app'), ...sourceFiles('components')]) {

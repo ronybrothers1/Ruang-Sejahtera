@@ -5,6 +5,7 @@ import { requireAdminSession } from '@/lib/auth/admin-session';
 import { getCmsWriteStatus } from '@/lib/cms/store';
 import { programs } from '@/lib/content';
 import type { CmsCollection } from '@/lib/cms/types';
+import { RichTextEditor } from '@/components/RichTextEditor';
 
 const typeMap: Record<string, { label: string; collection: CmsCollection }> = {
   berita: { label: 'Berita', collection: 'articles' },
@@ -29,7 +30,7 @@ export default async function NewContentPage({ params }: { params: Promise<{ typ
 
       {!cms.configured ? <div role="status" className="status-message-warning mt-7 rounded-xl border p-5 text-sm leading-6"><strong>Mode baca saja.</strong> Backend tulis CMS belum tersedia sehingga tombol simpan dinonaktifkan. Form ini tetap menunjukkan schema input produksi tanpa menyimpan data ke penyimpanan sementara.</div> : null}
 
-      <form action="/api/admin/content" method="post" className="mt-8 space-y-6 rounded-2xl border border-neutral-200 bg-white p-6 md:p-8">
+      <form action="/api/admin/content" method="post" encType="multipart/form-data" className="mt-8 space-y-6 rounded-2xl border border-neutral-200 bg-white p-6 md:p-8">
         <input type="hidden" name="intent" value="create" />
         <input type="hidden" name="collection" value={config.collection} />
         <div className="grid gap-5 md:grid-cols-2">
@@ -38,16 +39,26 @@ export default async function NewContentPage({ params }: { params: Promise<{ typ
         </div>
 
         {config.collection === 'articles' ? <>
-          <label className="block text-sm font-bold">Kategori<input name="category" required maxLength={80} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label>
+          <div className="grid gap-5 md:grid-cols-2">
+            <label className="text-sm font-bold">Kategori<input name="category" required maxLength={80} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label>
+            <label className="text-sm font-bold">Gambar utama<input name="imageFile" type="file" required accept="image/jpeg,image/png,image/webp" className="mt-2 block min-h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 py-3 font-normal file:mr-3 file:rounded-lg file:border-0 file:bg-neutral-100 file:px-3 file:py-2 file:font-semibold" /><span className="mt-2 block text-xs font-normal text-neutral-500">JPG, PNG, atau WEBP. Maksimal 2 MB.</span></label>
+          </div>
+          <label className="block text-sm font-bold">Teks alternatif gambar<input name="imageAlt" required maxLength={160} placeholder="Contoh: Relawan membagikan paket pangan" className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /><span className="mt-2 block text-xs font-normal text-neutral-500">Deskripsi singkat agar gambar tetap dapat dipahami.</span></label>
+          <label className="block text-sm font-bold">Keterangan gambar <span className="font-normal text-neutral-500">(opsional)</span><input name="imageCaption" maxLength={240} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label>
           <label className="block text-sm font-bold">Ringkasan<input name="excerpt" required maxLength={420} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label>
-          <label className="block text-sm font-bold">Isi<textarea name="body" required maxLength={20000} rows={14} className="mt-2 w-full rounded-xl border border-neutral-300 p-4 font-normal leading-7" /></label>
+          <label className="block text-sm font-bold">Isi<RichTextEditor name="body" /></label>
         </> : null}
 
         {config.collection === 'activities' ? <>
           <label className="block text-sm font-bold">Ringkasan<input name="summary" required maxLength={500} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label>
           <div className="grid gap-5 md:grid-cols-2"><label className="text-sm font-bold">Tanggal kegiatan<input name="activityDate" type="date" required className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label><label className="text-sm font-bold">Lokasi<input name="locationLabel" required maxLength={180} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label></div>
           <label className="block text-sm font-bold">Program<select name="programSlug" required className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 bg-white px-4 font-normal"><option value="">Pilih program</option>{programs.map((program) => <option key={program.slug} value={program.slug}>{program.name}</option>)}</select></label>
-          <label className="block text-sm font-bold">Isi<textarea name="body" required maxLength={20000} rows={12} className="mt-2 w-full rounded-xl border border-neutral-300 p-4 font-normal leading-7" /></label>
+          <div className="grid gap-5 md:grid-cols-2">
+            <label className="text-sm font-bold">Foto kegiatan <span className="font-normal text-neutral-500">(opsional)</span><input name="imageFile" type="file" accept="image/jpeg,image/png,image/webp" className="mt-2 block min-h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 py-3 font-normal file:mr-3 file:rounded-lg file:border-0 file:bg-neutral-100 file:px-3 file:py-2 file:font-semibold" /><span className="mt-2 block text-xs font-normal text-neutral-500">JPG, PNG, atau WEBP. Maksimal 2 MB.</span></label>
+            <label className="text-sm font-bold">URL video TikTok/Instagram <span className="font-normal text-neutral-500">(opsional)</span><input name="videoUrl" type="url" placeholder="https://www.tiktok.com/@.../video/..." className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /><span className="mt-2 block text-xs font-normal text-neutral-500">Video akan ditampilkan sebagai embed dari URL HTTPS yang valid.</span></label>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2"><label className="text-sm font-bold">Teks alternatif foto <span className="font-normal text-neutral-500">(wajib jika foto dipilih)</span><input name="imageAlt" maxLength={160} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label><label className="text-sm font-bold">Keterangan foto <span className="font-normal text-neutral-500">(opsional)</span><input name="imageCaption" maxLength={240} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 px-4 font-normal" /></label></div>
+          <label className="block text-sm font-bold">Isi<RichTextEditor name="body" /></label>
         </> : null}
 
         {config.collection === 'galleries' ? <label className="block text-sm font-bold">Ringkasan<textarea name="summary" required maxLength={700} rows={6} className="mt-2 w-full rounded-xl border border-neutral-300 p-4 font-normal leading-7" /></label> : null}

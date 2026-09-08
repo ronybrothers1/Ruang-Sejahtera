@@ -7,11 +7,13 @@ import { PreviewNotice } from '@/components/PreviewNotice';
 import { SectionNavigation } from '@/components/SectionNavigation';
 import { programs } from '@/lib/content';
 import { aboutNavItems } from '@/lib/navigation';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: 'Tentang Kami',
   description: 'Profil dan ruang akuntabilitas Yayasan Ruang Sejahtera.',
-};
+  path: '/tentang-kami',
+});
 
 const publicPrinciples = [
   [HeartHandshake, 'Martabat manusia', 'Informasi dan dokumentasi bantuan perlu menjaga martabat, privasi, dan konteks penerima manfaat.'],

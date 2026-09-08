@@ -6,8 +6,9 @@ import { PreviewNotice } from '@/components/PreviewNotice';
 import { PreviewForm } from '@/components/PreviewForm';
 import { sampleContact } from '@/lib/content';
 import { whatsappUrl } from '@/lib/site';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Kontak', description: 'Kanal kontak Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = createPageMetadata({ title: 'Kontak', description: 'Kanal kontak Yayasan Ruang Sejahtera.', path: '/kontak' });
 const contactIcons = [MapPin, Phone, Mail];
 
 export default function ContactPage() {

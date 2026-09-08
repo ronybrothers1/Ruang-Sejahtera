@@ -1,137 +1,91 @@
-import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
-import { cookies } from 'next/headers';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
-import type { AdminRole } from '@/lib/models';
+import { isClerkConfigured, isDatabaseConfigured } from '@/lib/auth/config';
+import { canAccessControlPlane } from '@/lib/auth/permissions';
+import { syncClerkUser } from '@/lib/auth/identity-sync';
+import { findUserByIdentityProviderId } from '@/lib/db/users';
+import type { AdminRole, MembershipStatus } from '@/lib/models';
 
-export const ADMIN_SESSION_COOKIE = 'rs_admin_session';
-const SESSION_TTL_SECONDS = 4 * 60 * 60;
-const roles: AdminRole[] = ['super_admin', 'content_admin', 'finance', 'editor'];
+const SESSION_DISPLAY_TTL_SECONDS = 24 * 60 * 60;
 
 export type AdminSession = {
   id: string;
   role: AdminRole;
+  email?: string;
+  fullName?: string;
+  membershipStatus: MembershipStatus;
+  identityProviderId: string;
+  sessionId: string;
+  authMethod: 'clerk';
+  /** Kept for backward-compatible UI contracts. MFA is not an application access gate. */
+  mfaRequired: false;
   issuedAt: number;
   expiresAt: number;
 };
 
-type SessionPayload = {
-  sub: string;
-  role: AdminRole;
-  iat: number;
-  exp: number;
-};
+async function getClerkSession(): Promise<AdminSession | null> {
+  if (!isClerkConfigured() || !isDatabaseConfigured()) return null;
 
-function sessionSecret() {
-  return process.env.ADMIN_SESSION_SECRET?.trim() || '';
-}
+  const identitySession = await auth();
+  if (!identitySession.userId || !identitySession.sessionId) return null;
 
-function isRole(value: string): value is AdminRole {
-  return roles.includes(value as AdminRole);
-}
-
-export function getBootstrapAuthStatus() {
-  const production = process.env.VERCEL_ENV === 'production';
-  const enabled = process.env.ADMIN_BOOTSTRAP_ENABLED === 'true' && !production;
-  const role = process.env.ADMIN_BOOTSTRAP_ROLE?.trim() || '';
-  const configured = enabled
-    && Boolean(process.env.ADMIN_BOOTSTRAP_EMAIL?.trim())
-    && isRole(role)
-    && /^[a-f0-9]{64}$/i.test(process.env.ADMIN_BOOTSTRAP_KEY_SHA256?.trim() || '')
-    && sessionSecret().length >= 32;
-
-  return {
-    enabled,
-    configured,
-    productionBlocked: production,
-  };
-}
-
-function hashAccessKey(value: string) {
-  return createHash('sha256').update(value, 'utf8').digest();
-}
-
-export function verifyBootstrapAccessKey(value: string) {
-  const status = getBootstrapAuthStatus();
-  if (!status.configured || !value) return false;
-  const expectedHex = process.env.ADMIN_BOOTSTRAP_KEY_SHA256?.trim() || '';
-  const expected = Buffer.from(expectedHex, 'hex');
-  const actual = hashAccessKey(value);
-  return expected.length === actual.length && timingSafeEqual(expected, actual);
-}
-
-function signPayload(encodedPayload: string) {
-  const secret = sessionSecret();
-  if (!secret) throw new Error('Admin session secret is not configured.');
-  return createHmac('sha256', secret).update(encodedPayload).digest('base64url');
-}
-
-export function createBootstrapSessionToken() {
-  const email = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim() || '';
-  const role = process.env.ADMIN_BOOTSTRAP_ROLE?.trim() || '';
-  if (!email || !isRole(role) || !getBootstrapAuthStatus().configured) {
-    throw new Error('Bootstrap admin authentication is not configured.');
+  let profile = await findUserByIdentityProviderId(identitySession.userId);
+  if (!profile) {
+    const identityUser = await currentUser();
+    if (!identityUser) return null;
+    profile = await syncClerkUser(identityUser);
   }
+
+  if (
+    !profile.isActive
+    || profile.deletedAt
+    || profile.membershipStatus === 'suspended'
+    || profile.membershipStatus === 'revoked'
+  ) return null;
 
   const now = Math.floor(Date.now() / 1000);
-  const payload: SessionPayload = {
-    sub: createHash('sha256').update(email.toLowerCase(), 'utf8').digest('hex').slice(0, 24),
-    role,
-    iat: now,
-    exp: now + SESSION_TTL_SECONDS,
-  };
-  const encoded = Buffer.from(JSON.stringify(payload), 'utf8').toString('base64url');
+  const claimExpiry = identitySession.sessionClaims?.exp;
+
   return {
-    token: `${encoded}.${signPayload(encoded)}`,
-    expiresAt: payload.exp,
+    id: profile.id,
+    identityProviderId: identitySession.userId,
+    sessionId: identitySession.sessionId,
+    role: profile.role,
+    email: profile.email,
+    fullName: profile.fullName,
+    membershipStatus: profile.membershipStatus,
+    authMethod: 'clerk',
+    mfaRequired: false,
+    issuedAt: now,
+    expiresAt: typeof claimExpiry === 'number' ? claimExpiry : now + SESSION_DISPLAY_TTL_SECONDS,
   };
 }
 
-function verifyToken(token: string): AdminSession | null {
-  if (!getBootstrapAuthStatus().configured) return null;
-  const secret = sessionSecret();
-  if (!secret) return null;
-  const [encoded, signature, extra] = token.split('.');
-  if (!encoded || !signature || extra) return null;
-
-  const expected = Buffer.from(signPayload(encoded), 'utf8');
-  const actual = Buffer.from(signature, 'utf8');
-  if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) return null;
-
-  try {
-    const payload = JSON.parse(Buffer.from(encoded, 'base64url').toString('utf8')) as Partial<SessionPayload>;
-    const now = Math.floor(Date.now() / 1000);
-    if (!payload.sub || !payload.role || !isRole(payload.role)) return null;
-    if (!Number.isInteger(payload.iat) || !Number.isInteger(payload.exp)) return null;
-    if ((payload.exp as number) <= now || (payload.iat as number) > now + 60) return null;
-    return {
-      id: payload.sub,
-      role: payload.role,
-      issuedAt: payload.iat as number,
-      expiresAt: payload.exp as number,
-    };
-  } catch {
-    return null;
-  }
+export async function getCurrentUserSession() {
+  return getClerkSession();
 }
 
-export async function getAdminSession() {
-  const store = await cookies();
-  const token = store.get(ADMIN_SESSION_COOKIE)?.value;
-  return token ? verifyToken(token) : null;
+export const getAdminSession = getCurrentUserSession;
+
+export function hasControlPlaneAccess(session: AdminSession) {
+  return canAccessControlPlane(session.role);
 }
 
-export async function requireAdminSession() {
-  const session = await getAdminSession();
-  if (!session) redirect('/admin/login');
+export async function requireUserSession() {
+  const session = await getCurrentUserSession();
+  if (!session) redirect('/masuk?redirect_url=%2Fakun');
   return session;
 }
 
-export function adminSessionCookieOptions(expiresAt: number) {
-  return {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict' as const,
-    path: '/',
-    maxAge: Math.max(0, expiresAt - Math.floor(Date.now() / 1000)),
-  };
+export async function requireAdminSession() {
+  const session = await getCurrentUserSession();
+  if (!session) redirect('/masuk?redirect_url=%2Fadmin');
+  if (!canAccessControlPlane(session.role)) redirect('/akun?error=forbidden');
+  return session;
+}
+
+export async function requireSuperAdminSession() {
+  const session = await requireAdminSession();
+  if (session.role !== 'super_admin') redirect('/admin?error=forbidden');
+  return session;
 }

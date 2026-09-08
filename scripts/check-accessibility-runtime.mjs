@@ -19,6 +19,7 @@ const routes = [
   '/cari?q=air',
   '/cari?q=hasil-yang-tidak-ada',
   '/organisasi',
+  '/peta-situs',
   '/aksesibilitas',
 ];
 
@@ -108,7 +109,11 @@ try {
 
   const home = await (await fetch(baseUrl)).text();
   assert.equal((home.match(/aria-label="Lihat kegiatan:/g) ?? []).length, 4, 'Repeated activity links have unique accessible names');
-  assert.equal((home.match(/aria-label="Lihat preview berita:/g) ?? []).length, 4, 'Repeated preview links have unique accessible names');
+  assert.equal((home.match(/aria-label="Lihat (?:arsip berita contoh|berita):/g) ?? []).length, 4, 'Repeated preview links have unique accessible names');
+  assert.equal((home.match(/aria-roledescription="carousel"/g) ?? []).length, 1, 'Homepage renders one named documentary carousel');
+  assert.match(home, /aria-label="Tampilkan dokumentasi sebelumnya"/, 'Homepage carousel exposes its previous control');
+  assert.match(home, /aria-label="Tampilkan dokumentasi berikutnya"/, 'Homepage carousel exposes its next control');
+  assert.doesNotMatch(home, /autoplay/i, 'Homepage documentary media never auto-rotates');
 
   console.log(`Accessibility production smoke passed (${routes.length} cross-page routes + 404/media/link contracts).`);
 } finally {

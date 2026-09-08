@@ -4,7 +4,12 @@ import { useState } from 'react';
 import { Heart } from 'lucide-react';
 import { PreviewForm } from './PreviewForm';
 
-export function DonationPreviewForm({ amounts }: { amounts: readonly string[] }) {
+type DonationProgramOption = {
+  slug: string;
+  name: string;
+};
+
+export function DonationPreviewForm({ amounts, programs }: { amounts: readonly string[]; programs: readonly DonationProgramOption[] }) {
   const [selectedAmount, setSelectedAmount] = useState<string | null>(amounts[2] ?? amounts[0] ?? null);
 
   return (
@@ -12,10 +17,12 @@ export function DonationPreviewForm({ amounts }: { amounts: readonly string[] })
       <fieldset>
         <legend>Pilih program</legend>
         <div className="trust-option-grid">
-          <label><input type="radio" name="program" value="air-bersih" defaultChecked /> Air Bersih</label>
-          <label><input type="radio" name="program" value="sembako" /> Sembako</label>
-          <label><input type="radio" name="program" value="pendidikan" /> Pendidikan</label>
-          <label><input type="radio" name="program" value="kemanusiaan" /> Kemanusiaan</label>
+          {programs.map((program) => (
+            <label key={program.slug}>
+              <input type="radio" name="program" value={program.slug} defaultChecked={program.slug === 'berbagi-air-bersih'} />
+              {program.name}
+            </label>
+          ))}
         </div>
       </fieldset>
       <fieldset>

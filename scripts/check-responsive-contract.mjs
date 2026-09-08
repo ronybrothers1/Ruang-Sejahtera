@@ -6,6 +6,9 @@ const globals = fs.readFileSync(path.join(root, 'app/globals.css'), 'utf8');
 const responsive = fs.readFileSync(path.join(root, 'app/responsive-preview-v8.css'), 'utf8');
 const home = fs.readFileSync(path.join(root, 'app/page.tsx'), 'utf8');
 const navbar = fs.readFileSync(path.join(root, 'components/Navbar.tsx'), 'utf8');
+const standardMobileStart = responsive.indexOf('@media (max-width: 420px)');
+const veryNarrowStart = responsive.indexOf('@media (max-width: 340px)');
+const standardMobileBlock = responsive.slice(standardMobileStart, veryNarrowStart);
 
 const failures = [];
 const requireSource = (condition, message) => {
@@ -51,6 +54,42 @@ requireSource(
 requireSource(
   /@media \(max-width: 680px\)[\s\S]*?:root \{ --public-navigation-height: 86px; \}/.test(responsive),
   'Mobile navigation offset must stay synchronized with the 86px mobile header.',
+);
+requireSource(
+  /@media \(max-width: 900px\)[\s\S]*?\.trust-program-shortcuts \{ grid-template-columns: repeat\(6, minmax\(0,1fr\)\); \}/.test(globals),
+  'Tablet program shortcuts must form a centered three-plus-two layout.',
+);
+requireSource(
+  /@media \(max-width: 360px\)[\s\S]*?\.trust-program-shortcuts \{ grid-template-columns: repeat\(2, minmax\(0,1fr\)\); \}/.test(globals),
+  'Very narrow program shortcuts must fall back to two readable columns.',
+);
+requireSource(
+  /@media \(max-width: 900px\)[\s\S]*?\.trust-stat-grid \{ grid-template-columns: repeat\(2,minmax\(0,1fr\)\); \}/.test(responsive),
+  'Impact metrics must form a two-by-two grid on tablets and phones.',
+);
+requireSource(
+  standardMobileStart >= 0 && veryNarrowStart > standardMobileStart && !standardMobileBlock.includes('.trust-stat-grid { grid-template-columns: 1fr; }'),
+  'Standard mobile widths must not collapse impact metrics into a tall single column.',
+);
+requireSource(
+  /@media \(max-width: 340px\)[\s\S]*?\.trust-stat-grid \{ grid-template-columns: 1fr; \}/.test(responsive),
+  'Only very narrow screens may stack impact metrics for readability.',
+);
+requireSource(
+  /@media \(max-width: 680px\)[\s\S]*?\.trust-hero \{[\s\S]*?linear-gradient\(165deg,#060607 0%,#08080a 70%,#28090f 100%\)/.test(responsive),
+  'Mobile hero gradient must keep its dark reading zone and vertical burgundy flow.',
+);
+requireSource(
+  /@media \(max-width: 900px\)[\s\S]*?grid-template-areas:[\s\S]*?"copy"[\s\S]*?"media"[\s\S]*?"assurance"/.test(responsive),
+  'Stacked hero must place documentary evidence before the assurance note.',
+);
+requireSource(
+  /@media \(max-width: 680px\)[\s\S]*?\.trust-hero-carousel-stage \{[\s\S]*?aspect-ratio: 16 \/ 10;/.test(responsive),
+  'Mobile carousel must reserve a stable documentary aspect ratio.',
+);
+requireSource(
+  responsive.includes('.trust-hero-carousel-controls button {\n  display: grid;') && responsive.includes('min-height: 44px;'),
+  'Carousel navigation must preserve 44px touch targets.',
 );
 
 const shellGutter = (width) => Math.min(64, Math.max(32, width * 0.05));

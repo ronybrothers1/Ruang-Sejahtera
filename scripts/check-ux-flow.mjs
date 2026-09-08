@@ -34,7 +34,7 @@ check(donation.includes('Tanya via WhatsApp Resmi'), 'Support task reaches an ac
 check(donation.includes('saya ingin mengetahui cara mendukung program'), 'Support handoff preserves user intent in the WhatsApp message');
 check(donation.includes('Simulasi donasi tetap dipertahankan'), 'Donation preview remains available and is not misrepresented as active payment');
 check(errorPage.includes('Coba Lagi') && errorPage.includes('Ke Beranda'), 'Runtime error recovery offers retry and a loop-breaking exit');
-check(home.includes('Lihat preview berita'), 'Sample-news CTA predicts the preview destination');
+check(home.includes('Lihat arsip berita'), 'Sample-news CTA predicts the preview destination');
 check(!home.includes('Baca cerita <ArrowRight'), 'Sample-news CTA no longer promises a full article');
 check(program.includes('Lihat arsip kegiatan'), 'Program CTA predicts the mixed activity archive destination');
 check(!program.includes('Lihat kegiatan terbit'), 'Program CTA no longer implies unavailable published records');

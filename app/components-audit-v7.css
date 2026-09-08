@@ -27,6 +27,7 @@
 
 :is(
   .trust-program-card,
+  .trust-program-shortcut,
   .published-content-card,
   .trust-search-results-grid > a,
   .content-continuation-grid a,
@@ -37,6 +38,7 @@
 }
 
 .trust-program-card:focus-visible { transform: translateY(-6px); }
+.trust-program-shortcut:focus-visible { transform: translateY(-4px); }
 :is(.published-content-card, .trust-search-results-grid > a):focus-visible { transform: translateY(-3px); }
 .trust-accountability-grid > a:focus-visible {
   background: rgba(255,255,255,.065);
@@ -122,18 +124,21 @@
   color: var(--color-status-success);
 }
 
-.status-badge-review {
+.status-badge-pending_review,
+.status-badge-approved {
   border-color: var(--color-status-info-border);
   background: var(--color-status-info-surface);
   color: var(--color-status-info);
 }
 
-.status-badge-draft {
+.status-badge-draft,
+.status-badge-revision_required {
   border-color: var(--color-status-warning-border);
   background: var(--color-status-warning-surface);
   color: var(--color-status-warning);
 }
 
+.status-badge-rejected,
 .status-badge-archived {
   border-color: var(--color-border-control);
   background: var(--color-disabled-surface);
@@ -143,6 +148,7 @@
 @media (prefers-reduced-motion: reduce) {
   :is(
     .trust-program-card,
+    .trust-program-shortcut,
     .published-content-card,
     .trust-search-results-grid > a,
     .trust-accountability-grid > a

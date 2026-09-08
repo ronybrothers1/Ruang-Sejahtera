@@ -15,6 +15,7 @@ const donationPage = read('app/donasi/page.tsx');
 const searchPage = read('app/cari/page.tsx');
 const pageState = read('components/PageState.tsx');
 const errorPage = read('app/error.tsx');
+const heroCarousel = read('components/HeroGalleryCarousel.tsx');
 
 const checks = [];
 function check(condition, label) {
@@ -44,6 +45,10 @@ check(!donationPage.includes('<form'), 'Donation preview has no unguarded raw fo
 check(donationForm.includes('aria-pressed={selected}'), 'Donation amount exposes selected state to assistive technology');
 check(donationForm.includes('setSelectedAmount(amount)'), 'Donation amount selection updates from user input');
 check(donationForm.includes('setSelectedAmount(null)'), 'Custom donation amount clears the preset selection');
+check(donationForm.includes('programs.map((program)'), 'Donation program choices render from the shared program registry');
+check(donationForm.includes('value={program.slug}'), 'Donation program values use stable official slugs');
+check(donationPage.includes('programs={programs.map'), 'Donation page supplies every official program to the preview form');
+check(!donationForm.includes('value="kemanusiaan"'), 'Legacy generic donation choices are removed');
 check(componentCss.includes('button[aria-pressed="true"]'), 'Pressed donation amount has a tokenized visual state');
 check(componentCss.includes('label:has(input:checked)'), 'Checked donation program has a visible label state');
 
@@ -69,6 +74,9 @@ check(componentCss.includes(':user-invalid'), 'Touched invalid fields have a sem
 check(componentCss.includes(':focus-visible'), 'Interactive components have explicit keyboard focus parity');
 check(componentCss.includes(':disabled'), 'Buttons have an explicit disabled state contract');
 check(componentCss.includes('@media (prefers-reduced-motion: reduce)'), 'Component focus motion honors reduced-motion preference');
+check(heroCarousel.startsWith("'use client';"), 'Hero carousel keeps interaction inside an explicit client boundary');
+check(heroCarousel.includes('setActiveIndex((current) =>'), 'Hero carousel uses functional state updates for directional navigation');
+check(heroCarousel.includes('pointerStart.current = null'), 'Hero carousel clears transient swipe state after interaction');
 
 for (const file of [...sourceFiles('app'), ...sourceFiles('components')]) {
   const source = read(file);

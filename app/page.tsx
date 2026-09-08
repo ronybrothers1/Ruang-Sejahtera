@@ -1,18 +1,27 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowRight,
   BookOpenText,
   Building2,
+  HandCoins,
+  HeartHandshake,
   FileCheck2,
   Heart,
   Landmark,
+  MapPinned,
   MapPin,
   Quote,
   ShieldCheck,
   Sparkles,
+  UsersRound,
 } from 'lucide-react';
+import { HeroGalleryCarousel, type HeroGallerySlide } from '@/components/HeroGalleryCarousel';
 import { ProgramMark } from '@/components/ProgramMark';
+import { formatRupiah } from '@/lib/finance';
+import { getPublishedActivities, getPublishedArticles, getPublishedFinancialReports, getPublishedGalleries } from '@/lib/published-content';
+import { createPageMetadata } from '@/lib/seo';
 import {
   programs,
   sampleActivities,
@@ -23,6 +32,12 @@ import {
   trustPrinciples,
 } from '@/lib/content';
 
+export const metadata: Metadata = createPageMetadata({
+  title: 'Beranda',
+  description: 'Platform resmi Yayasan Ruang Sejahtera untuk program sosial, kegiatan, dampak, transparansi, dan dukungan publik.',
+  path: '/',
+});
+
 const accountabilityLinks = [
   { href: '/transparansi', title: 'Transparansi', description: 'Ringkasan penyaluran, laporan, dan dokumen publik dalam satu ruang yang mudah diperiksa.', icon: Landmark },
   { href: '/tentang-kami/legalitas', title: 'Legalitas', description: 'Identitas hukum disajikan proporsional tanpa membuka data yang perlu dilindungi.', icon: FileCheck2 },
@@ -30,7 +45,81 @@ const accountabilityLinks = [
   { href: '/kebijakan-donasi', title: 'Kebijakan Donasi', description: 'Prinsip penerimaan, penggunaan, dan perlindungan donatur dijelaskan sejak awal.', icon: BookOpenText },
 ] as const;
 
-export default function Home() {
+const impactIcons = [UsersRound, HeartHandshake, MapPinned, HandCoins] as const;
+const heroDateFormatter = new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' });
+const heroProgramOrder = [3, 0, 4, 1, 2] as const;
+const fallbackHeroSlides: HeroGallerySlide[] = heroProgramOrder.map((index) => {
+  const program = programs[index];
+  return {
+    id: `program-${program.slug}`,
+    image: program.image,
+    imageAlt: program.imageAlt,
+    imageLabel: program.imageLabel,
+    eyebrow: 'Fokus program',
+    title: program.name,
+    meta: program.focus,
+  };
+});
+
+function formatHeroDate(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : heroDateFormatter.format(date);
+}
+
+function selectHeroSlides(slides: HeroGallerySlide[]) {
+  const seenImages = new Set<string>();
+  return slides.filter((slide) => {
+    if (seenImages.has(slide.image)) return false;
+    seenImages.add(slide.image);
+    return true;
+  }).slice(0, 5);
+}
+
+export default async function Home() {
+  const [publishedArticles, financialReports, publishedActivities, publishedGalleries] = await Promise.all([
+    getPublishedArticles({ limit: 4 }),
+    getPublishedFinancialReports({ limit: 1 }),
+    getPublishedActivities({ limit: 5 }),
+    getPublishedGalleries({ limit: 5 }),
+  ]);
+  const activityItems = publishedActivities.length ? publishedActivities.slice(0, 4).map((activity, index) => ({ slug: activity.slug, date: activity.activityDate, location: activity.locationLabel, title: activity.title, summary: activity.summary, image: activity.imageUrl || sampleActivities[index % sampleActivities.length].image, imageAlt: activity.imageAlt || activity.title, imageLabel: activity.imageUrl ? 'Dokumentasi resmi' : 'Konten resmi' })) : sampleActivities;
+  const latestReport = financialReports[0] || null;
+  const newsItems = publishedArticles.length
+    ? publishedArticles.slice(0, 4).map((item, index) => ({
+        slug: item.slug,
+        date: item.publishedAt ? new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(new Date(item.publishedAt)) : 'Baru',
+        title: item.title,
+        category: item.category || 'Berita',
+        image: item.imageUrl || sampleNews[index % sampleNews.length].image,
+        imageAlt: item.imageAlt || item.title,
+        isLive: true,
+      }))
+    : sampleNews.map((item) => ({ ...item, isLive: false }));
+  const officialGallerySlides: HeroGallerySlide[] = publishedGalleries.flatMap((gallery) => gallery.imageUrl ? [{
+    id: `gallery-${gallery.slug}`,
+    image: gallery.imageUrl,
+    imageAlt: gallery.imageAlt || gallery.title,
+    imageLabel: 'Dokumentasi resmi',
+    eyebrow: 'Dokumentasi terbaru',
+    title: gallery.title,
+    meta: gallery.publishedAt ? formatHeroDate(gallery.publishedAt) : undefined,
+  }] : []);
+  const officialActivitySlides: HeroGallerySlide[] = publishedActivities.flatMap((activity) => activity.imageUrl ? [{
+    id: `activity-${activity.slug}`,
+    image: activity.imageUrl,
+    imageAlt: activity.imageAlt || activity.title,
+    imageLabel: 'Dokumentasi resmi',
+    eyebrow: 'Kegiatan terbaru',
+    title: activity.title,
+    meta: [activity.locationLabel, activity.activityDate ? formatHeroDate(activity.activityDate) : ''].filter(Boolean).join(' · '),
+  }] : []);
+  const heroSlides = selectHeroSlides([...officialGallerySlides, ...officialActivitySlides, ...fallbackHeroSlides]);
+  const financeItems = latestReport ? [
+    { label: 'Total penerimaan', value: 100, amount: formatRupiah(latestReport.totalIncome) },
+    { label: 'Total penyaluran', value: latestReport.totalIncome > 0 ? Math.min(100, Math.round((latestReport.totalDisbursement / latestReport.totalIncome) * 100)) : 0, amount: formatRupiah(latestReport.totalDisbursement) },
+    { label: 'Operasional', value: latestReport.totalIncome > 0 ? Math.min(100, Math.round((latestReport.operationalCost / latestReport.totalIncome) * 100)) : 0, amount: formatRupiah(latestReport.operationalCost) },
+    { label: 'Saldo laporan', value: latestReport.totalIncome > 0 ? Math.max(0, Math.min(100, Math.round((latestReport.balance / latestReport.totalIncome) * 100))) : 0, amount: formatRupiah(latestReport.balance) },
+  ] : sampleFinance;
   return (
     <div className="trust-home">
       <section className="trust-hero" aria-labelledby="home-title">
@@ -38,39 +127,41 @@ export default function Home() {
         <div className="shell trust-hero-layout trust-hero-layout-rich">
           <div className="trust-hero-copy">
             <span className="trust-kicker"><Sparkles size={15} aria-hidden="true" /> Gerakan sosial & kemanusiaan</span>
-            <h1 id="home-title">Kepedulian perlu sampai ke tempat yang tepat.</h1>
+            <h1 id="home-title">
+              <span className="trust-hero-title-line">Kepedulian perlu</span>{' '}
+              <span className="trust-hero-title-line">sampai ke tempat</span>{' '}
+              <span className="trust-hero-title-line">yang tepat<span className="trust-hero-title-dot">.</span></span>
+            </h1>
             <p>Yayasan Ruang Sejahtera menghubungkan kepedulian publik dengan kebutuhan dasar, usaha rakyat, hunian layak, air bersih, dan pendidikan.</p>
             <div className="trust-actions">
               <Link href="/program" className="trust-button trust-button-primary">Kenali Program <ArrowRight size={18} aria-hidden="true" /></Link>
               <Link href="/donasi" className="trust-button trust-button-secondary"><Heart size={18} aria-hidden="true" /> Cara Mendukung</Link>
             </div>
-            <div className="trust-hero-assurance">
-              <ShieldCheck size={20} aria-hidden="true" />
-              <p><strong>Preview lengkap untuk evaluasi desain.</strong> Foto dan angka bertanda “contoh” akan diganti dengan dokumentasi serta data resmi saat materi final tersedia.</p>
-            </div>
           </div>
 
-          <div className="trust-hero-media" aria-label="Kolase foto program contoh">
-            <div className="trust-hero-main-image">
-              <Image src={programs[3].image} alt={programs[3].imageAlt} fill priority sizes="(max-width: 900px) 100vw, 42vw" />
-              <span className="preview-chip">{programs[3].imageLabel}</span>
-              <div className="trust-hero-image-caption"><small>Fokus program</small><strong>Air bersih untuk kebutuhan mendesak</strong></div>
-            </div>
-            <div className="trust-hero-mini-grid">
-              <div><Image src={programs[0].image} alt={programs[0].imageAlt} fill sizes="(max-width: 900px) 50vw, 20vw" /></div>
-              <div><Image src={programs[4].image} alt={programs[4].imageAlt} fill sizes="(max-width: 900px) 50vw, 20vw" /></div>
-            </div>
-            <Link href="/galeri" className="trust-hero-gallery-link">Lihat galeri preview <ArrowRight size={15} aria-hidden="true" /></Link>
+          <HeroGalleryCarousel slides={heroSlides} />
+
+          <div className="trust-hero-assurance">
+            <ShieldCheck size={20} aria-hidden="true" />
+            <p><strong>Preview lengkap untuk evaluasi desain.</strong> Foto dan angka bertanda “contoh” akan diganti dengan dokumentasi serta data resmi saat materi final tersedia.</p>
           </div>
         </div>
       </section>
 
       <section className="trust-signal-band" aria-label="Ringkasan dampak contoh">
-        <div className="shell trust-stat-grid">
-          {sampleStats.map((item) => (
-            <article key={item.label}><strong>{item.value}</strong><span>{item.label}</span><small>{item.note}</small></article>
-          ))}
-        </div>
+        <ul className="shell trust-stat-grid">
+          {sampleStats.map((item, index) => {
+            const Icon = impactIcons[index];
+            return (
+              <li key={item.label}>
+                <span className="trust-stat-icon" aria-hidden="true"><Icon size={22} strokeWidth={1.8} /></span>
+                <strong>{item.value}</strong>
+                <span className="trust-stat-label">{item.label}</span>
+                <small>{item.note}</small>
+              </li>
+            );
+          })}
+        </ul>
       </section>
 
       <section className="trust-section trust-programs" aria-labelledby="program-heading">
@@ -79,18 +170,29 @@ export default function Home() {
             <div><span>Program utama</span><h2 id="program-heading">Lima jalur bantuan, satu arah kepedulian.</h2></div>
             <p>Setiap program memberi pintu masuk yang jelas bagi kebutuhan yang berbeda, dengan identitas visual yang tetap konsisten dan mudah dikenali.</p>
           </div>
-          <div className="trust-program-grid trust-program-grid-photo">
+          <ul className="trust-program-shortcuts" aria-label="Pilihan program Ruang Sejahtera">
             {programs.map((program) => (
-              <Link href={`/program/${program.slug}`} key={program.slug} className="trust-program-card trust-program-card-photo">
-                <div className="trust-card-image">
-                  <Image src={program.image} alt={program.imageAlt} fill sizes="(max-width: 680px) 38vw, (max-width: 1024px) 50vw, 33vw" />
+              <li key={program.slug}>
+                <Link
+                  href={`/program/${program.slug}`}
+                  className="trust-program-shortcut"
+                  aria-label={`${program.name}: ${program.summary}`}
+                >
                   <ProgramMark slug={program.slug} accent={program.accent} compact />
-                  <span className="preview-chip">{program.imageLabel}</span>
-                </div>
-                <span>{program.focus}</span><h3>{program.name}</h3><p>{program.summary}</p>
-                <strong>Pelajari program <ArrowRight size={15} aria-hidden="true" /></strong>
-              </Link>
+                  <span className="trust-program-shortcut-copy">
+                    <strong>{program.name}</strong>
+                    <small>{program.focus}</small>
+                  </span>
+                  <span className="trust-program-shortcut-action" aria-hidden="true">
+                    <ArrowRight size={15} />
+                  </span>
+                </Link>
+              </li>
             ))}
+          </ul>
+          <div className="trust-program-shortcuts-footer">
+            <p>Pilih ikon untuk melihat tujuan, sasaran, dan cara kerja setiap program.</p>
+            <Link href="/program" className="trust-text-link">Lihat rincian semua program <ArrowRight size={16} aria-hidden="true" /></Link>
           </div>
         </div>
       </section>
@@ -102,7 +204,7 @@ export default function Home() {
             <Link href="/kegiatan" className="trust-text-link">Lihat seluruh kegiatan <ArrowRight size={16} aria-hidden="true" /></Link>
           </div>
           <div className="trust-activity-grid">
-            {sampleActivities.map((activity, index) => (
+            {activityItems.map((activity, index) => (
               <article key={activity.slug} className={index === 0 ? 'trust-activity-card trust-activity-card-featured' : 'trust-activity-card'}>
                 <div className="trust-activity-image"><Image src={activity.image} alt={activity.imageAlt} fill sizes={index === 0 ? '(max-width: 900px) 100vw, 55vw' : '(max-width: 680px) 100vw, (max-width: 1120px) 50vw, 33vw'} /><span className="preview-chip">{activity.imageLabel}</span></div>
                 <div className="trust-activity-copy">
@@ -134,39 +236,44 @@ export default function Home() {
         <div className="shell trust-finance-layout">
           <div className="trust-finance-copy">
             <span>Transparansi & kepercayaan</span><h2 id="finance-heading">Amanah perlu disajikan dalam bentuk yang mudah diperiksa.</h2>
-            <p>Simulasi ini memperlihatkan bagaimana komposisi penyaluran dapat dibaca. Nominal dan periode akan diganti dengan laporan resmi.</p>
+            <p>{latestReport ? `${latestReport.title} untuk periode ${latestReport.period} dapat diperiksa pada halaman transparansi.` : 'Laporan resmi akan tampil setelah diterbitkan melalui Control Plane Super Admin.'}</p>
             <div className="trust-actions"><Link href="/transparansi" className="trust-button trust-button-light">Lihat transparansi <ArrowRight size={17} aria-hidden="true" /></Link><Link href="/kebijakan-donasi" className="trust-button trust-button-dark">Kebijakan donasi <ArrowRight size={17} aria-hidden="true" /></Link></div>
           </div>
           <div className="trust-finance-card">
-            <div className="trust-finance-head"><div><small>SIMULASI LAPORAN</small><strong>Ringkasan Penyaluran</strong></div><b>{sampleStats[3].value}</b></div>
+            <div className="trust-finance-head"><div><small>{latestReport ? `LAPORAN TERBIT · ${latestReport.period.toUpperCase()}` : 'SIMULASI LAPORAN'}</small><strong>{latestReport?.title || 'Ringkasan Penyaluran'}</strong></div><b>{latestReport ? formatRupiah(latestReport.balance) : sampleStats[3].value}</b></div>
             <div className="trust-finance-bars">
-              {sampleFinance.map((item) => (
+              {financeItems.map((item) => (
                 <div key={item.label}><div><span>{item.label}</span><strong>{item.amount}</strong></div><div className="trust-finance-track"><span style={{ width: `${item.value}%` }} /></div><small>{item.value}%</small></div>
               ))}
             </div>
-            <p>Seluruh angka pada panel ini adalah data desain contoh, bukan laporan resmi yayasan.</p>
+            <p>{latestReport ? 'Angka ini berasal dari laporan yang diterbitkan Super Admin.' : 'Panel ini masih menggunakan data desain contoh.'}</p>
           </div>
         </div>
       </section>
 
-      <section className="trust-section trust-story-section" aria-labelledby="story-heading">
+      <section className="trust-section trust-editorial-section" aria-labelledby="editorial-heading">
         <div className="shell">
-          <div className="trust-section-heading"><div><span>Cerita dampak</span><h2 id="story-heading">Suara manusia memberi makna pada setiap angka.</h2></div><p>Testimoni contoh mempertahankan struktur halaman hingga cerita asli siap digunakan dengan persetujuan publikasi.</p></div>
-          <div className="trust-testimonial-grid">
-            {sampleTestimonials.map((item) => (
-              <article key={item.name}><Quote size={27} aria-hidden="true" /><blockquote>“{item.quote}”</blockquote><div><span>{item.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}</span><p><strong>{item.name}</strong><small>{item.role} · CONTOH</small></p></div></article>
-            ))}
+          <div className="trust-section-heading">
+            <div><span>Cerita & kabar</span><h2 id="editorial-heading">Dampak terasa lewat suara manusia dan kabar lapangan.</h2></div>
+            <p>Cerita dampak dan pembaruan kegiatan disatukan agar pengunjung dapat memindai perkembangan yayasan tanpa melewati dua bagian yang berulang.</p>
           </div>
-        </div>
-      </section>
-
-      <section className="trust-section trust-news-section" aria-labelledby="news-heading">
-        <div className="shell">
-          <div className="trust-section-heading trust-section-heading-compact"><div><span>Berita & cerita</span><h2 id="news-heading">Kabar dari lapangan.</h2></div><Link href="/berita" className="trust-text-link">Lihat semua berita <ArrowRight size={16} aria-hidden="true" /></Link></div>
-          <div className="trust-news-grid">
-            {sampleNews.map((item) => (
-              <article key={item.slug}><div className="trust-news-image"><Image src={item.image} alt={item.imageAlt} fill sizes="(max-width: 680px) 100vw, (max-width: 1024px) 50vw, 25vw" /><span>{item.category}</span></div><div><small>{item.date} · CONTOH</small><h3>{item.title}</h3><Link href={`/berita#${item.slug}`} aria-label={`Lihat preview berita: ${item.title}`}>Lihat preview berita <ArrowRight size={14} aria-hidden="true" /></Link></div></article>
-            ))}
+          <div className="trust-editorial-layout">
+            <section className="trust-editorial-stories" aria-labelledby="story-heading">
+              <div className="trust-editorial-subheading"><span>Cerita dampak</span><h3 id="story-heading">Suara manusia di balik angka.</h3><p>Testimoni contoh mempertahankan struktur halaman hingga cerita asli siap digunakan dengan persetujuan publikasi.</p></div>
+              <div className="trust-testimonial-grid">
+                {sampleTestimonials.map((item) => (
+                  <article key={item.name}><Quote size={24} aria-hidden="true" /><blockquote>“{item.quote}”</blockquote><div><span>{item.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}</span><p><strong>{item.name}</strong><small>{item.role} · CONTOH</small></p></div></article>
+                ))}
+              </div>
+            </section>
+            <section className="trust-editorial-news" aria-labelledby="news-heading">
+              <div className="trust-editorial-subheading trust-editorial-news-heading"><div><span>Berita & cerita</span><h3 id="news-heading">Kabar dari lapangan.</h3></div><Link href="/berita" className="trust-text-link">Lihat semua berita <ArrowRight size={16} aria-hidden="true" /></Link></div>
+              <div className="trust-news-grid">
+                {newsItems.map((item) => (
+                  <article key={item.slug}><div className="trust-news-image"><Image src={item.image} alt={item.imageAlt} fill sizes="(max-width: 680px) 100vw, (max-width: 1024px) 50vw, 25vw" /><span>{item.category}</span></div><div><small>{item.date}{item.isLive ? '' : ' · CONTOH'}</small><h4>{item.title}</h4><Link href={item.isLive ? `/berita/${item.slug}` : `/berita#${item.slug}`} aria-label={`Lihat ${item.isLive ? 'berita' : 'arsip berita contoh'}: ${item.title}`}>{item.isLive ? 'Baca berita' : 'Lihat arsip berita'} <ArrowRight size={14} aria-hidden="true" /></Link></div></article>
+                ))}
+              </div>
+            </section>
           </div>
         </div>
       </section>

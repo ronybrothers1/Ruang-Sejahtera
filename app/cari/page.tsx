@@ -4,9 +4,19 @@ import { ArrowRight, Search } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { PageHero } from '@/components/PageHero';
 import { publicSearchIndex, type PublicSearchItem } from '@/lib/content';
-import { publishedActivities, publishedArticles, publishedGalleries } from '@/lib/published-content';
+import { getPublishedActivities, getPublishedArticles, getPublishedGalleries } from '@/lib/published-content';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Pencarian', description: 'Cari program dan informasi Yayasan Ruang Sejahtera.' };
+const searchMetadata = { title: 'Pencarian', description: 'Cari program dan informasi Yayasan Ruang Sejahtera.', path: '/cari' } as const;
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ q?: string | string[] }> }): Promise<Metadata> {
+  const { q = '' } = await searchParams;
+  const query = Array.isArray(q) ? q[0] || '' : q;
+  return {
+    ...createPageMetadata(searchMetadata),
+    robots: query.trim() ? { index: false, follow: true } : undefined,
+  };
+}
 
 function normalize(value: string) {
   return value.toLocaleLowerCase('id-ID').normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
@@ -17,6 +27,11 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const rawQuery = Array.isArray(q) ? (q[0] ?? '') : q;
   const safeQuery = rawQuery.slice(0, 120);
   const query = normalize(safeQuery.trim());
+  const [publishedActivities, publishedArticles, publishedGalleries] = await Promise.all([
+    getPublishedActivities(),
+    getPublishedArticles(),
+    getPublishedGalleries(),
+  ]);
   const dynamicIndex: PublicSearchItem[] = [
     ...publishedActivities.map((item) => ({ title: item.title, description: item.summary, href: `/kegiatan/${item.slug}`, category: 'Kegiatan' })),
     ...publishedArticles.map((item) => ({ title: item.title, description: item.excerpt, href: `/berita/${item.slug}`, category: 'Berita & Cerita' })),

@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { DocumentLayout } from '@/components/DocumentLayout';
 import { PageHero } from '@/components/PageHero';
-export const metadata: Metadata = { title: 'Kebijakan Privasi' };
+import { createPageMetadata } from '@/lib/seo';
+export const metadata: Metadata = createPageMetadata({ title: 'Kebijakan Privasi', description: 'Kebijakan perlindungan data pribadi dan privasi pengguna website Yayasan Ruang Sejahtera.', path: '/privasi' });
 export default function PrivacyPage() {
   const sections = [
     { id: 'prinsip-minimum', title: 'Prinsip minimum', content: 'Website hanya boleh mengumpulkan data yang diperlukan untuk tujuan yang jelas, membatasi akses berdasarkan peran, menjaga keamanan, dan menghapus atau menganonimkan data sesuai kebijakan retensi.' },

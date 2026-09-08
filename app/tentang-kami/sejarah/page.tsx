@@ -5,8 +5,9 @@ import { PreviewNotice } from '@/components/PreviewNotice';
 import { SectionNavigation } from '@/components/SectionNavigation';
 import { sampleTimeline } from '@/lib/content';
 import { aboutNavItems } from '@/lib/navigation';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Sejarah', description: 'Sejarah Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = createPageMetadata({ title: 'Sejarah', description: 'Sejarah Yayasan Ruang Sejahtera.', path: '/tentang-kami/sejarah' });
 
 export default function HistoryPage() {
   return (

@@ -103,7 +103,7 @@ export function Footer() {
           <Link href="/ketentuan">Ketentuan</Link>
           <Link href="/aksesibilitas">Aksesibilitas</Link>
           <Link href="/disclaimer">Disclaimer</Link>
-          <Link href="/cari">Pencarian</Link>
+          <Link href="/peta-situs">Peta Situs</Link>
         </div>
       </div>
     </footer>

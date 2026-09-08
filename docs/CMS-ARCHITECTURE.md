@@ -21,14 +21,15 @@ Administrator nonteknis harus dapat memperbarui website tanpa menyentuh kode. CM
 
 `Donation -> Transaction -> Allocation -> Program -> Disbursement -> Report`
 
-## Role minimum
-- `super_admin`: konfigurasi dan seluruh modul.
-- `content_admin`: program, kegiatan, berita, media, halaman.
-- `finance`: transaksi, alokasi, laporan keuangan, dokumen finansial.
-- `editor`: review dan publikasi konten, tanpa akses transaksi.
+## Role aplikasi
+- `super_admin`: seluruh konten, kurasi, publikasi, keuangan, pengguna, dan sistem.
+- `core_manager`: membuat, mengedit milik sendiri, dan mengirim konten untuk kurasi.
+- `member`: membuat, mengedit milik sendiri, dan mengirim konten untuk kurasi setelah memiliki akun.
+
+Tidak ada role selain `super_admin` yang memiliki publication authority atau akses mutasi laporan keuangan.
 
 ## Workflow publikasi
-Draft -> Review -> Published -> Archived.
+Draft -> Menunggu Kurasi -> Perlu Perbaikan/Disetujui/Ditolak -> Terbit -> Diarsipkan.
 
 Konten penerima manfaat yang mengandung anak atau pihak rentan harus memiliki metadata consent/restriction sebelum publikasi.
 

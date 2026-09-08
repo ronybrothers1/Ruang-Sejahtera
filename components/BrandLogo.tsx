@@ -1,11 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-export function BrandLogo({ compact = false, priority = false }: { compact?: boolean; priority?: boolean }) {
+export function BrandLogo({ compact = false, priority = false, className = '' }: { compact?: boolean; priority?: boolean; className?: string }) {
   return (
     <Link
       href="/"
-      className={`brand-logo-link ${compact ? 'brand-logo-link-compact' : 'brand-logo-link-full'}`}
+      className={`brand-logo-link ${compact ? 'brand-logo-link-compact' : 'brand-logo-link-full'} ${className}`.trim()}
       aria-label="Yayasan Ruang Sejahtera, kembali ke beranda"
     >
       <Image

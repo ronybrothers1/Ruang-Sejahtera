@@ -6,6 +6,7 @@ import { PageState } from '@/components/PageState';
 export const metadata: Metadata = {
   title: 'Halaman Tidak Ditemukan',
   description: 'Halaman yang diminta tidak tersedia di website Yayasan Ruang Sejahtera.',
+  robots: { index: false, follow: false, nocache: true },
 };
 
 export default function NotFound() {

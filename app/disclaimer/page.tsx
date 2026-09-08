@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { DocumentLayout } from '@/components/DocumentLayout';
 import { PageHero } from '@/components/PageHero';
-export const metadata: Metadata = { title: 'Disclaimer' };
+import { createPageMetadata } from '@/lib/seo';
+export const metadata: Metadata = createPageMetadata({ title: 'Disclaimer', description: 'Batas penggunaan informasi publik pada website Yayasan Ruang Sejahtera.', path: '/disclaimer' });
 export default function DisclaimerPage() {
   const sections = [
     { id: 'kanal-resmi', title: 'Kanal resmi', content: 'Informasi kegiatan, program, dampak, organisasi, dan laporan hanya dianggap resmi setelah dipublikasikan melalui kanal yang dikelola yayasan.' },

@@ -171,3 +171,9 @@
   .trust-tiktok-profile:hover { transform: none; }
   .trust-tiktok-placeholder { animation: none; }
 }
+
+/* The air-distribution detail uses the available portrait documentary source
+   instead of enlarging the smaller landscape derivative. */
+.trust-program-detail-photo-berbagi-air-bersih img {
+  object-position: center 44%;
+}

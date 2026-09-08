@@ -23,6 +23,7 @@ function sourceFiles(directory) {
 const config = read('next.config.ts');
 const layout = read('app/layout.tsx');
 const home = read('app/page.tsx');
+const heroCarousel = read('components/HeroGalleryCarousel.tsx');
 const gallery = read('app/galeri/page.tsx');
 const tiktok = read('components/TikTokEmbed.tsx');
 const mediaCss = read('app/media-audit-v8.css');
@@ -31,7 +32,8 @@ check(!existsSync(join(root, 'app/loading.tsx')), 'Public static routes are not 
 check(existsSync(join(root, 'app/admin/loading.tsx')), 'The dynamic admin control plane retains a scoped loading state');
 check(config.includes("formats: ['image/avif', 'image/webp']"), 'Next Image negotiates AVIF and WebP output');
 check(layout.includes("from 'next/font/google'"), 'Fonts are self-hosted and optimized through next/font');
-check(home.includes('fill priority sizes="(max-width: 900px) 100vw, 42vw"'), 'The homepage LCP image is preloaded with responsive sizing');
+check(heroCarousel.includes('priority={activeIndex === 0}') && heroCarousel.includes('sizes="(max-width: 680px) calc(100vw - 44px), (max-width: 900px) calc(100vw - 64px), 42vw"'), 'Only the initial carousel image receives responsive LCP priority');
+check(home.includes('getPublishedGalleries({ limit: 5 })') && home.includes('selectHeroSlides'), 'Homepage bounds and deduplicates latest documentary media');
 
 check(tiktok.includes("'use client'"), 'TikTok activation is isolated to a client boundary');
 check(tiktok.includes('new IntersectionObserver'), 'Off-screen TikTok players activate through viewport observation');

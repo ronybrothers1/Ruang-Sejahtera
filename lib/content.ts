@@ -4,6 +4,7 @@ export type Program = {
   summary: string;
   focus: string;
   image: string;
+  detailImage?: string;
   imageAlt: string;
   imageLabel: 'DOKUMENTASI' | 'VISUAL CONTOH';
   accent: string;
@@ -19,50 +20,51 @@ export const programs: Program[] = [
   {
     slug: 'berbagi-rasa',
     name: 'Berbagi Rasa',
-    summary: 'Berbagi Rasa (Rakyat Sejahtera): bantuan sembako dan uang tunai bagi masyarakat yang membutuhkan.',
-    focus: 'Rakyat Sejahtera',
+    summary: 'Bantuan sembako dan kebutuhan pangan bagi masyarakat yang membutuhkan berdasarkan hasil verifikasi kebutuhan.',
+    focus: 'Bantuan pangan',
     image: '/media/bantuan-sembako.webp',
     imageAlt: 'Penyerahan bantuan sembako kepada seorang warga lanjut usia di rumahnya',
     imageLabel: 'DOKUMENTASI',
     accent: '01',
   },
   {
-    slug: 'merakyat',
-    name: 'Merakyat',
-    summary: 'Merakyat (Mabecce’ Usahanah Rakyat): bantuan renovasi serta modal bagi usaha mikro dan kecil.',
-    focus: 'Usaha rakyat',
-    image: '/media/visual-merakyat.webp',
-    imageAlt: 'Visual contoh pendampingan usaha mikro di warung warga Indonesia',
-    imageLabel: 'VISUAL CONTOH',
-    accent: '02',
-  },
-  {
     slug: 'rehat',
     name: 'REHAT',
-    summary: 'REHAT (Renovasi Rumah Rakyat): bedah dan renovasi rumah agar menjadi hunian yang lebih layak.',
+    summary: 'REHAT (Renovasi Rumah Rakyat): bantuan renovasi rumah agar menjadi hunian yang lebih layak.',
     focus: 'Renovasi Rumah Rakyat',
     image: '/media/visual-rehat.webp',
     imageAlt: 'Visual contoh gotong royong renovasi rumah warga di perdesaan Indonesia',
     imageLabel: 'VISUAL CONTOH',
-    accent: '03',
+    accent: '02',
   },
   {
     slug: 'berbagi-air-bersih',
     name: 'Berbagi Air Bersih',
-    summary: 'Bantuan air bersih untuk masyarakat di wilayah yang terdampak kekeringan.',
+    summary: 'Bantuan akses air bersih bagi masyarakat yang mengalami kesulitan memenuhi kebutuhan air bersih.',
     focus: 'Air bersih',
     image: '/media/penyaluran-air-bersih.webp',
+    detailImage: '/media/penyaluran-air-bersih-portrait.webp',
     imageAlt: 'Warga mengisi jeriken saat penyaluran air bersih dari mobil tangki',
     imageLabel: 'DOKUMENTASI',
-    accent: '04',
+    accent: '03',
   },
   {
     slug: 'berbagi-masa-depan',
     name: 'Berbagi Masa Depan',
-    summary: 'Bantuan pendidikan berupa peralatan sekolah dan dukungan biaya pendidikan.',
+    summary: 'Bantuan pendidikan berupa perlengkapan sekolah dan dukungan kebutuhan pendidikan bagi penerima yang membutuhkan.',
     focus: 'Pendidikan',
     image: '/media/visual-pendidikan.webp',
     imageAlt: 'Visual contoh penyerahan perlengkapan belajar kepada siswa sekolah dasar Indonesia',
+    imageLabel: 'VISUAL CONTOH',
+    accent: '04',
+  },
+  {
+    slug: 'bantuan-kesehatan',
+    name: 'Bantuan Kesehatan',
+    summary: 'Bantuan kebutuhan kesehatan bagi penerima yang membutuhkan dukungan berdasarkan hasil verifikasi kondisi dan kebutuhan.',
+    focus: 'Kesehatan',
+    image: '/media/visual-kesehatan.svg',
+    imageAlt: 'Visual konseptual bantuan kesehatan berupa simbol hati dan tanda kesehatan',
     imageLabel: 'VISUAL CONTOH',
     accent: '05',
   },
@@ -100,7 +102,7 @@ export const sampleFinance = [
   { label: 'Berbagi Rasa', value: 24, amount: 'Rp44,8 Juta' },
   { label: 'Berbagi Masa Depan', value: 20, amount: 'Rp37,3 Juta' },
   { label: 'REHAT', value: 18, amount: 'Rp33,5 Juta' },
-  { label: 'Merakyat', value: 10, amount: 'Rp18,7 Juta' },
+  { label: 'Bantuan Kesehatan', value: 10, amount: 'Rp18,7 Juta' },
 ] as const;
 
 export const sampleFinanceHeadline = [
@@ -193,6 +195,7 @@ export const publicSearchIndex: PublicSearchItem[] = [
   { title: 'Kebijakan Donasi', description: 'Prinsip pencatatan, privasi donatur, dan keamanan transaksi.', href: '/kebijakan-donasi', category: 'Akuntabilitas' },
   { title: 'Cara Mendukung', description: 'Pilihan dukungan, simulasi donasi, dan standar keamanan.', href: '/donasi', category: 'Terlibat' },
   { title: 'Kontak & Kolaborasi', description: 'Kanal untuk pertanyaan program, kemitraan, relawan, media, dan dukungan.', href: '/kontak', category: 'Terlibat' },
+  { title: 'Peta Situs', description: 'Direktori seluruh halaman publik Yayasan Ruang Sejahtera.', href: '/peta-situs', category: 'Bantuan' },
   { title: 'Kebijakan Privasi', description: 'Prinsip pengelolaan data pribadi, penerima manfaat, analytics, dan formulir.', href: '/privasi', category: 'Kebijakan' },
   { title: 'Ketentuan Penggunaan', description: 'Ketentuan penggunaan informasi dan layanan website.', href: '/ketentuan', category: 'Kebijakan' },
   { title: 'Aksesibilitas', description: 'Komitmen aksesibilitas dan perbaikan berkelanjutan website.', href: '/aksesibilitas', category: 'Kebijakan' },

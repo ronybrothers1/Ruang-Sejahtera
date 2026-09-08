@@ -6,8 +6,9 @@ import { PreviewNotice } from '@/components/PreviewNotice';
 import { SectionNavigation } from '@/components/SectionNavigation';
 import { sampleLegalDocuments } from '@/lib/content';
 import { aboutNavItems } from '@/lib/navigation';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'Legalitas', description: 'Dokumen legalitas Yayasan Ruang Sejahtera.' };
+export const metadata: Metadata = createPageMetadata({ title: 'Legalitas', description: 'Dokumen legalitas Yayasan Ruang Sejahtera.', path: '/tentang-kami/legalitas' });
 
 export default function LegalityPage() {
   return (
