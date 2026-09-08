@@ -28,6 +28,7 @@ MFA may still be offered as an optional identity-provider feature in the future,
 - Clerk webhooks are signature-verified before synchronizing a profile or writing session lifecycle events.
 - A signed-in identity missing from PostgreSQL is synchronized server-side from the verified Clerk backend user record.
 - Login, logout, and administrative session revocation are written to the application audit trail from Clerk session events. Duplicate webhook deliveries are ignored, and a session event received before its user record exists returns a retryable server error rather than losing the audit entry.
+- When a Clerk identity is deleted, the application records a terminal deletion audit before unlinking the external identity. Only a SHA-256 hash of the provider identity ID is retained in audit metadata, so later terminal session events can be recognized without retaining the raw Clerk identifier.
 
 ## Role invariants
 
@@ -52,11 +53,33 @@ Authorization is enforced server-side. Hiding a menu is not treated as a securit
 - Members attempting to open the control plane are redirected to their account area.
 - Suspended, revoked, deleted, or inactive profiles cannot obtain an application session.
 
+## Role-aware redirect
+
+Generic sign-in and sign-up completion use `/auth/redirect` as the server-side resolver:
+
+- Super Admin → `/admin`
+- Core Manager → `/admin`
+- Member → `/akun`
+
+A protected page may still supply a safe internal `redirect_url`, but external and protocol-relative destinations are rejected.
+
 ## Membership states
 
 `registered → email_verified → data_review → exam_eligible → exam_completed → passed/failed → admin_approved → active`
 
 `suspended` and `revoked` remain access-blocking states.
+
+## Official program catalog
+
+Phase 1 recognizes exactly five operational programs:
+
+1. Berbagi Rasa
+2. REHAT (Renovasi Rumah Rakyat)
+3. Berbagi Air Bersih
+4. Berbagi Masa Depan
+5. Bantuan Kesehatan
+
+The program application workflow validates against the active PostgreSQL program catalog. The public preview catalog, navigation, search index, application form, reviewer labels, and database seed use the same five-program contract. CI fails if the retired `merakyat` slug returns to the public catalog or one of the five official slugs is missing from the database seed.
 
 ## Content workflow
 
