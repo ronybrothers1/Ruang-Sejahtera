@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { AuthShell } from '@/components/auth/AuthShell';
 import { getCurrentUserSession } from '@/lib/auth/admin-session';
 import { getIdentityStatus } from '@/lib/auth/config';
+import { canAccessControlPlane } from '@/lib/auth/permissions';
 
 export const metadata: Metadata = {
   title: 'Daftar Anggota',
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 export default async function SignUpPage() {
   const status = getIdentityStatus();
   const session = await getCurrentUserSession();
-  if (session) redirect('/akun');
+  if (session) redirect(canAccessControlPlane(session.role) ? '/admin' : '/akun');
 
   return (
     <AuthShell
@@ -27,7 +28,7 @@ export default async function SignUpPage() {
           routing="path"
           path="/daftar"
           signInUrl="/masuk"
-          forceRedirectUrl="/akun"
+          forceRedirectUrl="/auth/redirect"
           appearance={{ variables: { colorPrimary: '#d71920', borderRadius: '0.9rem' } }}
         />
       ) : (
