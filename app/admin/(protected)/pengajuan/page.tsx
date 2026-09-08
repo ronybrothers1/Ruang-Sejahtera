@@ -19,9 +19,7 @@ const detailLabels: Record<string, string> = {
   familyCount: 'Jumlah keluarga',
   condition: 'Kondisi ekonomi',
   needDescription: 'Bantuan yang diharapkan',
-  businessType: 'Jenis usaha',
-  businessDuration: 'Lama usaha',
-  currentCondition: 'Kondisi usaha',
+  currentCondition: 'Kondisi saat ini',
   assistanceNeed: 'Kebutuhan bantuan',
   houseCondition: 'Kondisi rumah',
   occupants: 'Penghuni rumah',
@@ -32,6 +30,8 @@ const detailLabels: Record<string, string> = {
   schoolLevel: 'Jenjang pendidikan',
   studentCount: 'Jumlah anak',
   educationNeed: 'Kebutuhan pendidikan',
+  healthNeed: 'Kebutuhan kesehatan',
+  careLocation: 'Fasilitas kesehatan',
 };
 
 function dateLabel(value: string) {
